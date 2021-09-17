@@ -55,3 +55,5 @@ def center(image: str) -> center:
             return ctr
     except TypeError:
         return None
+    except NameError:
+        return None
