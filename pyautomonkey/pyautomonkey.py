@@ -5,7 +5,7 @@ from time import sleep
 from sys import exit as finish
 
 from os import remove
-from os.path import is_file
+from os.path import isfile
 from re import findall
 
 from clipboard import paste
