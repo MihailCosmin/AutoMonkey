@@ -5,6 +5,7 @@ from time import sleep
 from sys import exit as finish
 
 from os import remove
+from os import is_file
 from re import findall
 
 from clipboard import paste
@@ -49,8 +50,37 @@ def centrator(image: str) -> center:
 
     try:
         if image is not None:
-            if ".jpg" in image:
+            if image.lower().endswith(('.png',
+                                       '.jpg',
+                                       '.jpeg',
+                                       '.tiff',
+                                       '.tif',
+                                       '.bmp',
+                                       '.gif')):
                 located_image = locateOnScreen(image, confidence=0.9)
+            elif is_file(f"{image}.png"):
+                image = f"{image}.png"
+                located_image = locateOnScreen(image, confidence=0.9)
+            elif is_file(f"{image}.jpg"):
+                image = f"{image}.jpg"
+                located_image = locateOnScreen(image, confidence=0.9)
+            elif is_file(f"{image}.jpeg"):
+                image = f"{image}.jpeg"
+                located_image = locateOnScreen(image, confidence=0.9)
+            elif is_file(f"{image}.tiff"):
+                image = f"{image}.tiff"
+                located_image = locateOnScreen(image, confidence=0.9)
+            elif is_file(f"{image}.tif"):
+                image = f"{image}.tif"
+                located_image = locateOnScreen(image, confidence=0.9)
+            elif is_file(f"{image}.bmp"):
+                image = f"{image}.bmp"
+                located_image = locateOnScreen(image, confidence=0.9)
+            elif is_file(f"{image}.gif"):
+                image = f"{image}.gif"
+                located_image = locateOnScreen(image, confidence=0.9)
+            else:
+                return None
             ctr = center(located_image)
             return ctr
     except TypeError:
