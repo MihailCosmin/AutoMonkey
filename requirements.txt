@@ -1,0 +1,12 @@
+pyautogui
+pytesseract
+pandas
+numpy
+keyboard
+clipboard
+opencv-python
+Pillow
+tqdm
+colorama
+docx
+pymupdf
