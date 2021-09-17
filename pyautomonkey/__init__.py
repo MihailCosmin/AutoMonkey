@@ -1,1 +1,1 @@
-from pyautomonkey import *
+from .pyautomonkey import *
