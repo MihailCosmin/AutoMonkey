@@ -40,12 +40,12 @@ from cv2 import cv2
 from cv2 import imread
 from numpy import where
 
-def centrator(image: str) -> center:
+def get_center(image: str) -> point:
     """[summary]
     Args:
         image ([str]): [image to be located]
     Returns:
-        [center]: [Returns the center of the located image or None]
+        [point]: [Returns the center of the located image as a point or None]
     """
 
     try:
