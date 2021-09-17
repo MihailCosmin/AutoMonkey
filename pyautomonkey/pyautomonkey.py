@@ -58,25 +58,25 @@ def centrator(image: str) -> center:
                                        '.bmp',
                                        '.gif')):
                 located_image = locateOnScreen(image, confidence=0.9)
-            elif is_file(f"{image}.png"):
+            elif isfile(f"{image}.png"):
                 image = f"{image}.png"
                 located_image = locateOnScreen(image, confidence=0.9)
-            elif is_file(f"{image}.jpg"):
+            elif isfile(f"{image}.jpg"):
                 image = f"{image}.jpg"
                 located_image = locateOnScreen(image, confidence=0.9)
-            elif is_file(f"{image}.jpeg"):
+            elif isfile(f"{image}.jpeg"):
                 image = f"{image}.jpeg"
                 located_image = locateOnScreen(image, confidence=0.9)
-            elif is_file(f"{image}.tiff"):
+            elif isfile(f"{image}.tiff"):
                 image = f"{image}.tiff"
                 located_image = locateOnScreen(image, confidence=0.9)
-            elif is_file(f"{image}.tif"):
+            elif isfile(f"{image}.tif"):
                 image = f"{image}.tif"
                 located_image = locateOnScreen(image, confidence=0.9)
-            elif is_file(f"{image}.bmp"):
+            elif isfile(f"{image}.bmp"):
                 image = f"{image}.bmp"
                 located_image = locateOnScreen(image, confidence=0.9)
-            elif is_file(f"{image}.gif"):
+            elif isfile(f"{image}.gif"):
                 image = f"{image}.gif"
                 located_image = locateOnScreen(image, confidence=0.9)
             else:
