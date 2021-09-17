@@ -42,16 +42,16 @@ from numpy import where
 def centrator(image: str) -> center:
     """[summary]
     Args:
-        image ([str]): [located image]
+        image ([str]): [image to be located]
     Returns:
         [center]: [Returns the center of the located image or None]
     """
 
     try:
         if image is not None:
-            if ".jpg" in located_image:
-                image = locateOnScreen(located_image, confidence=0.9)
-            ctr = center(image)
+            if ".jpg" in image:
+                located_image = locateOnScreen(image, confidence=0.9)
+            ctr = center(located_image)
             return ctr
     except TypeError:
         return None
