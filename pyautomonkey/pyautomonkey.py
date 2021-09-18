@@ -208,3 +208,80 @@ def track_mouse():
             sleep(1)
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
+
+
+def get_img_height(image_file):
+    """Function that returns the height of an image.
+    Args:
+        image_file (path): path to an image file, including filename.
+    Returns:
+        int: Height of the image
+    """
+
+    image_file = add_ext(image_file)
+
+    img = Image.open(image_file)
+    _, height = img.size
+
+    return height
+
+
+def get_img_width(image_file):
+    """Function that returns the width of an image.
+    Args:
+        image_file (path): path to an image file, including filename.
+    Returns:
+        int: Width of the image
+    """
+
+    image_file = add_ext(image_file)
+
+    img = Image.open(image_file)
+    width, _ = img.size
+
+    return width
+
+
+def get_text_from_region(region) -> str:
+    """Makes a screenshot of a screen region and performs OCR on it
+    Args:
+        region (PyAutoGUI region): Left, Top, Width, Height
+    Returns:
+        str: The text from the region
+    """
+
+    snap = screenshot(region=region)
+    snap.save("temp.jpg")
+    sleep(1)
+    img = imread('temp.jpg')
+
+    # Adding custom options
+    custom_config = r'--oem 3 --psm 6'
+    text = image_to_string(img, config=custom_config)
+    remove('temp.jpg')
+    return text
+
+
+def count_images(needle: str, haystack: str) -> int:
+    """Counts how many times an image appears in a bigger image
+
+    Args:
+        needle (str): image filename to be counted
+        haystack (str): filename of image in which to search
+
+    Returns:
+        int: Count of occurrences of needle in the haystack
+    """
+
+    needle = add_ext(needle)
+    haystack = add_ext(haystack)
+
+    hay = cv2.imread(haystack)
+    need = cv2.imread(needle)
+
+    res = cv2.matchTemplate(hay, need, cv2.TM_CCOEFF_NORMED)
+
+    threshold = .9  # 9 is more precise. 8 gives some false positives
+    loc = where(res >= threshold)
+
+    return len(loc[0])
