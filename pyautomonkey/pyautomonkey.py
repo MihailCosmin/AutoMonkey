@@ -40,7 +40,7 @@ from cv2 import cv2
 from cv2 import imread
 from numpy import where
 
-def get_center(image: str) -> point:
+def get_center(image: str):
     """[summary]
     Args:
         image ([str]): [image to be located]
@@ -48,41 +48,16 @@ def get_center(image: str) -> point:
         [point]: [Returns the center of the located image as a point or None]
     """
 
+    img_ext = (".png", ".jpg", ".jpeg", ".tiff", ".tif",
+               ".bmp", ".gif", ".pdf", ".webp")
+
     try:
-        if image is not None:
-            if image.lower().endswith(('.png',
-                                       '.jpg',
-                                       '.jpeg',
-                                       '.tiff',
-                                       '.tif',
-                                       '.bmp',
-                                       '.gif')):
-                located_image = locateOnScreen(image, confidence=0.9)
-            elif isfile(f"{image}.png"):
-                image = f"{image}.png"
-                located_image = locateOnScreen(image, confidence=0.9)
-            elif isfile(f"{image}.jpg"):
-                image = f"{image}.jpg"
-                located_image = locateOnScreen(image, confidence=0.9)
-            elif isfile(f"{image}.jpeg"):
-                image = f"{image}.jpeg"
-                located_image = locateOnScreen(image, confidence=0.9)
-            elif isfile(f"{image}.tiff"):
-                image = f"{image}.tiff"
-                located_image = locateOnScreen(image, confidence=0.9)
-            elif isfile(f"{image}.tif"):
-                image = f"{image}.tif"
-                located_image = locateOnScreen(image, confidence=0.9)
-            elif isfile(f"{image}.bmp"):
-                image = f"{image}.bmp"
-                located_image = locateOnScreen(image, confidence=0.9)
-            elif isfile(f"{image}.gif"):
-                image = f"{image}.gif"
-                located_image = locateOnScreen(image, confidence=0.9)
-            else:
-                return None
-            ctr = center(located_image)
-            return ctr
+
+        for ext in img_ext:
+            if isfile(f"{image}{ext}"):
+                image = f"{image}{ext}"
+
+        return center(locateOnScreen(image, confidence=0.9))
     except TypeError:
         return None
     except NameError:
