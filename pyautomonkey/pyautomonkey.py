@@ -25,6 +25,7 @@ from pyautogui import locate
 from pyautogui import moveTo
 from pyautogui import mouseUp
 from pyautogui import confirm
+from pyautogui import position
 from pyautogui import mouseDown
 from pyautogui import screenshot
 from pyautogui import rightClick
@@ -79,6 +80,7 @@ def is_on_screen(what: str) -> bool:
 
     return found
 
+
 def get_center(image: str):
     """Find the center of an image on screen
     Args:
@@ -95,3 +97,114 @@ def get_center(image: str):
         return None
     except NameError:
         return None
+
+
+def vertical_point(point, _):
+    """Returns a PyAutoGUI point that is offset vertically
+    Args:
+        point (PyAutoGUI point): [A Tuple with an X and a Y]
+        _ (int): The offset. Can be positive or negative.
+                Positive = Below. Negative = Above
+    Returns:
+        [PyAutoGUI point]: The PyAutoGUI point offset vertically.
+    """
+    return point[0], point[1] + _
+
+
+def horizontal_point(point, _):
+    """Returns a PyAutoGUI point that is offset horizontally
+    Args:
+        point (PyAutoGUI point): [A Tuple with an X and a Y]
+        _ (int): The offset. Can be positive or negative.
+                Positive = Right. Negative = Left
+    Returns:
+        [PyAutoGUI point]: The PyAutoGUI point offset horizontally.
+    """
+    return point[0] + _, point[1]
+
+
+def diagonal_point(point, x_point, y_point):
+    """Returns a PyAutoGUI point that is offset diagonally
+    Args:
+        point (PyAutoGUI point): [A Tuple with an X and a Y]
+        x_point (int): The offset. Can be positive or negative.
+                Positive = Below. Negative = Above
+        y_point (int): The offset. Can be positive or negative.
+                Positive = Right. Negative = Left
+    Returns:
+        [PyAutoGUI point]: The PyAutoGUI point offset diagonally.
+    """
+    return point[0] + x_point, point[1] + y_point
+
+
+def clear_clipboard():
+    """Try to clear the clipboard by copying an empty string
+    Might not work in all cases, for example: in environments
+    with shared/multiple clipboards.
+    """
+    for _ in range(0, 10):
+        clipboardcopy("")
+
+
+def copy_from_to(point1, point2):
+    """This function will copy text from one point to another.
+    Args:
+        point1 (PyAutoGUI point): PyAutoGUI start point (from)
+        point2 (PyAutoGUI point): PyAutoGUI end point (to)
+    """
+
+    mouseDown(point1)
+    moveTo(point2)
+    mouseUp()
+    clear_clipboard()
+
+    while paste() == "":
+        keys("ctrl+c")
+
+    copied = paste()
+    clear_clipboard()
+    return copied
+
+
+def copy_from(point):
+    """This function will copy text from one point to the end of line.
+    This function uses select all functionality (ctrl+a) and as such
+    it should be used only when you are sure ctrl+a will select only
+    the content you want.
+    Args:
+        point (PyAutoGUI point): PyAutoGUI start point (from)
+    Returns:
+        [string]: The copied text.
+    """
+
+    clear_clipboard()
+    click(point)
+    sleep(0.2)
+    keys("ctrl+a")
+    sleep(0.2)
+
+    while paste() == "":
+        keys("ctrl+c")
+
+    copied = paste()
+    clear_clipboard()
+
+    return copied
+
+
+def track_mouse():
+    """Tracks the mouse position and when the mouse stops moving
+    for 1 second it prints the position in the terminal
+    """
+
+    cur_pos = ""
+    print("Tracking mouse position started")
+    print("Press ctrl+c anytime to end tracking")
+    try:
+        while True:
+            if cur_pos != position():
+                cur_pos = position()
+                print(position())
+            sleep(1)
+    except KeyboardInterrupt:
+        print("Tracking mouse position stopped")
