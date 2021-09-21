@@ -390,6 +390,7 @@ def chain(step_list: list, debug=False):
                     if stop == "Stop":
                         finish()
 
+            target = add_ext(target)
             target = locateOnScreen(target, confidence=confidence)
             target = get_center(target)
 
