@@ -378,6 +378,7 @@ def chain(step_list: list, debug=False):
                        ]
         if action in img_actions:
             slept = 0
+            target = add_ext(target)
             while not is_on_screen(target) and not skip:
                 sleep(0.1)
                 slept += 0.1
@@ -390,7 +391,6 @@ def chain(step_list: list, debug=False):
                     if stop == "Stop":
                         finish()
 
-            target = add_ext(target)
             target = locateOnScreen(target, confidence=confidence)
             target = get_center(target)
 
