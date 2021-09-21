@@ -42,6 +42,20 @@ from cv2 import imread
 from numpy import where
 
 
+class AutoMonkeyNoAction(Exception):
+    """
+    AutoMonkey chain function will raise this Exception if no action exists
+    in an automation step of the chain sequence.
+    """
+
+
+class AutoMonkeyNoTarget(Exception):
+    """
+    AutoMonkey chain function will raise this Exception if no target exists
+    in an automation step of the chain sequence.
+    """
+
+
 def add_ext(filename: str) -> str:
     """Adds extension to an image filename if missing
 
@@ -262,7 +276,7 @@ def get_text_from_region(region) -> str:
     return text
 
 
-def count_images(needle: str, haystack: str) -> int:
+def get_subimg_count(needle: str, haystack: str) -> int:
     """Counts how many times an image appears in a bigger image
 
     Args:
@@ -285,3 +299,57 @@ def count_images(needle: str, haystack: str) -> int:
     loc = where(res >= threshold)
 
     return len(loc[0])
+
+def chain(step_list: list, debug=False):
+    """Chain together a series of automation steps
+
+    Args:
+        step_list (list): List of automation steps.
+        Each automation step should be a dictionary with below possible keys:
+            action - mandatory. Action to perform. Ex: write, click, doubleClick, etc.
+            target - mandatory. Target of the action. Can be text to write or an image to click on.
+            wait - optional. Seconds to wait after performing the action. Defaults to zero.
+            confidence - optional. Used only for actions on images. Confidence on locating the image.
+            Defaults to 0.9
+
+        debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
+    """
+    action = ""
+    target = ""
+    wait = 0
+    confidence = 0.9
+    v_offset = 0
+    h_offset = 0
+    skip = False
+
+    for step in step_list:
+        if "skip" in step:
+            skip = bool(step["skip"])
+
+        if "action" in step:
+            action = step["action"]
+        else:
+            print(f"No action mentioned for this step!\n{step}")
+            if skip:
+                continue
+            raise AutoMonkeyNoAction
+
+        if "target" in step:
+            target = step["target"]
+        else:
+            print(f"No target mentioned for this step!\n{step}")
+            if skip:
+                continue
+            raise AutoMonkeyNoTarget
+
+        if "wait" in step:
+            wait = int(step["wait"])
+
+        if "confidence" in step:
+            confidence = float(step["confidence"])
+
+        if "v_offset" in step:
+            v_offset = step["v_offset"]
+
+        if "h_offset" in step:
+            h_offset = step["h_offset"]

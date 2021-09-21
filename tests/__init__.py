@@ -1,1 +1,1 @@
-"""Unit test package for pyautomonkey."""
+"""Unit test package for automonkey."""

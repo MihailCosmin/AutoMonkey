@@ -1,13 +1,13 @@
-"""Console script for pyautomonkey."""
+"""Console script for automonkey."""
 import sys
 import click
 
 
 @click.command()
 def main(args=None):
-    """Console script for pyautomonkey."""
+    """Console script for automonkey."""
     click.echo("Replace this message by putting your code into "
-               "pyautomonkey.cli.main")
+               "automonkey.cli.main")
     click.echo("See click documentation at https://click.palletsprojects.com/")
     return 0
 

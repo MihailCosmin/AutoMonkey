@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=pyautomonkey
+set SPHINXPROJ=automonkey
 
 if "%1" == "" goto help
 

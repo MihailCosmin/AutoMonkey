@@ -1,4 +1,4 @@
-Welcome to PyAutoMonkey's documentation!
+Welcome to automonkey's documentation!
 ======================================
 
 .. toctree::

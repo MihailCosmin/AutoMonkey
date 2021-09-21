@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use PyAutoMonkey in a project::
+To use automonkey in a project::
 
-    import pyautomonkey
+    import automonkey
