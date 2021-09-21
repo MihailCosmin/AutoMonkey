@@ -379,6 +379,7 @@ def chain(step_list: list, debug=False):
         if action in img_actions:
             slept = 0
             target = add_ext(target)
+            print(target)
             while not is_on_screen(target) and not skip:
                 sleep(0.1)
                 slept += 0.1
@@ -392,8 +393,9 @@ def chain(step_list: list, debug=False):
                         finish()
 
             target = locateOnScreen(target, confidence=confidence)
+            print(target)
             target = get_center(target)
-
+            print(target)
             globals()[action](target)
 
             '''if action == 'click':
