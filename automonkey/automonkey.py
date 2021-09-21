@@ -104,11 +104,9 @@ def get_center(image: str):
     image = add_ext(image)
 
     try:
-        for ext in IMG_EXT:
-            if ext in image:
-                return center(locateOnScreen(image, confidence=0.9))
-            print(type(image))
-            return center(image)
+        if str(type(image)) != '<class \'pyscreeze.Box\'>':
+            return center(locateOnScreen(image, confidence=0.9))
+        return center(image)
     except TypeError:
         return None
     except NameError:
