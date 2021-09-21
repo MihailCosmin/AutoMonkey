@@ -41,9 +41,28 @@ from cv2 import imread
 from numpy import where
 
 # Image Extensions supported
-# TODO - Check if all work
-IMG_EXT = (".png", ".jpg", ".jpeg", ".tiff", ".tif",
-           ".bmp", ".gif", ".pdf", ".webp")
+# TODO: Check if all work
+IMG_EXT = (
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".tiff",
+    ".tif",
+    ".bmp",
+    ".gif",
+    ".pdf",
+    ".webp",
+    ".PNG",
+    ".JPG",
+    ".JPEG",
+    ".TIFF",
+    ".TIF",
+    ".BMP",
+    ".GIF",
+    ".PDF",
+    ".WEBP"
+)
+
 
 class AutoMonkeyNoAction(Exception):
     """
@@ -316,7 +335,7 @@ def chain(step_list: list, debug=False):
             chain([
                 {"action": "write", "target": "this string", "wait": 0.5},
                 {"action": "write", "target": "this other string"},
-                {"action": "click", "target": "C:\Desktop\image.jpg", "wait": 1.5, "confidence": 0.7}
+                {"action": "click", "target": "C:\\Desktop\\image.jpg", "wait": 1.5, "confidence": 0.7}
             ], debug=True)
 
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
@@ -327,7 +346,7 @@ def chain(step_list: list, debug=False):
     confidence = 0.9
     v_offset = 0
     h_offset = 0
-    offset = ""
+    offset = ""  # TODO: frontClick or East; belowClick or South; aboveClick or North 
     skip = False
 
     for step in step_list:
@@ -380,7 +399,7 @@ def chain(step_list: list, debug=False):
         if action in img_actions:
             slept = 0
             target = add_ext(target)
-            print(target)
+
             while not is_on_screen(target) and not skip:
                 sleep(0.1)
                 slept += 0.1
@@ -394,10 +413,8 @@ def chain(step_list: list, debug=False):
                         finish()
 
             target = locateOnScreen(target, confidence=confidence)
-            print(target)
             target = get_center(target)
-            print(target)
+
             globals()[action](target)
 
-            '''if action == 'click':
-                click(target)'''
+        sleep(wait)
