@@ -40,6 +40,10 @@ from cv2 import cv2
 from cv2 import imread
 from numpy import where
 
+# Image Extensions supported
+# TODO - Check if all work
+IMG_EXT = (".png", ".jpg", ".jpeg", ".tiff", ".tif",
+           ".bmp", ".gif", ".pdf", ".webp")
 
 class AutoMonkeyNoAction(Exception):
     """
@@ -65,12 +69,7 @@ def add_ext(filename: str) -> str:
         str: image filename with extension if was missing
     """
 
-    # Image Extensions supported
-    # TODO - Check if all work
-    img_ext = (".png", ".jpg", ".jpeg", ".tiff", ".tif",
-               ".bmp", ".gif", ".pdf", ".webp")
-
-    for ext in img_ext:
+    for ext in IMG_EXT:
         if isfile(f"{filename}{ext}"):
             filename = f"{filename}{ext}"
 
@@ -105,7 +104,11 @@ def get_center(image: str):
     image = add_ext(image)
 
     try:
-        return center(locateOnScreen(image, confidence=0.9))
+        for ext in IMG_EXT:
+            if ext in image:
+                return center(locateOnScreen(image, confidence=0.9))
+            print(type(image))
+            return center(image)
     except TypeError:
         return None
     except NameError:
