@@ -353,3 +353,6 @@ def chain(step_list: list, debug=False):
 
         if "h_offset" in step:
             h_offset = step["h_offset"]
+
+        if debug:
+            print(step)
