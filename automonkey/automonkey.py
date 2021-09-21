@@ -6,7 +6,6 @@ from sys import exit as finish
 
 from os import remove
 from os.path import isfile
-from re import findall
 
 from clipboard import paste
 from clipboard import copy as clipboardcopy
@@ -312,6 +311,13 @@ def chain(step_list: list, debug=False):
             confidence - optional. Used only for actions on images. Confidence on locating the image.
             Defaults to 0.9
 
+        Example of step_list:
+            chain([
+                {"action": "write", "target": "this string", "wait": 0.5},
+                {"action": "write", "target": "this other string"},
+                {"action": "click", "target": "C:\Desktop\image.jpg", "wait": 1.5, "confidence": 0.7}
+            ], debug=True)
+
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
     action = ""
@@ -320,6 +326,7 @@ def chain(step_list: list, debug=False):
     confidence = 0.9
     v_offset = 0
     h_offset = 0
+    offset = ""
     skip = False
 
     for step in step_list:
@@ -354,5 +361,39 @@ def chain(step_list: list, debug=False):
         if "h_offset" in step:
             h_offset = step["h_offset"]
 
+        if "offset" in step:
+            offset = step["offset"]
+
         if debug:
             print(step)
+
+        # Wait until next target comes into view
+        # If this works correctly there should be no need for
+        # custom specified wait times
+        img_actions = ["click",
+                       "leftClick",
+                       "rightClick",
+                       "doubleClick",
+                       "tripleClick"
+                       ]
+        if action in img_actions:
+            slept = 0
+            while not is_on_screen(target) and not skip:
+                sleep(0.1)
+                slept += 0.1
+                if int(slept) == 30:  # For production make it 300
+                    stop = confirm("Next target was not found for 5 minutes.\
+                                    Would you like to continue or stop?",
+                                   "Continue?",
+                                   ["Continue", "Stop"]
+                                   )
+                    if stop == "Stop":
+                        finish()
+
+            target = locateOnScreen(target, confidence=confidence)
+            target = get_center(target)
+
+            globals()[action](target)
+
+            '''if action == 'click':
+                click(target)'''
