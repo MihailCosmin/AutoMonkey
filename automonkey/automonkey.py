@@ -64,6 +64,13 @@ IMG_EXT = (
 )
 
 
+IMG_ACTIONS = ["click",
+                "leftClick",
+                "rightClick",
+                "doubleClick",
+                "tripleClick"
+                ]
+
 class AutoMonkeyNoAction(Exception):
     """
     AutoMonkey chain function will raise this Exception if no action exists
@@ -319,6 +326,91 @@ def get_subimg_count(needle: str, haystack: str) -> int:
 
     return len(loc[0])
 
+def northClick(point, img: str):
+    """Click above (to the north) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    click(horizontal_point(point, get_img_height(img)))
+
+
+def northRightClick(point, img: str):
+    """Click above (to the north) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    rightClick(horizontal_point(point, get_img_height(img)))
+
+
+def northDoubleClick(point, img: str):
+    """DoubleClick above (to the north) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    doubleClick(horizontal_point(point, get_img_height(img)))
+
+def northTripleClick(point, img: str):
+    """TripleClick above (to the north) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    tripleClick(horizontal_point(point, get_img_height(img)))
+
+
+def southClick(point, img: str):
+    """Click below (to the south) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    click(horizontal_point(point, 0 - get_img_height(img)))
+
+
+def southRightClick(point, img: str):
+    """Click below (to the south) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    rightClick(horizontal_point(point, 0 - get_img_height(img)))
+
+
+def southDoubleClick(point, img: str):
+    """DoubleClick below (to the south) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    doubleClick(horizontal_point(point, 0 - get_img_height(img)))
+
+def southTripleClick(point, img: str):
+    """TripleClick below (to the south) with an offset
+    equal to the height of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    tripleClick(horizontal_point(point, 0 - get_img_height(img)))
+
 
 def chain(step_list: list, debug=False):
     """Chain together a series of automation steps
@@ -343,47 +435,16 @@ def chain(step_list: list, debug=False):
     """
     action = ""
     target = ""
-    wait = 0
-    confidence = 0.9
-    v_offset = 0
-    h_offset = 0
-    offset = ""  # TODO: frontClick or East; belowClick or South; aboveClick or North 
-    skip = False
 
     for step in step_list:
-        if "skip" in step:
-            skip = bool(step["skip"])
-
-        if "action" in step:
-            action = step["action"]
-        else:
-            print(f"No action mentioned for this step!\n{step}")
-            if skip:
-                continue
-            raise AutoMonkeyNoAction
-
-        if "target" in step:
-            target = step["target"]
-        else:
-            print(f"No target mentioned for this step!\n{step}")
-            if skip:
-                continue
-            raise AutoMonkeyNoTarget
-
-        if "wait" in step:
-            wait = int(step["wait"])
-
-        if "confidence" in step:
-            confidence = float(step["confidence"])
-
-        if "v_offset" in step:
-            v_offset = step["v_offset"]
-
-        if "h_offset" in step:
-            h_offset = step["h_offset"]
-
-        if "offset" in step:
-            offset = step["offset"]
+        skip = bool(step["skip"]) if "skip" in step else False
+        action = str(step["action"]) if "action" in step else ""
+        target = str(step["target"]) if "target" in step else ""
+        wait = int(step["wait"]) if "wait" in step else 0
+        confidence = float(step["confidence"]) if "confidence" in step else 0.9
+        v_offset = float(step["v_offset"]) if "v_offset" in step else 0
+        h_offset = float(step["h_offset"]) if "h_offset" in step else 0
+        offset = str(step["offset"]) if "offset" in step else ""
 
         if debug:
             print(step)
@@ -391,13 +452,8 @@ def chain(step_list: list, debug=False):
         # Wait until next target comes into view
         # If this works correctly there should be no need for
         # custom specified wait times
-        img_actions = ["click",
-                       "leftClick",
-                       "rightClick",
-                       "doubleClick",
-                       "tripleClick"
-                       ]
-        if action in img_actions:
+
+        if action in IMG_ACTIONS:
             slept = 0
             target = add_ext(target)
 
