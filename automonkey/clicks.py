@@ -5,9 +5,6 @@ from pyautogui import rightClick
 from pyautogui import doubleClick
 from pyautogui import tripleClick
 
-import automonkey.get_img_height as get_img_height
-import automonkey.horizontal_point as horizontal_point
-
 
 def northClick(point, img: str):
     """Click above (to the north) with an offset
