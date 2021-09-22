@@ -334,7 +334,7 @@ def northClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    click(horizontal_point(point, get_img_height(img)))
+    click(vertical_point(point, get_img_height(img)))
 
 
 def northRightClick(point, img: str):
@@ -345,7 +345,7 @@ def northRightClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    rightClick(horizontal_point(point, get_img_height(img)))
+    rightClick(vertical_point(point, get_img_height(img)))
 
 
 def northDoubleClick(point, img: str):
@@ -356,7 +356,7 @@ def northDoubleClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    doubleClick(horizontal_point(point, get_img_height(img)))
+    doubleClick(vertical_point(point, get_img_height(img)))
 
 def northTripleClick(point, img: str):
     """TripleClick above (to the north) with an offset
@@ -366,7 +366,7 @@ def northTripleClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    tripleClick(horizontal_point(point, get_img_height(img)))
+    tripleClick(vertical_point(point, get_img_height(img)))
 
 
 def southClick(point, img: str):
@@ -377,7 +377,7 @@ def southClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    click(horizontal_point(point, 0 - get_img_height(img)))
+    click(vertical_point(point, 0 - get_img_height(img)))
 
 
 def southRightClick(point, img: str):
@@ -388,7 +388,7 @@ def southRightClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    rightClick(horizontal_point(point, 0 - get_img_height(img)))
+    rightClick(vertical_point(point, 0 - get_img_height(img)))
 
 
 def southDoubleClick(point, img: str):
@@ -399,7 +399,7 @@ def southDoubleClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    doubleClick(horizontal_point(point, 0 - get_img_height(img)))
+    doubleClick(vertical_point(point, 0 - get_img_height(img)))
 
 def southTripleClick(point, img: str):
     """TripleClick below (to the south) with an offset
@@ -409,7 +409,93 @@ def southTripleClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    tripleClick(horizontal_point(point, 0 - get_img_height(img)))
+    tripleClick(vertical_point(point, 0 - get_img_height(img)))
+
+
+def eastClick(point, img: str):
+    """Click right (to the east) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    click(horizontal_point(point, get_img_width(img)))
+
+
+def eastRightClick(point, img: str):
+    """Click right (to the east) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    rightClick(horizontal_point(point, get_img_width(img)))
+
+
+def eastDoubleClick(point, img: str):
+    """DoubleClick right (to the east) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    doubleClick(horizontal_point(point, get_img_width(img)))
+
+def eastTripleClick(point, img: str):
+    """TripleClick right (to the east) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    tripleClick(horizontal_point(point, get_img_width(img)))
+
+
+def westClick(point, img: str):
+    """Click left (to the west) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    click(horizontal_point(point, 0 - get_img_width(img)))
+
+
+def westRightClick(point, img: str):
+    """Click left (to the west) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    rightClick(horizontal_point(point, 0 - get_img_width(img)))
+
+
+def westDoubleClick(point, img: str):
+    """DoubleClick left (to the west) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    doubleClick(horizontal_point(point, 0 - get_img_width(img)))
+
+def westTripleClick(point, img: str):
+    """TripleClick left (to the west) with an offset
+    equal to the width of the image given.
+
+    Args:
+        point ([type]): center point of the image
+        img (str): image location + filename
+    """
+    tripleClick(horizontal_point(point, 0 - get_img_width(img)))
 
 
 def chain(step_list: list, debug=False):
