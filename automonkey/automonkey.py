@@ -65,11 +65,11 @@ IMG_EXT = (
 
 
 IMG_ACTIONS = ["click",
-                "leftClick",
-                "rightClick",
-                "doubleClick",
-                "tripleClick"
-                ]
+               "leftClick",
+               "rightClick",
+               "doubleClick",
+               "tripleClick"
+               ]
 
 class AutoMonkeyNoAction(Exception):
     """
@@ -557,6 +557,7 @@ def chain(step_list: list, debug=False):
 
             bullseye = locateOnScreen(target, confidence=confidence)
             bullseye = get_center(bullseye)
+            bullseye = diagonal_point(bullseye, h_offset, v_offset)
             if offset != "":
                 action = offset + action[0:1].upper() + action[1:]
                 globals()[action](bullseye, target)
