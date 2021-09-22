@@ -40,8 +40,6 @@ from cv2 import cv2
 from cv2 import imread
 from numpy import where
 
-from .clicks import *
-
 # Image Extensions supported
 # TODO: Check if all work
 IMG_EXT = (

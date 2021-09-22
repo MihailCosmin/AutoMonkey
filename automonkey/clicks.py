@@ -5,8 +5,8 @@ from pyautogui import rightClick
 from pyautogui import doubleClick
 from pyautogui import tripleClick
 
-from .automonkey import get_img_height
-from .automonkey import horizontal_point
+import automonkey.get_img_height as get_img_height
+import automonkey.horizontal_point as horizontal_point
 
 
 def northClick(point, img: str):
