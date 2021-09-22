@@ -40,6 +40,8 @@ from cv2 import cv2
 from cv2 import imread
 from numpy import where
 
+from .clicks import *
+
 # Image Extensions supported
 # TODO: Check if all work
 IMG_EXT = (
@@ -319,6 +321,7 @@ def get_subimg_count(needle: str, haystack: str) -> int:
 
     return len(loc[0])
 
+
 def chain(step_list: list, debug=False):
     """Chain together a series of automation steps
 
@@ -412,9 +415,12 @@ def chain(step_list: list, debug=False):
                     if stop == "Stop":
                         finish()
 
-            target = locateOnScreen(target, confidence=confidence)
-            target = get_center(target)
-
-            globals()[action](target)
+            bullseye = locateOnScreen(target, confidence=confidence)
+            bullseye = get_center(bullseye)
+            if offset != "":
+                action = offset + action[0:1].upper() + action[1:]
+                globals()[action](bullseye, target)
+            else:
+                globals()[action](bullseye)
 
         sleep(wait)
