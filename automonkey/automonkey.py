@@ -16,8 +16,8 @@ except ImportError:
     import Image
 
 from pyautogui import alert
-from pyautogui import click
-from pyautogui import write
+from pyautogui import click as click_
+from pyautogui import write as write_
 from pyautogui import scroll
 from pyautogui import center
 from pyautogui import locate
@@ -218,7 +218,7 @@ def copy_from(point):
     """
 
     clear_clipboard()
-    click(point)
+    click_(point)
     sleep(0.2)
     keys("ctrl+a")
     sleep(0.2)
@@ -334,7 +334,7 @@ def northClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    click(vertical_point(point, get_img_height(img)))
+    click_(vertical_point(point, get_img_height(img)))
 
 
 def northRightClick(point, img: str):
@@ -377,7 +377,7 @@ def southClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    click(vertical_point(point, 0 - get_img_height(img)))
+    click_(vertical_point(point, 0 - get_img_height(img)))
 
 
 def southRightClick(point, img: str):
@@ -420,7 +420,7 @@ def eastClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    click(horizontal_point(point, get_img_width(img)))
+    click_(horizontal_point(point, get_img_width(img)))
 
 
 def eastRightClick(point, img: str):
@@ -463,7 +463,7 @@ def westClick(point, img: str):
         point ([type]): center point of the image
         img (str): image location + filename
     """
-    click(horizontal_point(point, 0 - get_img_width(img)))
+    click_(horizontal_point(point, 0 - get_img_width(img)))
 
 
 def westRightClick(point, img: str):
@@ -503,34 +503,39 @@ def chain(step_list: list, debug=False):
 
     Args:
         step_list (list): List of automation steps.
-        Each automation step should be a dictionary with below possible keys:
-            action - mandatory. Action to perform. Ex: write, click, doubleClick, etc.
-            target - mandatory. Target of the action. Can be text to write or an image to click on.
-            wait - optional. Seconds to wait after performing the action. Defaults to zero.
-            confidence - optional. Used only for actions on images. Confidence on locating the image.
-            Defaults to 0.9
+        Each automation step should be a dictionary with 2 or 3 entries:
+            - First entry is the "action" to perform. Ex: write, click, doubleClick, etc.
+            - Second entry is target of the action. Can be text to write or an image to click on.
+            - Third entry should be a dictionary with additional parameters:
+                * wait - Seconds to wait after performing the action. Defaults to zero.
+                * confidence - optional. Used only for actions on images. Confidence on locating the image.
+                  Defaults to 0.9
+                *
 
         Example of step_list:
             chain([
-                {"action": "write", "target": "this string", "wait": 0.5},
-                {"action": "write", "target": "this other string"},
-                {"action": "click", "target": "C:\\Desktop\\image.jpg", "wait": 1.5, "confidence": 0.7}
+                [write, "this string", {wait: 0.5}],
+                [write, "this other string"],
+                [click, "C:\\Desktop\\image.jpg", {wait: 2, confidence: 0.8}],
             ], debug=True)
 
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
+    write = "write_"
+    click = "click_"
     action = ""
     target = ""
 
     for step in step_list:
-        skip = bool(step["skip"]) if "skip" in step else False
-        action = str(step["action"]) if "action" in step else ""
-        target = str(step["target"]) if "target" in step else ""
-        wait = int(step["wait"]) if "wait" in step else 0
-        confidence = float(step["confidence"]) if "confidence" in step else 0.9
-        v_offset = float(step["v_offset"]) if "v_offset" in step else 0
-        h_offset = float(step["h_offset"]) if "h_offset" in step else 0
-        offset = str(step["offset"]) if "offset" in step else ""
+        action = step[0]
+        target = step[1]
+
+        skip = bool(step[2]["skip"]) if "skip" in step[2] else False
+        wait = int(step[2]["wait"]) if "wait" in step[2] else 0
+        confidence = float(step[2]["confidence"]) if "confidence" in step[2] else 0.9
+        v_offset = float(step[2]["v_offset"]) if "v_offset" in ste[2] else 0
+        h_offset = float(step[2]["h_offset"]) if "h_offset" in step[2] else 0
+        offset = str(step[2]["offset"]) if "offset" in step[2] else ""
 
         if debug:
             print(step)
