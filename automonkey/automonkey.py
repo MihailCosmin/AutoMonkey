@@ -503,6 +503,8 @@ class StepList(list):
         super().__init__()
         self.write = "write_"
         self.click = "click_"
+        write = "write_"
+        click = "click_"
 
 
 def chain(step_list: StepList, debug=False):
