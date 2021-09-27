@@ -498,7 +498,14 @@ def westTripleClick(point, img: str):
     tripleClick(horizontal_point(point, 0 - get_img_width(img)))
 
 
-def chain(step_list: list, debug=False):
+class StepList(list):
+    def __init__(self):
+        super().__init__()
+        self.write = "write_"
+        self.click = "click_"
+
+
+def chain(step_list: StepList, debug=False):
     """Chain together a series of automation steps
 
     Args:
@@ -506,7 +513,7 @@ def chain(step_list: list, debug=False):
         Each automation step should be a dictionary with 2 or 3 entries:
             - First entry is the "action" to perform. Ex: write, click, doubleClick, etc.
             - Second entry is target of the action. Can be text to write or an image to click on.
-            - Third entry should be a dictionary with additional parameters:
+            - Third entry is optional  and should be a dictionary with additional parameters:
                 * wait - Seconds to wait after performing the action. Defaults to zero.
                 * confidence - optional. Used only for actions on images. Confidence on locating the image.
                   Defaults to 0.9
