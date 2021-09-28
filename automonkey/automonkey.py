@@ -498,53 +498,64 @@ def westTripleClick(point, img: str):
     tripleClick(horizontal_point(point, 0 - get_img_width(img)))
 
 
-class StepList(list):
-    def __init__(self):
-        super().__init__()
-        self.write = "write_"
-        self.click = "click_"
-        write = "write_"
-        click = "click_"
-
-
-def chain(step_list: StepList, debug=False):
+def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
 
     Args:
-        step_list (list): List of automation steps.
-        Each automation step should be a dictionary with 2 or 3 entries:
-            - First entry is the "action" to perform. Ex: write, click, doubleClick, etc.
-            - Second entry is target of the action. Can be text to write or an image to click on.
-            - Third entry is optional  and should be a dictionary with additional parameters:
+        *steps (dict): Unlimitted number of automation steps as dictionaries.
+        Each automation step should be a dictionary with 1 or more pairs:
+            - First pair is the Action - Target pair. The only mandatory pair.
+              Example: dict(click: "image.jpg") or {"click": "image.jpg"}
+            - Next possible pairs are optional:
                 * wait - Seconds to wait after performing the action. Defaults to zero.
                 * confidence - optional. Used only for actions on images. Confidence on locating the image.
                   Defaults to 0.9
                 *
 
         Example of step_list:
-            chain([
-                [write, "this string", {wait: 0.5}],
-                [write, "this other string"],
-                [click, "C:\\Desktop\\image.jpg", {wait: 2, confidence: 0.8}],
-            ], debug=True)
+            chain(
+                dict(write="this string", wait=0.5),
+                dict(write="this other string"),
+                dict(click="C:\\Desktop\\image.jpg", wait=2, confidence=0.8),
+                debug=True)
 
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
-    write = "write_"
-    click = "click_"
-    action = ""
-    target = ""
 
-    for step in step_list:
-        action = step[0]
-        target = step[1]
+    list_of_actions = [
+        "click",
+        "leftClick",
+        "rightClick",
+        "doubleClick",
+        "tripleClick",
+        "write",
+        "pasteWrite",
+        "type",
+        "copy",
+        "paste",
+        "waitWhile",
+        "waitUntil",
+    ]
 
-        skip = bool(step[2]["skip"]) if "skip" in step[2] else False
-        wait = int(step[2]["wait"]) if "wait" in step[2] else 0
-        confidence = float(step[2]["confidence"]) if "confidence" in step[2] else 0.9
-        v_offset = float(step[2]["v_offset"]) if "v_offset" in ste[2] else 0
-        h_offset = float(step[2]["h_offset"]) if "h_offset" in step[2] else 0
-        offset = str(step[2]["offset"]) if "offset" in step[2] else ""
+    for step in steps:
+        action = ""
+        target = ""
+        skip = False
+        wait = 0
+        confidence = 0.9
+        v_offset = 0
+        h_offset = 0
+        offset = ""
+        for arg_pair in step.items():
+            action = arg_pair[0] if arg_pair[0] in list_of_actions else action
+            target = arg_pair[1] if arg_pair[0] in list_of_actions else target
+
+            skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else skip
+            wait = int(arg_pair[1]) if arg_pair[0] == 'wait' else wait
+            confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else confidence
+            v_offset = float(arg_pair[1]) if arg_pair[0] == 'v_offset' else v_offset
+            h_offset = float(arg_pair[1]) if arg_pair[0] == 'h_offset' else h_offset
+            offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else offset
 
         if debug:
             print(step)
