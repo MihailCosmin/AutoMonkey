@@ -345,7 +345,7 @@ def offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
         click_type (str): click, rightClick, doubleClcik, etc
     """
     if offset_value == "above":
-        globals()[click_type](vertical_point(point, get_img_height(img)))
+        globals()[click_type](int(vertical_point(point, get_img_height(img))))
     if offset_value == "bellow":
         globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
     if offset_value == "right":
@@ -440,8 +440,6 @@ def chain(*steps: dict, debug=False):
             bullseye = get_center(bullseye)
             bullseye = diagonal_point(bullseye, h_offset, v_offset)
             if offset != "":
-                # action = offset + action[0:1].upper() + action[1:]
-                # globals()[action](bullseye, target)
                 globals()["offset_clicks"](bullseye, target, offset, action)
             else:
                 globals()[action](bullseye)
