@@ -499,13 +499,13 @@ def westTripleClick(point, img: str):
 
 def offset_clicks(point, img: str, offset_value, click_type):
     if offset_value == "north":
-        globals()[click_type](point, get_img_height(img))
+        globals()[click_type](vertical_point(point, get_img_height(img)))
     if offset_value == "south":
-        globals()[click_type](point, 0 - get_img_height(img))
+        globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
     if offset_value == "east":
-        globals()[click_type](point, get_img_width(img))
+        globals()[click_type](horizontal_point(point, get_img_width(img)))
     if offset_value == "west":
-        globals()[click_type](point, 0 - get_img_width(img))
+        globals()[click_type](horizontal_point(point, 0 - get_img_width(img)))
 
 
 def chain(*steps: dict, debug=False):
