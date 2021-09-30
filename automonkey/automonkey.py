@@ -346,9 +346,9 @@ def offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
     """
     if offset_value == "above":
         print(f"offset point is: {vertical_point(point, get_img_height(img))}")
-        globals()[click_type](vertical_point(point, get_img_height(img)))
-    if offset_value == "bellow":
         globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
+    if offset_value == "bellow":
+        globals()[click_type](vertical_point(point, get_img_height(img)))
     if offset_value == "right":
         globals()[click_type](horizontal_point(point, get_img_width(img)))
     if offset_value == "left":
