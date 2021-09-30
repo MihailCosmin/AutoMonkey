@@ -326,194 +326,31 @@ def get_subimg_count(needle: str, haystack: str) -> int:
 
     return len(loc[0])
 
-def northClick(point, img: str):
-    """Click above (to the north) with an offset
-    equal to the height of the image given.
+
+def offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
+    """Offset Clicks
 
     Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
+        point (tuple): PyAutoGUI Point as a (x, y) tuple
+        img (str): image path that was the source of the point
+        offset_value (str): Offset type: 
+                                         - above
+                                         - bellow
+                                         - right
+                                         - left
+                                         - upper-left
+                                         - upper-right
+                                         - lower-left
+                                         - lower-right
+        click_type (str): click, rightClick, doubleClcik, etc
     """
-    click_(vertical_point(point, get_img_height(img)))
-
-
-def northRightClick(point, img: str):
-    """Click above (to the north) with an offset
-    equal to the height of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    rightClick(vertical_point(point, get_img_height(img)))
-
-
-def northDoubleClick(point, img: str):
-    """DoubleClick above (to the north) with an offset
-    equal to the height of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    doubleClick(vertical_point(point, get_img_height(img)))
-
-def northTripleClick(point, img: str):
-    """TripleClick above (to the north) with an offset
-    equal to the height of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    tripleClick(vertical_point(point, get_img_height(img)))
-
-
-def southClick(point, img: str):
-    """Click below (to the south) with an offset
-    equal to the height of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    click_(vertical_point(point, 0 - get_img_height(img)))
-
-
-def southRightClick(point, img: str):
-    """Click below (to the south) with an offset
-    equal to the height of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    rightClick(vertical_point(point, 0 - get_img_height(img)))
-
-
-def southDoubleClick(point, img: str):
-    """DoubleClick below (to the south) with an offset
-    equal to the height of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    doubleClick(vertical_point(point, 0 - get_img_height(img)))
-
-def southTripleClick(point, img: str):
-    """TripleClick below (to the south) with an offset
-    equal to the height of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    tripleClick(vertical_point(point, 0 - get_img_height(img)))
-
-
-def eastClick(point, img: str):
-    """Click right (to the east) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    click_(horizontal_point(point, get_img_width(img)))
-
-
-def eastRightClick(point, img: str):
-    """Click right (to the east) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    rightClick(horizontal_point(point, get_img_width(img)))
-
-
-def eastDoubleClick(point, img: str):
-    """DoubleClick right (to the east) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    doubleClick(horizontal_point(point, get_img_width(img)))
-
-def eastTripleClick(point, img: str):
-    """TripleClick right (to the east) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    tripleClick(horizontal_point(point, get_img_width(img)))
-
-
-def westClick(point, img: str):
-    """Click left (to the west) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    click_(horizontal_point(point, 0 - get_img_width(img)))
-
-
-def westRightClick(point, img: str):
-    """Click left (to the west) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    rightClick(horizontal_point(point, 0 - get_img_width(img)))
-
-
-def westDoubleClick(point, img: str):
-    """DoubleClick left (to the west) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    doubleClick(horizontal_point(point, 0 - get_img_width(img)))
-
-def westTripleClick(point, img: str):
-    """TripleClick left (to the west) with an offset
-    equal to the width of the image given.
-
-    Args:
-        point ([type]): center point of the image
-        img (str): image location + filename
-    """
-    tripleClick(horizontal_point(point, 0 - get_img_width(img)))
-
-def offset_clicks(point, img: str, offset_value, click_type):
-    print(f"point is: {point}")
-    print(f"height is: {get_img_height(img)}")
-    print(f"offset is: {offset_value}")
-    print(f"click_type is: {click_type}")
-    print(f"offset point is: {vertical_point(point, get_img_height(img))}")
-    if offset_value == "north":
-        print("We here")
-        offset_point = vertical_point(point, get_img_height(img))
-        print(f"offset point is: {offset_point}")
-        rightClick(offset_point)
-        #globals()[click_type](vertical_point(point, get_img_height(img)))
-    if offset_value == "south":
+    if offset_value == "above":
+        globals()[click_type](vertical_point(point, get_img_height(img)))
+    if offset_value == "bellow":
         globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
-    if offset_value == "east":
+    if offset_value == "right":
         globals()[click_type](horizontal_point(point, get_img_width(img)))
-    if offset_value == "west":
+    if offset_value == "left":
         globals()[click_type](horizontal_point(point, 0 - get_img_width(img)))
 
 
@@ -570,10 +407,10 @@ def chain(*steps: dict, debug=False):
             target = arg_pair[1] if arg_pair[0] in list_of_actions else target
 
             skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else skip
-            wait = int(arg_pair[1]) if arg_pair[0] == 'wait' else wait
+            wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else wait
             confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else confidence
-            v_offset = float(arg_pair[1]) if arg_pair[0] == 'v_offset' else v_offset
-            h_offset = float(arg_pair[1]) if arg_pair[0] == 'h_offset' else h_offset
+            v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else v_offset
+            h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else h_offset
             offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else offset
 
         if debug:
@@ -607,7 +444,6 @@ def chain(*steps: dict, debug=False):
                 # globals()[action](bullseye, target)
                 globals()["offset_clicks"](bullseye, target, offset, action)
             else:
-                print("why we here ??? ")
                 globals()[action](bullseye)
 
         sleep(wait)
