@@ -505,7 +505,9 @@ def offset_clicks(point, img: str, offset_value, click_type):
     print(f"offset point is: {vertical_point(point, get_img_height(img))}")
     if offset_value == "north":
         print("We here")
-        rightClick(vertical_point(point, get_img_height(img)))
+        offset_point = vertical_point(point, get_img_height(img))
+        print(f"offset point is: {offset_point}")
+        rightClick(offset_point)
         #globals()[click_type](vertical_point(point, get_img_height(img)))
     if offset_value == "south":
         globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
