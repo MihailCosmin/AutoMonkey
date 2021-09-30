@@ -16,8 +16,8 @@ except ImportError:
     import Image
 
 from pyautogui import alert
-from pyautogui import click as click_
-from pyautogui import write as write_
+from pyautogui import click
+from pyautogui import write
 from pyautogui import scroll
 from pyautogui import center
 from pyautogui import locate
@@ -64,12 +64,41 @@ IMG_EXT = (
 )
 
 
-IMG_ACTIONS = ["click",
-               "leftClick",
-               "rightClick",
-               "doubleClick",
-               "tripleClick"
-               ]
+IMG_ACTIONS = (
+    "click",
+    "leftClick",
+    "rightClick",
+    "doubleClick",
+    "tripleClick",
+    "waitWhile",
+    "waitUntil",
+)
+
+TEXT_ACTIONS = (
+    "write",
+    "pasteWrite",
+    "type",
+    "copy",
+    "paste",
+)
+
+ALL_ACTIONS = (
+    "click",
+    "leftClick",
+    "rightClick",
+    "doubleClick",
+    "tripleClick",
+    "waitWhile",
+    "waitUntil",
+
+    "write",
+    "pasteWrite",
+    "type",
+    "copy",
+    "paste",
+)
+
+
 
 class AutoMonkeyNoAction(Exception):
     """
@@ -85,7 +114,7 @@ class AutoMonkeyNoTarget(Exception):
     """
 
 
-def add_ext(filename: str) -> str:
+def __add_ext(filename: str) -> str:
     """Adds extension to an image filename if missing
 
     Args:
@@ -111,7 +140,7 @@ def is_on_screen(what: str) -> bool:
     """
 
     found = False
-    what = add_ext(what)
+    what = __add_ext(what)
 
     if locateOnScreen(what, confidence=0.9) is not None:
         found = True
@@ -127,7 +156,7 @@ def get_center(image: str):
         [point]: Returns the center of the located image as a point or None
     """
 
-    image = add_ext(image)
+    image = __add_ext(image)
 
     try:
         if str(type(image)) != '<class \'pyscreeze.Box\'>':
@@ -258,7 +287,7 @@ def get_img_height(image_file):
         int: Height of the image
     """
 
-    image_file = add_ext(image_file)
+    image_file = __add_ext(image_file)
 
     img = Image.open(image_file)
     _, height = img.size
@@ -274,7 +303,7 @@ def get_img_width(image_file):
         int: Width of the image
     """
 
-    image_file = add_ext(image_file)
+    image_file = __add_ext(image_file)
 
     img = Image.open(image_file)
     width, _ = img.size
@@ -313,8 +342,8 @@ def get_subimg_count(needle: str, haystack: str) -> int:
         int: Count of occurrences of needle in the haystack
     """
 
-    needle = add_ext(needle)
-    haystack = add_ext(haystack)
+    needle = __add_ext(needle)
+    haystack = __add_ext(haystack)
 
     hay = cv2.imread(haystack)
     need = cv2.imread(needle)
@@ -327,7 +356,7 @@ def get_subimg_count(needle: str, haystack: str) -> int:
     return len(loc[0])
 
 
-def offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
+def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
     """Offset Clicks
 
     Args:
@@ -345,7 +374,6 @@ def offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
         click_type (str): click, rightClick, doubleClcik, etc
     """
     if offset_value == "above":
-        print(f"offset point is: {vertical_point(point, get_img_height(img))}")
         globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
     if offset_value == "bellow":
         globals()[click_type](vertical_point(point, get_img_height(img)))
@@ -353,7 +381,14 @@ def offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
         globals()[click_type](horizontal_point(point, get_img_width(img)))
     if offset_value == "left":
         globals()[click_type](horizontal_point(point, 0 - get_img_width(img)))
-
+    if offset_value == "upper-left":
+        globals()[click_type](diagonal_point(point, 0 - get_img_width(img), 0 - get_img_height(img)))
+    if offset_value == "upper-right":
+        globals()[click_type](diagonal_point(point, get_img_width(img), 0 - get_img_height(img)))
+    if offset_value == "lower-left":
+        globals()[click_type](diagonal_point(point, 0 - get_img_width(img), get_img_height(img)))
+    if offset_value == "lower-right":
+        globals()[click_type](diagonal_point(point, get_img_width(img), get_img_height(img)))
 
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
@@ -379,21 +414,6 @@ def chain(*steps: dict, debug=False):
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
 
-    list_of_actions = [
-        "click",
-        "leftClick",
-        "rightClick",
-        "doubleClick",
-        "tripleClick",
-        "write",
-        "pasteWrite",
-        "type",
-        "copy",
-        "paste",
-        "waitWhile",
-        "waitUntil",
-    ]
-
     for step in steps:
         action = ""
         target = ""
@@ -404,8 +424,8 @@ def chain(*steps: dict, debug=False):
         h_offset = 0
         offset = ""
         for arg_pair in step.items():
-            action = arg_pair[0] if arg_pair[0] in list_of_actions else action
-            target = arg_pair[1] if arg_pair[0] in list_of_actions else target
+            action = arg_pair[0] if arg_pair[0] in ALL_ACTIONS else action
+            target = arg_pair[1] if arg_pair[0] in ALL_ACTIONS else target
 
             skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else skip
             wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else wait
@@ -423,7 +443,7 @@ def chain(*steps: dict, debug=False):
 
         if action in IMG_ACTIONS:
             slept = 0
-            target = add_ext(target)
+            target = __add_ext(target)
 
             while not is_on_screen(target) and not skip:
                 sleep(0.1)
@@ -441,7 +461,7 @@ def chain(*steps: dict, debug=False):
             bullseye = get_center(bullseye)
             bullseye = diagonal_point(bullseye, h_offset, v_offset)
             if offset != "":
-                globals()["offset_clicks"](bullseye, target, offset, action)
+                globals()["__offset_clicks"](bullseye, target, offset, action)
             else:
                 globals()[action](bullseye)
 
