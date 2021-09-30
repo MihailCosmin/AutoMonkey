@@ -604,6 +604,7 @@ def chain(*steps: dict, debug=False):
                 # globals()[action](bullseye, target)
                 globals()["offset_clicks"](bullseye, target, offset, action)
             else:
+                print("why we here ??? ")
                 globals()[action](bullseye)
 
         sleep(wait)
