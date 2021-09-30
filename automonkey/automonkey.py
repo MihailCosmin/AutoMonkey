@@ -499,6 +499,7 @@ def westTripleClick(point, img: str):
 
 def offset_clicks(point, img: str, offset_value, click_type):
     print(f"point is: {point}")
+    print(f"height is: {get_img_height(img)}")
     print(f"offset is: {offset_value}")
     print(f"click_type is: {click_type}")
     print(f"offset point is: {vertical_point(point, get_img_height(img))}")
