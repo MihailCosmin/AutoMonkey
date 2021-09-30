@@ -498,6 +498,10 @@ def westTripleClick(point, img: str):
     tripleClick(horizontal_point(point, 0 - get_img_width(img)))
 
 def offset_clicks(point, img: str, offset_value, click_type):
+    print(f"point is: {point}")
+    print(f"offset is: {offset_value}")
+    print(f"click_type is: {click_type}")
+    print(f"offset point is: {vertical_point(point, get_img_height(img))}")
     if offset_value == "north":
         globals()[click_type](vertical_point(point, get_img_height(img)))
     if offset_value == "south":
