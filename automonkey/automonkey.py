@@ -497,6 +497,16 @@ def westTripleClick(point, img: str):
     """
     tripleClick(horizontal_point(point, 0 - get_img_width(img)))
 
+def offset_clicks(point, img: str, offset_value, click_type):
+    if offset_value == "north":
+        globals()[click_type](point, get_img_height(img)))
+    if offset_value == "south":
+        globals()[click_type](point, 0 - get_img_height(img)))
+    if offset_value == "east":
+        globals()[click_type](point, get_img_width(img)))
+    if offset_value == "west":
+        globals()[click_type](point, 0 - get_img_width(img)))
+
 
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
@@ -512,7 +522,7 @@ def chain(*steps: dict, debug=False):
                   Defaults to 0.9
                 *
 
-        Example of step_list:
+        Example of steps:
             chain(
                 dict(write="this string", wait=0.5),
                 dict(write="this other string"),
@@ -584,8 +594,9 @@ def chain(*steps: dict, debug=False):
             bullseye = get_center(bullseye)
             bullseye = diagonal_point(bullseye, h_offset, v_offset)
             if offset != "":
-                action = offset + action[0:1].upper() + action[1:]
-                globals()[action](bullseye, target)
+                # action = offset + action[0:1].upper() + action[1:]
+                # globals()[action](bullseye, target)
+                globals()["offset_clicks"](bullseye, target, offset, action)
             else:
                 globals()[action](bullseye)
 
