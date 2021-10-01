@@ -9,6 +9,7 @@ from os.path import isfile
 
 from clipboard import paste
 from clipboard import copy as clipboardcopy
+from pyperclip import copy
 
 try:
     from PIL import Image
@@ -391,11 +392,12 @@ def pasteText(text: str):
 
     temp_clipboard = paste()
     while paste() != text:
-        clipboardcopy(text)
+        #clipboardcopy(text)
+        copy(text)
         print(f"paste1111: {paste()}")
-    sleep(0.2)
+    #sleep(0.2)
     keys('ctrl+v')
-    clipboardcopy(temp_clipboard)
+    #clipboardcopy(temp_clipboard)
 
 
 def chain(*steps: dict, debug=False):
