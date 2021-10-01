@@ -493,6 +493,8 @@ def chain(*steps: dict, debug=False):
             elif type(target) == tuple:
                 globals()[action](target)
 
-        if action in KEYBOARD_ACTIONS:
+        elif action in KEYBOARD_ACTIONS:
+            print("We here")
             globals()[action](target)
+
         sleep(wait)
