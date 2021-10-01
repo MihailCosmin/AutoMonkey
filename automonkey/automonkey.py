@@ -212,7 +212,7 @@ def clear_clipboard():
     with shared/multiple clipboards.
     """
     for _ in range(0, 10):
-        clipboardcopy("")
+        clipboardcopy('')
 
 
 def copy_from_to(point1, point2):
@@ -227,8 +227,8 @@ def copy_from_to(point1, point2):
     mouseUp()
     clear_clipboard()
 
-    while paste() == "":
-        keys("ctrl+c")
+    while paste() == '':
+        keys('ctrl+c')
 
     copied = paste()
     clear_clipboard()
@@ -463,28 +463,31 @@ def chain(*steps: dict, debug=False):
         # custom specified wait times
 
         if action in MOUSE_ACTIONS:
-            slept = 0
-            target = __add_ext(target)
+            if type(target) != 'tuple':
+                slept = 0
+                target = __add_ext(target)
 
-            while not is_on_screen(target) and not skip:
-                sleep(0.1)
-                slept += 0.1
-                if int(slept) == 30:  # For production make it 300
-                    stop = confirm("Next target was not found for 5 minutes.\
-                                    Would you like to continue or stop?",
-                                   "Continue?",
-                                   ["Continue", "Stop"]
-                                   )
-                    if stop == "Stop":
-                        exit()
+                while not is_on_screen(target) and not skip:
+                    sleep(0.1)
+                    slept += 0.1
+                    if int(slept) == 30:  # For production make it 300
+                        stop = confirm("Next target was not found for 5 minutes.\
+                                        Would you like to continue or stop?",
+                                    "Continue?",
+                                    ["Continue", "Stop"]
+                                    )
+                        if stop == "Stop":
+                            exit()
 
-            bullseye = locateOnScreen(target, confidence=confidence)
-            bullseye = get_center(bullseye)
-            bullseye = diagonal_point(bullseye, h_offset, v_offset)
-            if offset != "":
-                globals()["__offset_clicks"](bullseye, target, offset, action)
-            else:
-                globals()[action](bullseye)
+                bullseye = locateOnScreen(target, confidence=confidence)
+                bullseye = get_center(bullseye)
+                bullseye = diagonal_point(bullseye, h_offset, v_offset)
+                if offset != "":
+                    globals()["__offset_clicks"](bullseye, target, offset, action)
+                else:
+                    globals()[action](bullseye)
+            elif type(target) == 'tuple':
+                globals()[action](target)
 
         if action in KEYBOARD_ACTIONS:
             globals()[action](target)
