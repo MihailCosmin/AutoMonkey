@@ -397,9 +397,9 @@ def pasteText(text: str):
 
     temp_clipboard = paste()
     while paste() != text:
-        clipboardcopy(text)
+        copy2(text)
     keys('ctrl+v')
-    clipboardcopy(temp_clipboard)
+    copy2(temp_clipboard)
 
 
 def chain(*steps: dict, debug=False):
