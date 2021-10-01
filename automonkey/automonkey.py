@@ -64,7 +64,7 @@ IMG_EXT = (
 )
 
 
-IMG_ACTIONS = (
+MOUSE_ACTIONS = (
     "click",
     "leftClick",
     "rightClick",
@@ -74,10 +74,10 @@ IMG_ACTIONS = (
     "waitUntil",
 )
 
-TEXT_ACTIONS = (
+KEYBOARD_ACTIONS = (
     "write",
     "pasteText",
-    "type",
+    "keys",
     "copy",
     "paste",
 )
@@ -462,7 +462,7 @@ def chain(*steps: dict, debug=False):
         # If this works correctly there should be no need for
         # custom specified wait times
 
-        if action in IMG_ACTIONS:
+        if action in MOUSE_ACTIONS:
             slept = 0
             target = __add_ext(target)
 
@@ -486,6 +486,6 @@ def chain(*steps: dict, debug=False):
             else:
                 globals()[action](bullseye)
 
-        if action in TEXT_ACTIONS:
+        if action in KEYBOARD_ACTIONS:
             globals()[action](target)
         sleep(wait)
