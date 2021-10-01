@@ -399,7 +399,7 @@ def pasteText(text: str):
     while paste() != text:
         clipboardcopy(text)
     keys('ctrl+v')
-    sleep(1)
+    sleep(0.1)
     clipboardcopy(temp_clipboard)
 
 
