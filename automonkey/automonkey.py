@@ -2,7 +2,7 @@
 """
 
 from time import sleep
-from sys import exit as finish
+from sys import exit
 
 from os import remove
 from os.path import isfile
@@ -76,7 +76,7 @@ IMG_ACTIONS = (
 
 TEXT_ACTIONS = (
     "write",
-    "pasteWrite",
+    "pasteText",
     "type",
     "copy",
     "paste",
@@ -390,6 +390,27 @@ def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
     if offset_value == "lower-right":
         globals()[click_type](diagonal_point(point, get_img_width(img), get_img_height(img)))
 
+
+def pasteText(text: str):
+    """Copy the text and paste it in the applicable place
+    This type of text output can be used when write or type are not capable
+    of writting special characters. For example German or Chinese characters.
+    In those cases a simple solution would be to copy the text and just paste it in the
+    where needed.
+
+    Args:
+        text (str): text to be output
+    """
+
+    temp_clipboard = paste()
+    sleep(0.1)
+    while paste() != text:
+        clipboardcopy(text)
+    sleep(0.1)
+    keys('ctrl+v')
+    clipboardcopy(temp_clipboard)
+
+
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
 
@@ -455,7 +476,7 @@ def chain(*steps: dict, debug=False):
                                    ["Continue", "Stop"]
                                    )
                     if stop == "Stop":
-                        finish()
+                        exit()
 
             bullseye = locateOnScreen(target, confidence=confidence)
             bullseye = get_center(bullseye)
@@ -465,4 +486,6 @@ def chain(*steps: dict, debug=False):
             else:
                 globals()[action](bullseye)
 
+        if action in TEXT_ACTIONS:
+            globals()[action](target)
         sleep(wait)
