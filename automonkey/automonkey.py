@@ -15,6 +15,8 @@ try:
 except ImportError:
     import Image
 
+from pyscreeze import Box
+
 from pyautogui import alert
 from pyautogui import click
 from pyautogui import write
@@ -159,7 +161,7 @@ def get_center(image: str):
     image = __add_ext(image)
 
     try:
-        if str(type(image)) != '<class \'pyscreeze.Box\'>':
+        if type(image) != Box:
             return center(locateOnScreen(image, confidence=0.9))
         return center(image)
     except TypeError:
@@ -464,7 +466,7 @@ def chain(*steps: dict, debug=False):
 
         if action in MOUSE_ACTIONS:
             print(f"type(target) {type(target)}")
-            if type(target) != 'tuple':
+            if type(target) != tuple:
                 slept = 0
                 target = __add_ext(target)
 
@@ -487,7 +489,7 @@ def chain(*steps: dict, debug=False):
                     globals()["__offset_clicks"](bullseye, target, offset, action)
                 else:
                     globals()[action](bullseye)
-            elif type(target) == 'tuple':
+            elif type(target) == tuple:
                 globals()[action](target)
 
         if action in KEYBOARD_ACTIONS:
