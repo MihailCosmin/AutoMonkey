@@ -84,22 +84,7 @@ KEYBOARD_ACTIONS = (
     "paste",
 )
 
-ALL_ACTIONS = (
-    "click",
-    "leftClick",
-    "rightClick",
-    "doubleClick",
-    "tripleClick",
-    "waitWhile",
-    "waitUntil",
-
-    "write",
-    "pasteWrite",
-    "type",
-    "copy",
-    "paste",
-)
-
+ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS
 
 
 class AutoMonkeyNoAction(Exception):
@@ -457,7 +442,7 @@ def chain(*steps: dict, debug=False):
             v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else v_offset
             h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else h_offset
             offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else offset
-
+        print(f"{action} on {target}")
         if debug:
             print(step)
 
@@ -466,7 +451,6 @@ def chain(*steps: dict, debug=False):
         # custom specified wait times
 
         if action in MOUSE_ACTIONS:
-            print(f"type(target) {type(target)}")
             if type(target) != tuple:
                 slept = 0
                 target = __add_ext(target)
