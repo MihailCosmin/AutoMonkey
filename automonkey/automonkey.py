@@ -8,8 +8,8 @@ from os import remove
 from os.path import isfile
 
 from clipboard import paste
-from clipboard import copy as clipboardcopy
-from pyperclip import copy
+from clipboard import copy as copy1
+from pyperclip import copy as copy2
 
 try:
     from PIL import Image
@@ -379,6 +379,11 @@ def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
         globals()[click_type](diagonal_point(point, get_img_width(img), get_img_height(img)))
 
 
+def clipboardcopy(text: str):
+    copy1(text)
+    copy2(text)
+
+
 def pasteText(text: str):
     """Copy the text and paste it in the applicable place
     This type of text output can be used when write or type are not capable
@@ -392,12 +397,9 @@ def pasteText(text: str):
 
     temp_clipboard = paste()
     while paste() != text:
-        #clipboardcopy(text)
-        copy(text)
-        print(f"paste1111: {paste()}")
-    #sleep(0.2)
+        clipboardcopy(text)
     keys('ctrl+v')
-    #clipboardcopy(temp_clipboard)
+    clipboardcopy(temp_clipboard)
 
 
 def chain(*steps: dict, debug=False):
