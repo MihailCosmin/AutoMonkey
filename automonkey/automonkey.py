@@ -407,6 +407,7 @@ def pasteText(text: str):
     temp_clipboard = paste()
     sleep(0.1)
     while paste() != text:
+        print(f"I'll copy this: {text}")
         clipboardcopy(text)
     sleep(0.1)
     keys('ctrl+v')
