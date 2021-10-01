@@ -380,6 +380,11 @@ def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
 
 
 def clipboardcopy(text: str):
+    """Copy text to clipboard using two functions
+
+    Args:
+        text (str): text to be copied to clipboard
+    """
     copy1(text)
     copy2(text)
 
