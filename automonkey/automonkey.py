@@ -392,11 +392,10 @@ def pasteText(text: str):
     temp_clipboard = paste()
     sleep(0.1)
     while paste() != text:
-        print(f"I'll copy this: {text}")
         clipboardcopy(text)
     sleep(0.1)
     keys('ctrl+v')
-    #clipboardcopy(temp_clipboard)
+    clipboardcopy(temp_clipboard)
 
 
 def chain(*steps: dict, debug=False):
@@ -435,14 +434,13 @@ def chain(*steps: dict, debug=False):
         for arg_pair in step.items():
             action = arg_pair[0] if arg_pair[0] in ALL_ACTIONS else action
             target = arg_pair[1] if arg_pair[0] in ALL_ACTIONS else target
-
             skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else skip
             wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else wait
             confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else confidence
             v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else v_offset
             h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else h_offset
             offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else offset
-        print(f"{action} on {target}")
+
         if debug:
             print(step)
 
@@ -478,7 +476,6 @@ def chain(*steps: dict, debug=False):
                 globals()[action](target)
 
         elif action in KEYBOARD_ACTIONS:
-            print("We here")
             globals()[action](target)
 
         sleep(wait)
