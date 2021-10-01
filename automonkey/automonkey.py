@@ -410,7 +410,7 @@ def pasteText(text: str):
         clipboardcopy(text)
     sleep(0.1)
     keys('ctrl+v')
-    clipboardcopy(temp_clipboard)
+    #clipboardcopy(temp_clipboard)
 
 
 def chain(*steps: dict, debug=False):
