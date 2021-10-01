@@ -463,6 +463,7 @@ def chain(*steps: dict, debug=False):
         # custom specified wait times
 
         if action in MOUSE_ACTIONS:
+            print(f"type(target) {type(target)}")
             if type(target) != 'tuple':
                 slept = 0
                 target = __add_ext(target)
