@@ -1,8 +1,10 @@
 """Python Automation using Mouse and Keyboard for the masses
 """
 
+# pylint: disable=unused-import
+
 from time import sleep
-from sys import exit
+from sys import exit as end
 
 from os import remove
 from os.path import isfile
@@ -73,6 +75,9 @@ MOUSE_ACTIONS = (
     "rightClick",
     "doubleClick",
     "tripleClick",
+)
+
+WAIT_ACTIONS = (
     "waitWhile",
     "waitUntil",
 )
@@ -85,7 +90,7 @@ KEYBOARD_ACTIONS = (
     "paste",
 )
 
-ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS
+ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS
 
 
 class AutoMonkeyNoAction(Exception):
@@ -200,7 +205,7 @@ def clear_clipboard():
     with shared/multiple clipboards.
     """
     for _ in range(0, 10):
-        clipboardcopy('')
+        copy('')
 
 
 def copy_from_to(point1, point2):
@@ -235,7 +240,7 @@ def copy_from(point):
     """
 
     clear_clipboard()
-    click_(point)
+    click(point)
     sleep(0.2)
     keys("ctrl+a")
     sleep(0.2)
@@ -350,7 +355,7 @@ def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
     Args:
         point (tuple): PyAutoGUI Point as a (x, y) tuple
         img (str): image path that was the source of the point
-        offset_value (str): Offset type: 
+        offset_value (str): Offset type:
                                          - above
                                          - bellow
                                          - right
@@ -379,7 +384,7 @@ def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
         globals()[click_type](diagonal_point(point, get_img_width(img), get_img_height(img)))
 
 
-def clipboardcopy(text: str):
+def copy(text: str):
     """Copy text to clipboard using two functions
 
     Args:
@@ -402,10 +407,34 @@ def pasteText(text: str):
 
     temp_clipboard = paste()
     while paste() != text:
-        clipboardcopy(text)
+        copy(text)
     keys('ctrl+v')
     sleep(0.1)
-    clipboardcopy(temp_clipboard)
+    copy(temp_clipboard)
+
+
+def waitWhile(img: str):
+    """While an image is on screen wait
+    For example a loading window.
+
+    Args:
+        img (str): image location path + name
+    """
+
+    while is_on_screen(img):
+        sleep(0.1)
+
+
+def waitUntil(img: str):
+    """Wait until an image appears on screen
+    For example wait for a software to start
+
+    Args:
+        img (str): image location path + name
+    """
+
+    while not is_on_screen(img):
+        sleep(0.1)
 
 
 def chain(*steps: dict, debug=False):
@@ -458,34 +487,30 @@ def chain(*steps: dict, debug=False):
         # If this works correctly there should be no need for
         # custom specified wait times
 
-        if action in MOUSE_ACTIONS:
-            if type(target) != tuple:
-                slept = 0
-                target = __add_ext(target)
+        if action in MOUSE_ACTIONS and not isinstance(target, tuple):
+            slept = 0
+            target = __add_ext(target)
 
-                while not is_on_screen(target) and not skip:
-                    sleep(0.1)
-                    slept += 0.1
-                    if int(slept) == 30:  # For production make it 300
-                        stop = confirm("Next target was not found for 5 minutes.\
-                                        Would you like to continue or stop?",
-                                    "Continue?",
-                                    ["Continue", "Stop"]
-                                    )
-                        if stop == "Stop":
-                            exit()
+            while not is_on_screen(target) and not skip:
+                sleep(0.1)
+                slept += 0.1
+                if int(slept) == 30:  # For production make it 300
+                    stop = confirm("Next target was not found for 5 minutes.\
+                                    Would you like to continue or stop?",
+                                   "Continue?",
+                                   ["Continue", "Stop"]
+                                   )
+                    if stop == "Stop":
+                        end()
 
-                bullseye = locateOnScreen(target, confidence=confidence)
-                bullseye = get_center(bullseye)
-                bullseye = diagonal_point(bullseye, h_offset, v_offset)
-                if offset != "":
-                    globals()["__offset_clicks"](bullseye, target, offset, action)
-                else:
-                    globals()[action](bullseye)
-            elif type(target) == tuple:
-                globals()[action](target)
-
-        elif action in KEYBOARD_ACTIONS:
+            bullseye = locateOnScreen(target, confidence=confidence)
+            bullseye = get_center(bullseye)
+            bullseye = diagonal_point(bullseye, h_offset, v_offset)
+            if offset != "":
+                globals()["__offset_clicks"](bullseye, target, offset, action)
+            else:
+                globals()[action](bullseye)
+        else:
             globals()[action](target)
 
         sleep(wait)
