@@ -78,13 +78,13 @@ MOUSE_ACTIONS = (
 )
 
 WAIT_ACTIONS = (
-    "waitWhile",
-    "waitUntil",
+    "waitwhile",
+    "waieuntil",
 )
 
 KEYBOARD_ACTIONS = (
     "write",
-    "pasteText",
+    "pastetext",
     "keys",
     "copy",
     "paste",
@@ -152,7 +152,7 @@ def get_center(image: str):
     image = __add_ext(image)
 
     try:
-        if type(image) != Box:
+        if not isinstance(image, Box)():
             return center(locateOnScreen(image, confidence=0.9))
         return center(image)
     except TypeError:
@@ -166,11 +166,11 @@ def vertical_point(point, _):
     Args:
         point (PyAutoGUI point): [A Tuple with an X and a Y]
         _ (int): The offset. Can be positive or negative.
-                Positive = Below. Negative = Above
+                Positive = Above. Negative = Below
     Returns:
         [PyAutoGUI point]: The PyAutoGUI point offset vertically.
     """
-    return point[0], point[1] + _
+    return point[0], point[1] + (-1) * _
 
 
 def horizontal_point(point, _):
@@ -189,14 +189,14 @@ def diagonal_point(point, x_point, y_point):
     """Returns a PyAutoGUI point that is offset diagonally
     Args:
         point (PyAutoGUI point): [A Tuple with an X and a Y]
-        x_point (int): The offset. Can be positive or negative.
-                Positive = Below. Negative = Above
-        y_point (int): The offset. Can be positive or negative.
+        x_point (int): The horizontal offset. Can be positive or negative.
                 Positive = Right. Negative = Left
+        y_point (int): The vertical offset. Can be positive or negative.
+                Positive = Above. Negative = Below
     Returns:
         [PyAutoGUI point]: The PyAutoGUI point offset diagonally.
     """
-    return point[0] + x_point, point[1] + y_point
+    return point[0] + x_point, point[1] + (-1) * y_point
 
 
 def clear_clipboard():
@@ -394,7 +394,7 @@ def copy(text: str):
     copy2(text)
 
 
-def pasteText(text: str):
+def pastetext(text: str):
     """Copy the text and paste it in the applicable place
     This type of text output can be used when write or type are not capable
     of writting special characters. For example German or Chinese characters.
@@ -413,7 +413,7 @@ def pasteText(text: str):
     copy(temp_clipboard)
 
 
-def waitWhile(img: str):
+def waitwhile(img: str):
     """While an image is on screen wait
     For example a loading window.
 
@@ -425,7 +425,7 @@ def waitWhile(img: str):
         sleep(0.1)
 
 
-def waitUntil(img: str):
+def waituntil(img: str):
     """Wait until an image appears on screen
     For example wait for a software to start
 
