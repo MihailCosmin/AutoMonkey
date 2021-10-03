@@ -152,7 +152,7 @@ def get_center(image: str):
     image = __add_ext(image)
 
     try:
-        if not isinstance(image, Box)():
+        if not isinstance(image, Box):
             return center(locateOnScreen(image, confidence=0.9))
         return center(image)
     except TypeError:
@@ -504,11 +504,8 @@ def chain(*steps: dict, debug=False):
                         end()
 
             bullseye = locateOnScreen(target, confidence=confidence)
-            print(f"Bullseye is: {bullseye}")
             bullseye = get_center(bullseye)
-            print(f"Bullseye is: {bullseye}")
             bullseye = diagonal_point(bullseye, h_offset, v_offset)
-            print(f"Bullseye is: {bullseye}")
             if offset != "":
                 globals()["__offset_clicks"](bullseye, target, offset, action)
             else:
