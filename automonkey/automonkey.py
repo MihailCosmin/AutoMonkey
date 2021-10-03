@@ -170,7 +170,7 @@ def vertical_point(point, _):
     Returns:
         [PyAutoGUI point]: The PyAutoGUI point offset vertically.
     """
-    return point[0], point[1] + (-1) * _
+    return point[0], point[1] - _
 
 
 def horizontal_point(point, _):
@@ -196,7 +196,7 @@ def diagonal_point(point, x_point, y_point):
     Returns:
         [PyAutoGUI point]: The PyAutoGUI point offset diagonally.
     """
-    return point[0] + x_point, point[1] + (-1) * y_point
+    return point[0] + x_point, point[1] - y_point
 
 
 def clear_clipboard():
