@@ -367,21 +367,21 @@ def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
         click_type (str): click, rightClick, doubleClcik, etc
     """
     if offset_value == "above":
-        globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
-    if offset_value == "bellow":
         globals()[click_type](vertical_point(point, get_img_height(img)))
+    if offset_value == "bellow":
+        globals()[click_type](vertical_point(point, 0 - get_img_height(img)))
     if offset_value == "right":
         globals()[click_type](horizontal_point(point, get_img_width(img)))
     if offset_value == "left":
         globals()[click_type](horizontal_point(point, 0 - get_img_width(img)))
     if offset_value == "upper-left":
-        globals()[click_type](diagonal_point(point, 0 - get_img_width(img), 0 - get_img_height(img)))
-    if offset_value == "upper-right":
-        globals()[click_type](diagonal_point(point, get_img_width(img), 0 - get_img_height(img)))
-    if offset_value == "lower-left":
         globals()[click_type](diagonal_point(point, 0 - get_img_width(img), get_img_height(img)))
-    if offset_value == "lower-right":
+    if offset_value == "upper-right":
         globals()[click_type](diagonal_point(point, get_img_width(img), get_img_height(img)))
+    if offset_value == "lower-left":
+        globals()[click_type](diagonal_point(point, 0 - get_img_width(img), 0 - get_img_height(img)))
+    if offset_value == "lower-right":
+        globals()[click_type](diagonal_point(point, get_img_width(img), 0 - get_img_height(img)))
 
 
 def copy(text: str):
