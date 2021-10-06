@@ -493,6 +493,8 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
     sleep(0.2 * delay_factor)
     keys('esc')
     sleep(0.2)
+    keys('esc')
+    sleep(0.2)
 
 
 def chain(*steps: dict, debug=False):
