@@ -490,8 +490,8 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
     keys('enter')
     sleep(0.2 * delay_factor)
     keys('enter')
-    sleep(0.3 * delay_factor)
-    keys('alt+f4')
+    sleep(0.2 * delay_factor)
+    keys('esc')
     sleep(0.2)
 
 
