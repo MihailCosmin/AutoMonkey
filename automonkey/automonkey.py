@@ -1,8 +1,7 @@
-"""Python Automation using Mouse and Keyboard for the masses
+"""Python Automation using Mouse and Keyboard, for the masses
 """
 
 # pylint: disable=unused-import
-
 from time import sleep
 from sys import exit as end
 
@@ -23,7 +22,7 @@ from pyscreeze import Box
 from pyautogui import alert
 from pyautogui import click
 from pyautogui import write
-from pyautogui import scroll
+from pyautogui import linear
 from pyautogui import center
 from pyautogui import locate
 from pyautogui import moveTo
@@ -32,11 +31,15 @@ from pyautogui import confirm
 from pyautogui import position
 from pyautogui import mouseDown
 from pyautogui import screenshot
-from pyautogui import rightClick
-from pyautogui import doubleClick
-from pyautogui import tripleClick
 from pyautogui import locateOnScreen
 from pyautogui import locateAllOnScreen
+from pyautogui import scroll as scrollup
+from pyautogui import hscroll as scrollright
+from pyautogui import lefClick as leftclick
+from pyautogui import rightClick as rightclick
+from pyautogui import middleClick as middleclick
+from pyautogui import doubleClick as doubleclick
+from pyautogui import tripleClick as tripleclick
 from keyboard import press_and_release as keys
 
 from pytesseract import image_to_string
@@ -71,10 +74,14 @@ IMG_EXT = (
 
 MOUSE_ACTIONS = (
     "click",
-    "leftClick",
-    "rightClick",
-    "doubleClick",
-    "tripleClick",
+    "leftclick",
+    "rightclick",
+    "doubleclick",
+    "tripleclick",
+    "scrollup",
+    "scrolldown",
+    "scrollleft",
+    "scrollright",
 )
 
 WAIT_ACTIONS = (
@@ -119,9 +126,7 @@ def __add_ext(filename: str) -> str:
 
     for ext in IMG_EXT:
         if isfile(f"{filename}{ext}"):
-            filename = f"{filename}{ext}"
-
-    return filename
+            return f"{filename}{ext}"
 
 
 def is_on_screen(what: str) -> bool:
@@ -324,7 +329,7 @@ def get_text_from_region(region) -> str:
     return text
 
 
-def get_subimg_count(needle: str, haystack: str) -> int:
+def count_needles(needle: str, haystack: str) -> int:
     """Counts how many times an image appears in a bigger image
 
     Args:
@@ -413,6 +418,23 @@ def pastetext(text: str):
     copy(temp_clipboard)
 
 
+def scrolldown(clicks: int):
+    """Scroll down a given number of clicks
+
+    Args:
+        clicks (int): number of clicks
+    """
+    scrollup(-clicks)
+
+def scrollleft(clicks):
+    """Scroll left a given number of clicks
+
+    Args:
+        clicks (int): number of clicks
+    """
+    scrollright(-clicks)
+
+
 def waitwhile(img: str):
     """While an image is on screen wait
     For example a loading window.
@@ -437,6 +459,38 @@ def waituntil(img: str):
         sleep(0.1)
 
 
+def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1):
+    """Search and replace in all MS Office Software. No guaranties.
+
+    Args:
+        replace_this (str): string to be replaced
+        with_this (str): new string
+        delay_factor (float, optional): Delay factor in case
+            the default sleep times for waiting that the replacement
+            is finished are too fast. Defaults to 1.
+    """
+    copy(replace_this)
+    sleep(0.2 * delay_factor)
+    keys('ctrl+h')
+    sleep(0.2)
+    keys('ctrl+v')
+    sleep(0.2)
+    copy(with_this)
+    sleep(0.2)
+    keys('ctrl+v')
+    sleep(0.2)
+    keys('ctrl+v')
+    sleep(0.2)
+    keys('alt+a')
+    sleep(0.2)
+    keys('enter')
+    sleep(0.2 * delay_factor)
+    keys('enter')
+    sleep(0.2 * delay_factor)
+    keys('alt+f4')
+    sleep(0.2)
+
+
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
 
@@ -455,42 +509,38 @@ def chain(*steps: dict, debug=False):
             chain(
                 dict(write="this string", wait=0.5),
                 dict(write="this other string"),
-                dict(click="C:\\Desktop\\image.jpg", wait=2, confidence=0.8),
+                dict(click="C:\\Folder1\\Folder2\\image.jpg", wait=2, confidence=0.8),
                 debug=True)
 
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
 
     for step in steps:
-        action = ""
-        target = ""
-        skip = False
-        wait = 0
-        confidence = 0.9
-        v_offset = 0
-        h_offset = 0
-        offset = ""
         for arg_pair in step.items():
-            action = arg_pair[0] if arg_pair[0] in ALL_ACTIONS else action
-            target = arg_pair[1] if arg_pair[0] in ALL_ACTIONS else target
-            skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else skip
-            wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else wait
-            confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else confidence
-            v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else v_offset
-            h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else h_offset
-            offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else offset
+            if arg_pair[0] in ALL_ACTIONS:
+                action = arg_pair[0]
+                if arg_pair[1] != "":
+                    target = arg_pair[1]
+                else:
+                    raise AutoMonkeyNoTarget
+            else:
+                raise AutoMonkeyNoAction
+
+            skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
+            wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
+            confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else 0.9
+            v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
+            h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
+            offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
 
         if debug:
             print(step)
-
-        # Wait until next target comes into view
-        # If this works correctly there should be no need for
-        # custom specified wait times
 
         if action in MOUSE_ACTIONS and not isinstance(target, tuple):
             slept = 0
             target = __add_ext(target)
 
+            # Wait until next target comes into view
             while not is_on_screen(target) and not skip:
                 sleep(0.1)
                 slept += 0.1
