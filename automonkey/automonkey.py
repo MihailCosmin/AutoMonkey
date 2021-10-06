@@ -35,7 +35,7 @@ from pyautogui import locateOnScreen
 from pyautogui import locateAllOnScreen
 from pyautogui import scroll as scrollup
 from pyautogui import hscroll as scrollright
-from pyautogui import lefClick as leftclick
+from pyautogui import leftClick as leftclick
 from pyautogui import rightClick as rightclick
 from pyautogui import middleClick as middleclick
 from pyautogui import doubleClick as doubleclick
