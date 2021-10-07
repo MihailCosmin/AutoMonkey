@@ -97,7 +97,11 @@ KEYBOARD_ACTIONS = (
     "paste",
 )
 
-ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS
+APPS_ACTIONS = (
+    "msoffice_replace",
+)
+
+ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS
 
 
 class AutoMonkeyNoAction(Exception):
@@ -470,7 +474,7 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
             is finished are too fast. Defaults to 1.
     """
     copy(replace_this)
-    sleep(0.2 * delay_factor)
+    sleep(0.2)
     keys('ctrl+h')
     sleep(0.2)
     keys('alt+n')
@@ -495,6 +499,10 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
     sleep(0.2)
     keys('esc')
     sleep(0.2)
+
+
+def focus_ms_word():
+    
 
 
 def chain(*steps: dict, debug=False):
