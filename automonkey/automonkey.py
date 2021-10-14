@@ -111,6 +111,7 @@ KEYBOARD_ACTIONS = (
 
 APPS_ACTIONS = (
     "startfile",
+    "focus_ms_word",
     "msoffice_replace",
 )
 
