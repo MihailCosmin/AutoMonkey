@@ -12,6 +12,8 @@ from os.path import sep
 
 from pathlib import Path
 
+from re import search
+
 from clipboard import paste
 from clipboard import copy as copy1
 from pyperclip import copy as copy2
@@ -512,8 +514,41 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
     sleep(0.2)
 
 
+class WindowManager:
+    """Window Manager
+    """
+    def __init__(self):
+        self._handle = None
+
+    def get_window_by_class(self, class_name, window_name=None):
+        """Find a window by its class_name
+        """
+        self._handle = FindWindow(class_name, window_name)
+
+    def _parse_windows(self, hwnd, pattern):
+        """Pass to EnumWindows() to check all the opened windows
+        """
+        if search(pattern, str(GetWindowText(hwnd))) is not None:
+            self._handle = hwnd
+
+    def get_window_by_title(self, pattern):
+        """Find a window whose title matches the regex pattern
+        """
+        self._handle = None
+        EnumWindows(self._parse_windows, pattern)
+
+    def focus(self):
+        """Bring focus to the selected window
+        """
+        SetForegroundWindow(self._handle)
+
+
 def focus_ms_word():
-    pass
+    """Bring Focus to an opened Word
+    """
+    win_man = WindowManager()
+    win_man.get_window_by_title("Word")
+    win_man.focus()
 
 
 def chain(*steps: dict, debug=False):
@@ -591,8 +626,6 @@ def chain(*steps: dict, debug=False):
             Apps Actions
             Mouse Actions with point given as tuple
             """
-            print(target)
-            print(isfile(Path(target)))
             globals()[action](target)
 
         sleep(wait)
