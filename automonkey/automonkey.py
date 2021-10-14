@@ -13,6 +13,7 @@ from os.path import sep
 from pathlib import Path
 
 from re import search
+from re import match
 
 from clipboard import paste
 from clipboard import copy as copy1
@@ -529,7 +530,7 @@ class WindowManager:
     def _parse_windows(self, hwnd, pattern):
         """Pass to EnumWindows() to check all the opened windows
         """
-        if search(pattern, str(GetWindowText(hwnd))) is not None:
+        if match(pattern, str(GetWindowText(hwnd))) is not None:
             self._handle = hwnd
 
     def get_window_by_title(self, pattern):
