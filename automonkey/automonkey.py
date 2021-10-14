@@ -105,6 +105,7 @@ KEYBOARD_ACTIONS = (
 )
 
 APPS_ACTIONS = (
+    "startfile",
     "msoffice_replace",
 )
 
