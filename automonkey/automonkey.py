@@ -8,6 +8,9 @@ from sys import exit as end
 from os import remove
 from os import startfile
 from os.path import isfile
+from os.path import sep
+
+from pathlib import Path
 
 from clipboard import paste
 from clipboard import copy as copy1
@@ -588,7 +591,7 @@ def chain(*steps: dict, debug=False):
             Apps Actions
             Mouse Actions with point given as tuple
             """
-            print(isfile(target))
+            print(isfile(Path(target)))
             globals()[action](target)
 
         sleep(wait)
