@@ -588,6 +588,7 @@ def chain(*steps: dict, debug=False):
             Apps Actions
             Mouse Actions with point given as tuple
             """
+            print(isfile(target))
             globals()[action](target)
 
         sleep(wait)
