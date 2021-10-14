@@ -6,6 +6,7 @@ from time import sleep
 from sys import exit as end
 
 from os import remove
+from os import startfile
 from os.path import isfile
 
 from clipboard import paste
@@ -41,6 +42,12 @@ from pyautogui import middleClick as middleclick
 from pyautogui import doubleClick as doubleclick
 from pyautogui import tripleClick as tripleclick
 from keyboard import press_and_release as keys
+
+from win32gui import FindWindow
+from win32gui import EnumWindows
+from win32gui import GetWindowText
+from win32gui import SetForegroundWindow
+from win32gui import GetForegroundWindow
 
 from pytesseract import image_to_string
 
@@ -502,7 +509,7 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
 
 
 def focus_ms_word():
-    
+    pass
 
 
 def chain(*steps: dict, debug=False):
@@ -575,6 +582,11 @@ def chain(*steps: dict, debug=False):
             else:
                 globals()[action](bullseye)
         else:
+            """Keyboard Actions
+            Wait Actions
+            Apps Actions
+            Mouse Actions with point given as tuple
+            """
             globals()[action](target)
 
         sleep(wait)
