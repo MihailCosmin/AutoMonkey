@@ -114,8 +114,8 @@ KEYBOARD_ACTIONS = (
 
 APPS_ACTIONS = (
     "startfile",
-    "focus_ms_word",
-    "msoffice_replace",
+    "focus_word",
+    "office_replace",
 )
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS
@@ -544,14 +544,14 @@ class WindowManager:
     def focus(self):
         """Bring focus to the selected window
         """
-        print(f"self._handle: {self._handle}")
+        # SetForegroundWindow works well only after pressing alt
         keyDown('alt')
         SetForegroundWindow(self._handle)
         keyUp('alt')
 
 
-def focus_ms_word(title):
-    """Bring Focus to an opened Word
+def focus_word(title):
+    """Bring Focus to an opened Word document
     """
     title = title if (not title.endswith('.docx')
                       and not title.endswith('.doc')
@@ -560,7 +560,6 @@ def focus_ms_word(title):
                   .replace('.docm', '')\
                   .replace('.doc', '')
     win_man = WindowManager()
-    print(f"title is {title}")
     win_man.get_window_by_title(f"{title} - Word")
     win_man.focus()
 
