@@ -543,11 +543,17 @@ class WindowManager:
         SetForegroundWindow(self._handle)
 
 
-def focus_ms_word():
+def focus_ms_word(title):
     """Bring Focus to an opened Word
     """
+    title = title if (not title.endswith('.docx')
+                      and not title.endswith('.doc')
+                      and not title.endswith('.docm'))\
+        else title.replace('.docx', '')\
+                  .replace('.docm', '')\
+                  .replace('.doc', '')
     win_man = WindowManager()
-    win_man.get_window_by_title("Word")
+    win_man.get_window_by_title(f"{title} - Word")
     win_man.focus()
 
 
