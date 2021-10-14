@@ -29,6 +29,8 @@ from pyscreeze import Box
 from pyautogui import alert
 from pyautogui import click
 from pyautogui import write
+from pyautogui import keyUp
+from pyautogui import keyDown
 from pyautogui import linear
 from pyautogui import center
 from pyautogui import locate
@@ -543,7 +545,9 @@ class WindowManager:
         """Bring focus to the selected window
         """
         print(f"self._handle: {self._handle}")
+        keyDown('alt')
         SetForegroundWindow(self._handle)
+        keyUp('alt')
 
 
 def focus_ms_word(title):
