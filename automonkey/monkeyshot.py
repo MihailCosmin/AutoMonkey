@@ -114,10 +114,6 @@ class MonkeyShot:
         gluOrtho2D(-1.0, 1.0, -1.0, 1.0)
 
     def _crosshair(self):
-        keyDown('alt')
-        SetForegroundWindow(self._handle)
-        keyUp('alt')
-
         glClear(GL_COLOR_BUFFER_BIT)
         glColor3f(1.0, 0.0, 0.0)
         glPointSize(5.0)
@@ -146,6 +142,9 @@ class MonkeyShot:
         glutInitWindowSize(600, 600)
         glutCreateWindow(self._window_name)
         self._handle = FindWindow(None, self._window_name)
+        keyDown('alt')
+        SetForegroundWindow(self._handle)
+        keyUp('alt')
         glutFullScreen()
         glutIdleFunc(self._crosshair)
         glutMouseFunc(self._on_click)
