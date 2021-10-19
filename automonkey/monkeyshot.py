@@ -2,7 +2,8 @@
 """
 from os import system
 from os.path import join
-from os.path import realpath
+from os.path import abspath
+from os.path import dirname
 from os.path import expanduser
 
 from pathlib import Path
@@ -149,6 +150,6 @@ class MonkeyShot:
 
     @staticmethod
     def _make_transparent():
-        _script_path = realpath(__file__)
+        _script_path = abspath(dirname(__file__))
         _transparency = "transparency.py"
         system(f'python "{join(_script_path, _transparency)}"')
