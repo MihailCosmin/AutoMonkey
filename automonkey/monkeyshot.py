@@ -40,10 +40,12 @@ from OpenGL.GLUT import GLUT_DOWN
 from OpenGL.GLUT import GLUT_DOUBLE
 from OpenGL.GLUT import GLUT_RGBA
 
-
-from win32gui import DestroyWindow
 from win32gui import FindWindow
+from win32gui import DestroyWindow
+from win32gui import SetForegroundWindow
 
+from pyautogui import keyUp
+from pyautogui import keyDown
 from pyautogui import position
 from pyautogui import screenshot
 
@@ -53,6 +55,7 @@ class MonkeyShot:
     """
     def __init__(self):
         self._window_name = "MonkeyShot - Screenshot"
+        self._handle = ""
         self._clicks = 0
         self._points = []
         self.location = expanduser("~/Desktop")
@@ -101,8 +104,8 @@ class MonkeyShot:
             self._clicks += 1
             self._points.append((x_value, y_value))
             if self._clicks == 2:
-                hwnd = FindWindow(None, self._window_name)
-                DestroyWindow(hwnd)
+                #hwnd = FindWindow(None, self._window_name)
+                DestroyWindow(self._handle)
                 self._take_screenshot(self._points)
 
     @staticmethod
@@ -110,8 +113,11 @@ class MonkeyShot:
         glClearColor(0.0, 0.0, 0.0, 1.0)
         gluOrtho2D(-1.0, 1.0, -1.0, 1.0)
 
-    @staticmethod
-    def _crosshair():
+    def _crosshair(self):
+        keyDown('alt')
+        SetForegroundWindow(self._handle)
+        keyUp('alt')
+
         glClear(GL_COLOR_BUFFER_BIT)
         glColor3f(1.0, 0.0, 0.0)
         glPointSize(5.0)
@@ -139,6 +145,7 @@ class MonkeyShot:
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA)
         glutInitWindowSize(600, 600)
         glutCreateWindow(self._window_name)
+        self._handle = FindWindow(None, self._window_name)
         glutFullScreen()
         glutIdleFunc(self._crosshair)
         glutMouseFunc(self._on_click)
