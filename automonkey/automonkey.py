@@ -63,6 +63,8 @@ from cv2 import cv2
 from cv2 import imread
 from numpy import where
 
+from .monkeyshot import MonkeyShot
+
 # Image Extensions supported
 # TODO: Check if all work
 IMG_EXT = (
@@ -343,7 +345,6 @@ def get_text_from_region(region) -> str:
     sleep(1)
     img = imread('temp.jpg')
 
-    # Adding custom options
     custom_config = r'--oem 3 --psm 6'
     text = image_to_string(img, config=custom_config)
     remove('temp.jpg')
@@ -481,7 +482,7 @@ def waituntil(img: str):
 
 
 def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1):
-    """Search and replace in all MS Office Software. No guaranties.
+    """Search and replace in all MS Office Software. No Guarantees.
 
     Args:
         replace_this (str): string to be replaced
@@ -525,18 +526,18 @@ class WindowManager:
         self._handle = None
 
     def get_window_by_class(self, class_name, window_name=None):
-        """Find a window by its class_name
+        """Find a window by the class name
         """
         self._handle = FindWindow(class_name, window_name)
 
     def _parse_windows(self, hwnd, pattern):
-        """Pass to EnumWindows() to check all the opened windows
+        """Pass to EnumWindows() to check all opened windows
         """
         if match(pattern, str(GetWindowText(hwnd))) is not None:
             self._handle = hwnd
 
     def get_window_by_title(self, pattern):
-        """Find a window whose title matches the regex pattern
+        """Find a window whose title matches the given regex pattern
         """
         self._handle = None
         EnumWindows(self._parse_windows, pattern)
