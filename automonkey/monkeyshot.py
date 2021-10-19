@@ -104,7 +104,6 @@ class MonkeyShot:
             self._clicks += 1
             self._points.append((x_value, y_value))
             if self._clicks == 2:
-                #hwnd = FindWindow(None, self._window_name)
                 DestroyWindow(self._handle)
                 self._take_screenshot(self._points)
 
