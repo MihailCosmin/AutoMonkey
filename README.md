@@ -1,2 +1,2 @@
 # AutoMonkey
-Python Automation using Mouse and Keyboard for the masses
+Python Automation using Mouse and Keyboard, for the masses
