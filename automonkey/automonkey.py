@@ -59,7 +59,7 @@ from win32gui import GetForegroundWindow
 
 from pytesseract import image_to_string
 
-from cv2 import cv2
+# from cv2 import cv2
 from cv2 import imread
 from numpy import where
 
