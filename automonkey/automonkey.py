@@ -632,7 +632,7 @@ def chain(*steps: dict, debug=False):
             bullseye = locateOnScreen(target, confidence=confidence)
             bullseye = get_center(bullseye)
             bullseye = diagonal_point(bullseye, h_offset, v_offset)
-            if offset != "":
+            if offset != "" and offset is not None:
                 globals()["__offset_clicks"](bullseye, target, offset, action)
             else:
                 globals()[action](bullseye)
