@@ -63,7 +63,6 @@ from pytesseract import image_to_string
 from cv2 import imread
 from numpy import where
 
-from .monkeyshot import MonkeyShot
 
 # Image Extensions supported
 # TODO: Check if all work
