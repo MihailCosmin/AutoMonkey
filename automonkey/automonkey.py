@@ -635,11 +635,10 @@ def chain(*steps: dict, debug=False):
             else:
                 globals()[action](bullseye)
         else:
-            """Keyboard Actions
-            Wait Actions
-            Apps Actions
-            Mouse Actions with point given as tuple
-            """
+            # Keyboard Actions
+            # Wait Actions
+            # Apps Actions
+            # Mouse Actions with point given as tuple
             globals()[action](target)
 
         sleep(wait)
