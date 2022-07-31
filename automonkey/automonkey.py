@@ -149,6 +149,7 @@ def __add_ext(filename: str) -> str:
     for ext in IMG_EXT:
         if isfile(f"{filename}{ext}"):
             return f"{filename}{ext}"
+    return filename
 
 
 def is_on_screen(what: str) -> bool:
@@ -596,15 +597,17 @@ def chain(*steps: dict, debug=False):
                     target = arg_pair[1]
                 else:
                     raise AutoMonkeyNoTarget
+
+                skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
+                wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
+                confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else 0.9
+                v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
+                h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
+                offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
+                break
             else:
                 raise AutoMonkeyNoAction
 
-            skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
-            wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
-            confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else 0.9
-            v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
-            h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
-            offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
 
         if debug:
             print(step)
