@@ -40,6 +40,7 @@ from pyautogui import confirm
 from pyautogui import position
 from pyautogui import mouseDown
 from pyautogui import screenshot
+from pyautogui import press as keys
 from pyautogui import locateOnScreen
 from pyautogui import locateAllOnScreen
 from pyautogui import scroll as scrollup
@@ -49,7 +50,8 @@ from pyautogui import rightClick as rightclick
 from pyautogui import middleClick as middleclick
 from pyautogui import doubleClick as doubleclick
 from pyautogui import tripleClick as tripleclick
-from keyboard import press_and_release as keys
+from keyboard import send as keys2
+from keyboard import press_and_release as keys3
 
 from win32gui import FindWindow
 from win32gui import EnumWindows
@@ -87,7 +89,6 @@ IMG_EXT = (
     ".WEBP"
 )
 
-
 MOUSE_ACTIONS = (
     "click",
     "leftclick",
@@ -109,6 +110,8 @@ KEYBOARD_ACTIONS = (
     "write",
     "pastetext",
     "keys",
+    "keys2",
+    "keys3",
     "copy",
     "paste",
 )
@@ -597,17 +600,15 @@ def chain(*steps: dict, debug=False):
                     target = arg_pair[1]
                 else:
                     raise AutoMonkeyNoTarget
-
+            elif action not in ALL_ACTIONS:
+                raise AutoMonkeyNoAction
+            else:
                 skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
                 wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
                 confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else 0.9
                 v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
                 h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
                 offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
-                break
-            else:
-                raise AutoMonkeyNoAction
-
 
         if debug:
             print(step)
