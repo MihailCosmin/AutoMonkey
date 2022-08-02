@@ -614,7 +614,7 @@ def chain(*steps: dict, debug=False):
             print(step)
 
         target = target.split("+") if action == "keys" else target
-
+        print(f"target: {target}")
         if action in MOUSE_ACTIONS and not isinstance(target, tuple):
             slept = 0
             target = __add_ext(target)
