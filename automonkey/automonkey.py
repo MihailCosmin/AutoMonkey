@@ -41,6 +41,7 @@ from pyautogui import position
 from pyautogui import mouseDown
 from pyautogui import screenshot
 from pyautogui import press as keys
+from pyautogui import hotkey as keys2
 from pyautogui import locateOnScreen
 from pyautogui import locateAllOnScreen
 from pyautogui import scroll as scrollup
@@ -50,8 +51,8 @@ from pyautogui import rightClick as rightclick
 from pyautogui import middleClick as middleclick
 from pyautogui import doubleClick as doubleclick
 from pyautogui import tripleClick as tripleclick
-from keyboard import send as keys2
-from keyboard import press_and_release as keys3
+from keyboard import send as keys3
+from keyboard import press_and_release as keys4
 
 from win32gui import FindWindow
 from win32gui import EnumWindows
@@ -112,6 +113,7 @@ KEYBOARD_ACTIONS = (
     "keys",
     "keys2",
     "keys3",
+    "keys4",
     "copy",
     "paste",
 )
@@ -614,7 +616,8 @@ def chain(*steps: dict, debug=False):
             print(step)
 
         target = target.split("+") if action == "keys" else target
-        print(f"target: {target}")
+        target = str(target.split("+"))[1:-1] if action == "keys2" else target
+
         if action in MOUSE_ACTIONS and not isinstance(target, tuple):
             slept = 0
             target = __add_ext(target)
