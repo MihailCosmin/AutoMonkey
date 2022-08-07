@@ -597,7 +597,17 @@ def chain(*steps: dict, debug=False):
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
     monitors = {}
-    for ind, mon in enumerate(get_monitors()):
+    total_width = 0 
+    for mon in get_monitors():
+        total_width += mon.width
+    print(f"Total width: {total_width}")
+
+    monitors1 = [(mon.x, mon.y) for mon in get_monitors()]
+    print(f"Monitors11: {monitors1}")
+    monitors1 = sorted(monitors1, key=lambda tup: tup[0])
+    print(f"Monitors12: {monitors1}")
+    for mon in get_monitors():
+        ind = mon.x / total_width
         monitors[ind] = (mon.x, mon.y)
     print(f"monitors: {monitors}")
     for step in steps:
