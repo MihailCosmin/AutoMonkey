@@ -617,7 +617,7 @@ def chain(*steps: dict, debug=False):
                 v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
                 h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
                 offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
-                monitor = str(arg_pair[1]) if arg_pair[0] == 'monitor' else 1
+                monitor = arg_pair[1] if arg_pair[0] == 'monitor' else 1
 
         if debug:
             print(step)
