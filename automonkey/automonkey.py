@@ -597,12 +597,11 @@ def chain(*steps: dict, debug=False):
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
     monitors = {}
-
     mon_list = [(mon.x, mon.y) for mon in get_monitors()]
     mon_list = sorted(mon_list, key=lambda tup: tup[0])
     for ind, mon in enumerate(mon_list):
         monitors[ind] = (mon[0], mon[1])
-    print(f"monitors: {monitors}")
+
     for step in steps:
         for arg_pair in step.items():
             if arg_pair[0] in ALL_ACTIONS:
@@ -627,8 +626,13 @@ def chain(*steps: dict, debug=False):
 
         target = target.split("+") if action == "keys" else target  # keys is from pyautogui import press. Ex: pyautogui.press(['left', 'left', 'left'])
         target = str(target.split("+"))[1:-1] if action == "keys2" else target  # keys is from pyautogui import hotkey. Ex: pyautogui.hotkey('ctrl', 'shift', 'esc')
-        target = (target[0] + monitors[monitor - 1][0], target[1] + monitors[monitor - 1][1]) if isinstance(target, tuple) else target
-        print(f"target: {target}")
+        try:
+            target = (target[0] + monitors[monitor - 1][0], target[1]) if isinstance(target, tuple) and target[0] < monitors[1][0] else target
+        except IndexError:
+            pass
+        except KeyError:
+            pass
+
         if action in MOUSE_ACTIONS and not isinstance(target, tuple):
             slept = 0
             target = __add_ext(target)
