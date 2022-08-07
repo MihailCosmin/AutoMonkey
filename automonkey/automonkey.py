@@ -62,7 +62,10 @@ from win32gui import GetForegroundWindow
 
 from pytesseract import image_to_string
 
+from screeninfo import get_monitors
+
 # from cv2 import cv2
+import cv2
 from cv2 import imread
 from numpy import where
 
@@ -370,10 +373,10 @@ def count_needles(needle: str, haystack: str) -> int:
     needle = __add_ext(needle)
     haystack = __add_ext(haystack)
 
-    hay = cv2.imread(haystack)
-    need = cv2.imread(needle)
+    hay = imread(haystack)
+    need = imread(needle)
 
-    res = cv2.matchTemplate(hay, need, cv2.TM_CCOEFF_NORMED)
+    res = cv2.cv2.matchTemplate(hay, need, cv2.cv2.TM_CCOEFF_NORMED)
 
     threshold = .9  # 9 is more precise. 8 gives some false positives
     loc = where(res >= threshold)
@@ -593,7 +596,10 @@ def chain(*steps: dict, debug=False):
 
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
     """
-
+    monitors = {}
+    for ind, mon in enumerate(get_monitors()):
+        monitors[ind] = (mon.x, mon.y)
+    print(f"monitors: {monitors}")
     for step in steps:
         for arg_pair in step.items():
             if arg_pair[0] in ALL_ACTIONS:
@@ -611,12 +617,14 @@ def chain(*steps: dict, debug=False):
                 v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
                 h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
                 offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
+                monitor = str(arg_pair[1]) if arg_pair[0] == 'monitor' else 1
 
         if debug:
             print(step)
 
-        target = target.split("+") if action == "keys" else target
-        target = str(target.split("+"))[1:-1] if action == "keys2" else target
+        target = target.split("+") if action == "keys" else target  # keys is from pyautogui import press. Ex: pyautogui.press(['left', 'left', 'left'])
+        target = str(target.split("+"))[1:-1] if action == "keys2" else target  # keys is from pyautogui import hotkey. Ex: pyautogui.hotkey('ctrl', 'shift', 'esc')
+        target = (target[0] + monitors[monitor][0], target[1] + monitors[monitor][0]) if isinstance(target, tuple) else target
 
         if action in MOUSE_ACTIONS and not isinstance(target, tuple):
             slept = 0

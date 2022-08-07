@@ -12,3 +12,4 @@ docx>=0.2.4
 pymupdf>=1.19.5
 pywin32>=303
 pywin32-ctypes>=0.2.0
+screeninfo>=0.8
