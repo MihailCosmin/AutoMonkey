@@ -625,7 +625,7 @@ def chain(*steps: dict, debug=False):
         target = target.split("+") if action == "keys" else target  # keys is from pyautogui import press. Ex: pyautogui.press(['left', 'left', 'left'])
         target = str(target.split("+"))[1:-1] if action == "keys2" else target  # keys is from pyautogui import hotkey. Ex: pyautogui.hotkey('ctrl', 'shift', 'esc')
         target = (target[0] + monitors[monitor - 1][0], target[1] + monitors[monitor - 1][0]) if isinstance(target, tuple) else target
-
+        print(f"target: {target}")
         if action in MOUSE_ACTIONS and not isinstance(target, tuple):
             slept = 0
             target = __add_ext(target)
