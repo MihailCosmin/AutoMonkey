@@ -1,4 +1,5 @@
 # AutoMonkey
+![AutoMonkey](img/monkey.ico)
 Python Automation using Mouse and Keyboard, for the masses
 
 # Installation
