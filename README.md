@@ -6,8 +6,15 @@ pip install git+https://github.com/MihailCosmin/AutoMonkey
 
 # Usage
 Main function to be used is "chain"  
+
 This will allow you to "chain" together most of the other functions of automonkey.  
-This will allow you to create sequences of mouse and/or keyboard actions in order to automate any given task.  
+Which in turn will enable you to create sequences of mouse and/or keyboard actions in order to automate any given task.  
 Ex:
 
-    chain()
+`   chain(
+        dict(click="chrome", wait=1),
+        dict(click=(700, 10), wait=1, monitor=2),
+        dict(keys3="ctrl+t", wait=1),
+        dict(write="www", wait=2),
+        debug=True
+    )`
