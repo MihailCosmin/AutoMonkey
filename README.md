@@ -1,5 +1,5 @@
 # AutoMonkey
-![AutoMonkey](img/monkey.ico)  
+<img alt="AutoMonkey" src="img/monkey.ico" width="100px" height="100px"/>
 
 Python Automation using Mouse and Keyboard, for the masses
 
