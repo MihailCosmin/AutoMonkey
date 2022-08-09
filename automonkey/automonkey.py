@@ -107,7 +107,7 @@ MOUSE_ACTIONS = (
 
 WAIT_ACTIONS = (
     "waitwhile",
-    "waieuntil",
+    "waituntil",
 )
 
 KEYBOARD_ACTIONS = (
