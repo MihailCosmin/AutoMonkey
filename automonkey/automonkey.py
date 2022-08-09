@@ -633,7 +633,7 @@ def chain(*steps: dict, debug=False):
         except KeyError:
             pass
 
-        if action in MOUSE_ACTIONS and not isinstance(target, tuple):
+        if action in MOUSE_ACTIONS and not isinstance(target, tuple) and not isinstance(target, int):
             slept = 0
             target = __add_ext(target)
 
