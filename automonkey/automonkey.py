@@ -40,8 +40,8 @@ from pyautogui import confirm
 from pyautogui import position
 from pyautogui import mouseDown
 from pyautogui import screenshot
-from pyautogui import press as keys
-from pyautogui import hotkey as keys2
+from pyautogui import press as keys  # this normally is to be used for same key left, left, left
+from pyautogui import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
 from pyautogui import locateOnScreen
 from pyautogui import locateAllOnScreen
 from pyautogui import scroll as scrollup
@@ -51,8 +51,8 @@ from pyautogui import rightClick as rightclick
 from pyautogui import middleClick as middleclick
 from pyautogui import doubleClick as doubleclick
 from pyautogui import tripleClick as tripleclick
-from keyboard import send as keys3
-from keyboard import press_and_release as keys4
+from keyboard import send as keys3  # works mostly on windows - TODO: Check difference to below
+from keyboard import press_and_release as keys4  # works mostly on windows
 
 from win32gui import FindWindow
 from win32gui import EnumWindows
@@ -625,7 +625,7 @@ def chain(*steps: dict, debug=False):
             print(step)
 
         target = target.split("+") if action == "keys" else target  # keys is from pyautogui import press. Ex: pyautogui.press(['left', 'left', 'left'])
-        target = str(target.split("+"))[1:-1] if action == "keys2" else target  # keys is from pyautogui import hotkey. Ex: pyautogui.hotkey('ctrl', 'shift', 'esc')
+        target = target.split("+") if action == "keys2" else target  # keys is from pyautogui import hotkey. Ex: pyautogui.hotkey('ctrl', 'shift', 'esc')
         try:
             target = (target[0] + monitors[monitor - 1][0], target[1]) if isinstance(target, tuple) and target[0] < monitors[1][0] else target
         except IndexError:
@@ -662,6 +662,9 @@ def chain(*steps: dict, debug=False):
             # Wait Actions
             # Apps Actions
             # Mouse Actions with point given as tuple
-            globals()[action](target)
+            if target == "keys2":
+                globals()[action](*target)
+            else:
+                globals()[action](target)
 
         sleep(wait)
