@@ -31,6 +31,7 @@ except ImportError:
 
 from pyscreeze import Box
 
+from pyautogui import size
 from pyautogui import alert
 from pyautogui import click
 from pyautogui import write
@@ -352,7 +353,7 @@ class ShowCoordinates(Toplevel):
                 font=("Helvetica", 20),
             )
         coords = self.canvas.create_text(
-            x_point + 100,
+            x_point + 100 if x_point < size()[0] - 150 else x_point - 100,
             y_point,
             text=f"x={x_point}, y={y_point}",
             fill='red',
