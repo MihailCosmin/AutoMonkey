@@ -309,6 +309,7 @@ def track_mouse():
             if cur_pos != position():
                 cur_pos = position()
                 print(position())
+                show_coords = ShowCoordinates(x=cur_pos[0], y=cur_pos[1])
             sleep(1)
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
