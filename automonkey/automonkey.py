@@ -324,6 +324,7 @@ class ShowCoordinates():
         self.window.wm_attributes('-transparentcolor', '#000001')
         # add a label
         self.label = Label(self.window, text=f"{x}, {y}", bg='black', fg='white')
+        self.window.mainloop()
         
 def get_img_height(image_file):
     """Function that returns the height of an image.
