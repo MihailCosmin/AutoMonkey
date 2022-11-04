@@ -338,6 +338,8 @@ class ShowCoordinates():
         self.canvas.pack()
 
         self.window.after(1, self._crosshair, None)
+        # hide the tk window
+        self.window.withdraw()
         self.window.mainloop()
 
     def _crosshair(self, coords):
