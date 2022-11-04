@@ -1,0 +1,1 @@
+virtualenv venv && venv\Scripts\activate && pip install git+https://github.com/MihailCosmin/AutoMonkey

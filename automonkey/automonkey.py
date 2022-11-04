@@ -135,6 +135,8 @@ class AutoMonkeyNoAction(Exception):
     AutoMonkey chain function will raise this Exception if no action exists
     in an automation step of the chain sequence.
     """
+    def __init__(self):
+        super().__init__("No action found in automation step")
 
 
 class AutoMonkeyNoTarget(Exception):
@@ -603,9 +605,10 @@ def chain(*steps: dict, debug=False):
         monitors[ind] = (mon[0], mon[1])
 
     for step in steps:
+        action = None
         for arg_pair in step.items():
+            action = arg_pair[0]
             if arg_pair[0] in ALL_ACTIONS:
-                action = arg_pair[0]
                 if arg_pair[1] != "":
                     target = arg_pair[1]
                 else:
@@ -620,6 +623,9 @@ def chain(*steps: dict, debug=False):
                 h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
                 offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
                 monitor = arg_pair[1] if arg_pair[0] == 'monitor' else 1
+
+        if action not in ALL_ACTIONS:
+            raise AutoMonkeyNoAction
 
         if debug:
             print(step)
