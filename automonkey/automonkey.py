@@ -341,7 +341,6 @@ class ShowCoordinates():
         self.window.after(1, self._crosshair, None)
         # hide the tk window
         self.window.overrideredirect(True)
-        self.canvas.deiconify()
         self.window.mainloop()
 
     def _crosshair(self, coords):
