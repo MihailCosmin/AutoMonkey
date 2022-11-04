@@ -316,17 +316,18 @@ def track_mouse():
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
 
-class ShowCoordinates(Toplevel):
-    def __init__(self):
+class PositionTracker(Toplevel):
+    def __init__(self, follow_mouse: bool = False):
+        self.follow_mouse = follow_mouse
         self.window = Tk()  # Toplevel()  # Tk()
         self.canvas = None
+        self.start()
 
-    def shoot(self):
+    def start(self):
         """Take the screenshot
         """
-        self.bind('<Button-1>', self._move_window)
         self.window.bind('<Escape>', lambda e: self.window.destroy())
-        self.window.attributes('-fullscreen', True, '-alpha', 0.4)
+        self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
         self.canvas = Canvas(
@@ -347,24 +348,29 @@ class ShowCoordinates(Toplevel):
         self.canvas.delete(coords)
         if coords is None:
             self.canvas.create_text(
-                120,
+                180,
                 20,
                 text=f"Press ESC to exit.",
                 fill='red',
-                font=("Helvetica", 20),
+                font=("Helvetica", 30),
             )
-        coords = self.canvas.create_text(
-            x_point + 100 if x_point < size()[0] - 200 else x_point - 100,
-            y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100,
-            text=f"x={x_point}, y={y_point}",
-            fill='red',
-            font=("Helvetica", 14),
-        )
+        if self.follow_mouse:
+            coords = self.canvas.create_text(
+                x_point + 100 if x_point < size()[0] - 200 else x_point - 100 if x_point < size()[0] + 100 else size()[0] / 2,
+                size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100,
+                text=f"x={x_point}, y={y_point}",
+                fill='red',
+                font=("Helvetica", 20) if x_point < size()[0] + 100 else ("Helvetica", 40),
+            )
+        else:
+            coords = self.canvas.create_text(
+                size()[0] / 2,
+                size()[1] / 2,
+                text=f"x={x_point}, y={y_point}",
+                fill='red',
+                font=("Helvetica", 40),
+            )
         self.window.after(1, self._crosshair, coords)
-
-    def _move_window(self, event):
-        self.window.geometry(f'+{event.x_root}+{event.y_root}')
-        
 
 def get_img_height(image_file):
     """Function that returns the height of an image.
@@ -726,3 +732,7 @@ def chain(*steps: dict, debug=False):
                 globals()[action](target)
 
         sleep(wait)
+
+if __name__ == "__main__":
+    PositionTracker()
+    # track_mouse()
