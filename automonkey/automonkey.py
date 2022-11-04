@@ -135,8 +135,8 @@ class AutoMonkeyNoAction(Exception):
     AutoMonkey chain function will raise this Exception if no action exists
     in an automation step of the chain sequence.
     """
-    def __init__(self):
-        super().__init__("No action found in automation step")
+    def __init__(self, message):
+        super().__init__(f"The provided action is not supported: {message}")
 
 
 class AutoMonkeyNoTarget(Exception):
@@ -144,7 +144,8 @@ class AutoMonkeyNoTarget(Exception):
     AutoMonkey chain function will raise this Exception if no target exists
     in an automation step of the chain sequence.
     """
-
+    def __init__(self, message):
+        super().__init__(f"The provided target is not supported: {message}")
 
 def __add_ext(filename: str) -> str:
     """Adds extension to an image filename if missing
@@ -612,9 +613,9 @@ def chain(*steps: dict, debug=False):
                 if arg_pair[1] != "":
                     target = arg_pair[1]
                 else:
-                    raise AutoMonkeyNoTarget
+                    raise AutoMonkeyNoTarget(target)
             elif action not in ALL_ACTIONS:
-                raise AutoMonkeyNoAction
+                raise AutoMonkeyNoAction(action)
             else:
                 skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
                 wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
@@ -625,7 +626,7 @@ def chain(*steps: dict, debug=False):
                 monitor = arg_pair[1] if arg_pair[0] == 'monitor' else 1
 
         if action not in ALL_ACTIONS:
-            raise AutoMonkeyNoAction
+            raise AutoMonkeyNoAction(action)
 
         if debug:
             print(step)
