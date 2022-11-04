@@ -340,7 +340,7 @@ class ShowCoordinates():
         self.window.after(1, self._crosshair, None)
         self.window.mainloop()
 
-    def _crosshair(self):
+    def _crosshair(self, coords):
         x_point, y_point = position()
 
         self.canvas.delete(coords)
@@ -359,7 +359,7 @@ class ShowCoordinates():
         #     y_point,
         #     fill='red'
         # )
-        
+
         # write the X and Y coordinates on the screen on the canvas
         coords = self.canvas.create_text(
             x_point + 30,
