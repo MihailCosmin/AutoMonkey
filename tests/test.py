@@ -1,4 +1,4 @@
 from automonkey import ShowCoordinates
 
 tracker = ShowCoordinates()
-tracker()
+tracker.shoot()

@@ -320,10 +320,11 @@ class ShowCoordinates():
         self.window = None
         self.canvas = None
 
-    def shoot(self, mode: str = 'static'):
+    def shoot(self):
         """Take the screenshot
         """
         self.window = Toplevel()  # Tk()
+        self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
 
@@ -361,6 +362,7 @@ class ShowCoordinates():
         )
 
         self.window.after(1, self._crosshair, vertical, horizontal, rectangle)
+        # on escape key press exit
 
 def get_img_height(image_file):
     """Function that returns the height of an image.
