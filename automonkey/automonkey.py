@@ -323,14 +323,16 @@ class ShowCoordinates():
     def shoot(self):
         """Take the screenshot
         """
-        self.window = Tk() # Toplevel()  # Tk()
-        self.window.iconify()
+        self.window = Toplevel() # Toplevel()  # Tk()
         self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
+        
+        #minimize 
+        self.window.state('iconic')
 
         self.canvas = Canvas(
-            self.window,
+            None,  # self.window,
             width=self.window.winfo_screenwidth(),
             height=self.window.winfo_screenheight(),
             cursor="crosshair"
