@@ -663,5 +663,4 @@ def chain(*steps: dict, debug=False):
             # Apps Actions
             # Mouse Actions with point given as tuple
             globals()[action](target)
-
         sleep(wait)
