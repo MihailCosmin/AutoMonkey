@@ -315,7 +315,7 @@ def track_mouse():
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
 
-class ShowCoordinates():
+class ShowCoordinates(Tk):
     def __init__(self):
         self.window = None
         self.canvas = None
@@ -323,11 +323,12 @@ class ShowCoordinates():
     def shoot(self):
         """Take the screenshot
         """
+        self.destroy()
         self.window = Toplevel() # Toplevel()  # Tk()
         self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
-        self.window.withdraw()
+        self.window.deiconify()
 
         self.canvas = Canvas(
             self.window,
@@ -339,8 +340,6 @@ class ShowCoordinates():
         self.canvas.pack()
 
         self.window.after(1, self._crosshair, None)
-        # hide the tk window
-        self.window.overrideredirect(True)
         self.window.mainloop()
 
     def _crosshair(self, coords):
