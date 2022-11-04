@@ -318,13 +318,13 @@ def track_mouse():
 
 class ShowCoordinates(Toplevel):
     def __init__(self):
-        self.bind('<Button-1>', self._move_window)
         self.window = Tk()  # Toplevel()  # Tk()
         self.canvas = None
 
     def shoot(self):
         """Take the screenshot
         """
+        self.bind('<Button-1>', self._move_window)
         self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
