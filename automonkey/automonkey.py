@@ -323,17 +323,8 @@ class ShowCoordinates():
     def shoot(self, mode: str = 'static'):
         """Take the screenshot
         """
-        if mode == 'static':
-            transparency = 1
-            self.mode = 'screenshot'
-        elif mode == 'dynamic':
-            transparency = 0.4
-            self.mode = 'screenshot'
-        elif mode == 'video':
-            transparency = 1
-            self.mode = 'video'
         self.window = Toplevel()  # Tk()
-        self.window.attributes('-fullscreen', True, '-alpha', transparency)
+        self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
 
         self.canvas = Canvas(

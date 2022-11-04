@@ -1,3 +1,4 @@
-from automonkey import track_mouse
+from automonkey import ShowCoordinates
 
-track_mouse()
+tracker = ShowCoordinates()
+tracker()
