@@ -17,6 +17,8 @@ from re import match
 
 from tkinter import Tk
 from tkinter import Label
+from tkinter import Canvas
+from tkinter import Toplevel
 
 from clipboard import paste
 from clipboard import copy as copy1
@@ -309,23 +311,66 @@ def track_mouse():
             if cur_pos != position():
                 cur_pos = position()
                 print(position())
-                show_coords = ShowCoordinates(x=cur_pos[0], y=cur_pos[1])
-                show_coords()
             sleep(1)
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
 
 class ShowCoordinates():
-    def __init__(self, x, y):
-        self.window = Tk()
-        self.window.overrideredirect(True)
-        self.window.title('MonkeyHouse')
+    def __init__(self):
+        self.window = None
+        self.canvas = None
+
+    def shoot(self, mode: str = 'static'):
+        """Take the screenshot
+        """
+        if mode == 'static':
+            transparency = 1
+            self.mode = 'screenshot'
+        elif mode == 'dynamic':
+            transparency = 0.4
+            self.mode = 'screenshot'
+        elif mode == 'video':
+            transparency = 1
+            self.mode = 'video'
+        self.window = Toplevel()  # Tk()
+        self.window.attributes('-fullscreen', True, '-alpha', transparency)
         self.window.configure(bg='black')
-        self.window.wm_attributes('-transparentcolor', '#000001')
-        # add a label
-        self.label = Label(self.window, text=f"{x}, {y}", bg='black', fg='white')
+
+        self.canvas = Canvas(
+            self.window,
+            width=self.window.winfo_screenwidth(),
+            height=self.window.winfo_screenheight(),
+            cursor="crosshair"
+        )
+        self.canvas.configure(highlightthickness=0, bg='black')
+        self.canvas.pack()
+
+        self.window.after(1, self._crosshair, None, None, None)
         self.window.mainloop()
-        
+
+    def _crosshair(self, vertical, horizontal, rectangle):
+        x_point, y_point = position()
+
+        self.canvas.delete(vertical)
+        self.canvas.delete(horizontal)
+
+        vertical = self.canvas.create_line(
+            x_point,
+            self.window.winfo_screenheight(),
+            x_point,
+            0,
+            fill='red'
+        )
+        horizontal = self.canvas.create_line(
+            0,
+            y_point,
+            self.window.winfo_screenwidth(),
+            y_point,
+            fill='red'
+        )
+
+        self.window.after(1, self._crosshair, vertical, horizontal, rectangle)
+
 def get_img_height(image_file):
     """Function that returns the height of an image.
     Args:
