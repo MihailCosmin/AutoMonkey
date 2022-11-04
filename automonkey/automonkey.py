@@ -15,6 +15,9 @@ from pathlib import Path
 from re import search
 from re import match
 
+from tkinter import Tk
+from tkinter import Label
+
 from clipboard import paste
 from clipboard import copy as copy1
 from pyperclip import copy as copy2
@@ -310,7 +313,17 @@ def track_mouse():
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
 
-
+class ShowCoordinates():
+    def __init__(self, x, y):
+        self.window = Tk()
+        self.window.overrideredirect(True)
+        self.window.title('MonkeyHouse')
+        self.window.configure(bg='black')
+        self.window.wm_attributes('-transparentcolor', '#000001')
+        # add a label
+        self.label = Label(self.window, text=f"{x}, {y}", bg='black', fg='white')
+        self.show()
+        
 def get_img_height(image_file):
     """Function that returns the height of an image.
     Args:
@@ -621,15 +634,14 @@ def chain(*steps: dict, debug=False):
 
         if action not in ALL_ACTIONS:
             raise AutoMonkeyNoAction(action)
-        
+
         if target is None:
             raise AutoMonkeyNoTarget(target)
 
         if debug:
             print(step)
 
-        target = target.split("+") if action == "keys" else target  # keys is from pyautogui import press. Ex: pyautogui.press(['left', 'left', 'left'])
-        target = target.split("+") if action == "keys2" else target  # keys is from pyautogui import hotkey. Ex: pyautogui.hotkey('ctrl', 'shift', 'esc')
+        target = target.split("+") if action in ("keys", "keys2") else target  # keys is from pyautogui import press. Ex: pyautogui.press(['left', 'left', 'left'])
         try:
             target = (target[0] + monitors[monitor - 1][0], target[1]) if isinstance(target, tuple) and target[0] < monitors[1][0] else target
         except IndexError:
