@@ -353,8 +353,8 @@ class ShowCoordinates(Toplevel):
                 font=("Helvetica", 20),
             )
         coords = self.canvas.create_text(
-            x_point + 100 if x_point < size()[0] - 150 else x_point - 100,
-            y_point,
+            x_point + 100 if x_point < size()[0] - 200 else x_point - 100,
+            y_point if (y_point < 150 and x_point < 50) else y_point + 100,
             text=f"x={x_point}, y={y_point}",
             fill='red',
             font=("Helvetica", 14),
