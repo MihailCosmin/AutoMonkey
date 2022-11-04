@@ -332,7 +332,7 @@ class ShowCoordinates():
         self.window.state('iconic')
 
         self.canvas = Canvas(
-            None,  # self.window,
+            self.window,
             width=self.window.winfo_screenwidth(),
             height=self.window.winfo_screenheight(),
             cursor="crosshair"
