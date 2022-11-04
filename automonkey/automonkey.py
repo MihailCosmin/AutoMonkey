@@ -318,6 +318,7 @@ def track_mouse():
 
 class ShowCoordinates(Toplevel):
     def __init__(self):
+        self.bind('<Button-1>', self._move_window)
         self.window = Tk()  # Toplevel()  # Tk()
         self.canvas = None
 
@@ -325,8 +326,7 @@ class ShowCoordinates(Toplevel):
         """Take the screenshot
         """
         self.window.bind('<Escape>', lambda e: self.window.destroy())
-        # self.window.attributes('-fullscreen', True, '-alpha', 0.4)
-        self.window.attributes('-alpha', 0.4)
+        self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
 
         self.canvas = Canvas(
@@ -361,6 +361,10 @@ class ShowCoordinates(Toplevel):
             font=("Helvetica", 14),
         )
         self.window.after(1, self._crosshair, coords)
+
+    def __move_window(self, event):
+        self.window.geometry(f'+{event.x_root}+{event.y_root}')
+        
 
 def get_img_height(image_file):
     """Function that returns the height of an image.
