@@ -607,26 +607,23 @@ def chain(*steps: dict, debug=False):
 
     for step in steps:
         action = None
+        target = None
         for arg_pair in step.items():
-            action = arg_pair[0]
-            if arg_pair[0] in ALL_ACTIONS:
-                if arg_pair[1] != "":
-                    target = arg_pair[1]
-                else:
-                    raise AutoMonkeyNoTarget(target)
-            elif action not in ALL_ACTIONS:
-                raise AutoMonkeyNoAction(action)
-            else:
-                skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
-                wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
-                confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else 0.9
-                v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
-                h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
-                offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
-                monitor = arg_pair[1] if arg_pair[0] == 'monitor' else 1
+            action = arg_pair[0] if arg_pair[0] in ALL_ACTIONS else action
+            target = arg_pair[1] if arg_pair[0] in ALL_ACTIONS else target
+            skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
+            wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
+            confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else 0.9
+            v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
+            h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
+            offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
+            monitor = arg_pair[1] if arg_pair[0] == 'monitor' else 1
 
         if action not in ALL_ACTIONS:
             raise AutoMonkeyNoAction(action)
+        
+        if target is None:
+            raise AutoMonkeyNoTarget(target)
 
         if debug:
             print(step)

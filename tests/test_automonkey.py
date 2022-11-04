@@ -3,5 +3,5 @@
 from automonkey import chain
 
 chain(
-    dict(yoyo="tests/chrome.jpg", wait=0.5),
+    dict(click="tests/chrome.jpg", wait=0.5),
 )
