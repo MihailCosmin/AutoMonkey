@@ -325,7 +325,8 @@ class ShowCoordinates(Toplevel):
         """Take the screenshot
         """
         self.window.bind('<Escape>', lambda e: self.window.destroy())
-        self.window.attributes('-fullscreen', True, '-alpha', 0.4)
+        # self.window.attributes('-fullscreen', True, '-alpha', 0.4)
+        self.window.attributes('-alpha', 0.4)
         self.window.configure(bg='black')
 
         self.canvas = Canvas(
