@@ -340,7 +340,7 @@ class ShowCoordinates():
         self.window.after(1, self._crosshair, None, None, None)
         self.window.mainloop()
 
-    def _crosshair(self, vertical, horizontal, rectangle):
+    def _crosshair(self):
         x_point, y_point = position()
 
         # self.canvas.delete(vertical)
