@@ -350,7 +350,7 @@ class ShowCoordinates(Toplevel):
             text=f"x={x_point}, y={y_point}",
             fill='red'
         )
-        sleep(0.2)
+        # sleep(0.2)
 
         self.window.after(1, self._crosshair, coords)
 
