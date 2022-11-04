@@ -337,7 +337,7 @@ class ShowCoordinates():
         self.canvas.configure(highlightthickness=0, bg='black')
         self.canvas.pack()
 
-        self.window.after(1, self._crosshair, None, None, None)
+        self.window.after(1, self._crosshair)
         self.window.mainloop()
 
     def _crosshair(self):
