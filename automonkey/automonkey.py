@@ -360,6 +360,14 @@ class ShowCoordinates():
             y_point,
             fill='red'
         )
+        
+        # write the X and Y coordinates on the screen on the canvas
+        self.canvas.create_text(
+            x_point,
+            y_point,
+            text=f"{x_point}, {y_point}",
+            fill='red'
+        )
 
         self.window.after(1, self._crosshair, vertical, horizontal, rectangle)
         # on escape key press exit
