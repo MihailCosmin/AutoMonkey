@@ -327,9 +327,7 @@ class ShowCoordinates():
         self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
-        
-        #minimize 
-        self.window.state('iconic')
+        self.window.withdraw()
 
         self.canvas = Canvas(
             self.window,
@@ -342,7 +340,8 @@ class ShowCoordinates():
 
         self.window.after(1, self._crosshair, None)
         # hide the tk window
-        self.window.withdraw()
+        self.window.overrideredirect(True)
+        self.canvas.deiconify()
         self.window.mainloop()
 
     def _crosshair(self, coords):
