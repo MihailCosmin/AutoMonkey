@@ -343,33 +343,34 @@ class ShowCoordinates():
     def _crosshair(self, vertical, horizontal, rectangle):
         x_point, y_point = position()
 
-        self.canvas.delete(vertical)
-        self.canvas.delete(horizontal)
+        # self.canvas.delete(vertical)
+        # self.canvas.delete(horizontal)
 
-        vertical = self.canvas.create_line(
-            x_point,
-            self.window.winfo_screenheight(),
-            x_point,
-            0,
-            fill='red'
-        )
-        horizontal = self.canvas.create_line(
-            0,
-            y_point,
-            self.window.winfo_screenwidth(),
-            y_point,
-            fill='red'
-        )
+        # vertical = self.canvas.create_line(
+        #     x_point,
+        #     self.window.winfo_screenheight(),
+        #     x_point,
+        #     0,
+        #     fill='red'
+        # )
+        # horizontal = self.canvas.create_line(
+        #     0,
+        #     y_point,
+        #     self.window.winfo_screenwidth(),
+        #     y_point,
+        #     fill='red'
+        # )
         
         # write the X and Y coordinates on the screen on the canvas
         self.canvas.create_text(
-            x_point,
-            y_point,
+            x_point + 10,
+            y_point + 10,
             text=f"{x_point}, {y_point}",
             fill='red'
         )
+        sleep(0.1)
 
-        self.window.after(1, self._crosshair, vertical, horizontal, rectangle)
+        self.window.after(1, self._crosshair)
         # on escape key press exit
 
 def get_img_height(image_file):
