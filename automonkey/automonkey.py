@@ -345,7 +345,7 @@ class ShowCoordinates(Toplevel):
         self.canvas.delete(coords)
         if coords is None:
             self.canvas.create_text(
-                50,
+                250,
                 50,
                 text=f"Press ESC to exit.",
                 fill='red',
