@@ -310,6 +310,7 @@ def track_mouse():
                 cur_pos = position()
                 print(position())
                 show_coords = ShowCoordinates(x=cur_pos[0], y=cur_pos[1])
+                show_coords()
             sleep(1)
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
@@ -323,7 +324,6 @@ class ShowCoordinates():
         self.window.wm_attributes('-transparentcolor', '#000001')
         # add a label
         self.label = Label(self.window, text=f"{x}, {y}", bg='black', fg='white')
-        self.show()
         
 def get_img_height(image_file):
     """Function that returns the height of an image.
