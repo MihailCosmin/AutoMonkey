@@ -358,8 +358,6 @@ class ShowCoordinates(Toplevel):
             fill='red',
             font=("Helvetica", 14),
         )
-        # sleep(0.2)
-
         self.window.after(1, self._crosshair, coords)
 
 def get_img_height(image_file):
