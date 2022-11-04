@@ -362,7 +362,7 @@ class ShowCoordinates(Toplevel):
         )
         self.window.after(1, self._crosshair, coords)
 
-    def __move_window(self, event):
+    def _move_window(self, event):
         self.window.geometry(f'+{event.x_root}+{event.y_root}')
         
 
