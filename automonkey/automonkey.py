@@ -344,11 +344,19 @@ class ShowCoordinates(Toplevel):
 
         self.canvas.delete(coords)
         # write the X and Y coordinates on the screen on the canvas
+        self.canvas.create_text(
+            x_point - 100,
+            y_point,
+            text=f"x={x_point}, y={y_point}",
+            fill='red',
+            font=("Helvetica", 20),
+        )
         coords = self.canvas.create_text(
             x_point + 30,
             y_point + 30,
             text=f"x={x_point}, y={y_point}",
-            fill='red'
+            fill='red',
+            font=("Helvetica", 14),
         )
         # sleep(0.2)
 
