@@ -323,7 +323,8 @@ class ShowCoordinates():
     def shoot(self):
         """Take the screenshot
         """
-        self.window = Toplevel()  # Tk()
+        self.window = Tk() # Toplevel()  # Tk()
+        self.window.iconify()
         self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.4)
         self.window.configure(bg='black')
@@ -346,22 +347,6 @@ class ShowCoordinates():
         x_point, y_point = position()
 
         self.canvas.delete(coords)
-
-        # vertical = self.canvas.create_line(
-        #     x_point,
-        #     self.window.winfo_screenheight(),
-        #     x_point,
-        #     0,
-        #     fill='red'
-        # )
-        # horizontal = self.canvas.create_line(
-        #     0,
-        #     y_point,
-        #     self.window.winfo_screenwidth(),
-        #     y_point,
-        #     fill='red'
-        # )
-
         # write the X and Y coordinates on the screen on the canvas
         coords = self.canvas.create_text(
             x_point + 30,
@@ -372,7 +357,6 @@ class ShowCoordinates():
         sleep(0.2)
 
         self.window.after(1, self._crosshair, coords)
-        # on escape key press exit
 
 def get_img_height(image_file):
     """Function that returns the height of an image.
