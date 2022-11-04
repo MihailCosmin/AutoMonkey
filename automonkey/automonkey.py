@@ -343,13 +343,14 @@ class ShowCoordinates(Toplevel):
         x_point, y_point = position()
 
         self.canvas.delete(coords)
-        self.canvas.create_text(
-            x_point - 100,
-            y_point,
-            text=f"x={x_point}, y={y_point}",
-            fill='red',
-            font=("Helvetica", 20),
-        )
+        if coords is None:
+            self.canvas.create_text(
+                x_point - 100,
+                y_point,
+                text=f"Press ESC to exit. X: {x_point}, Y: {y_point}",
+                fill='red',
+                font=("Helvetica", 20),
+            )
         coords = self.canvas.create_text(
             x_point,
             y_point + 30,
