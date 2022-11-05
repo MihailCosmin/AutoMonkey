@@ -1,4 +1,3 @@
-from automonkey import ShowCoordinates
+from automonkey import PositionTracker
 
-tracker = ShowCoordinates()
-tracker.shoot()
+tracker = PositionTracker()

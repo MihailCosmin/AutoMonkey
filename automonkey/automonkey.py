@@ -6,17 +6,13 @@ from time import sleep
 from sys import exit as end
 
 from os import remove
-from os import startfile
+from os import startfile  # It is used
 from os.path import isfile
 from os.path import sep
 
-from pathlib import Path
-
 from re import search
-from re import match
 
 from tkinter import Tk
-from tkinter import Label
 from tkinter import Canvas
 from tkinter import Toplevel
 
@@ -32,14 +28,11 @@ except ImportError:
 from pyscreeze import Box
 
 from pyautogui import size
-from pyautogui import alert
 from pyautogui import click
-from pyautogui import write
+from pyautogui import write  # It is used
 from pyautogui import keyUp
 from pyautogui import keyDown
-from pyautogui import linear
 from pyautogui import center
-from pyautogui import locate
 from pyautogui import moveTo
 from pyautogui import mouseUp
 from pyautogui import confirm
@@ -49,32 +42,36 @@ from pyautogui import screenshot
 from pyautogui import press as keys  # this normally is to be used for same key left, left, left
 from pyautogui import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
 from pyautogui import locateOnScreen
-from pyautogui import locateAllOnScreen
 from pyautogui import scroll as scrollup
 from pyautogui import hscroll as scrollright
-from pyautogui import leftClick as leftclick
-from pyautogui import rightClick as rightclick
-from pyautogui import middleClick as middleclick
-from pyautogui import doubleClick as doubleclick
-from pyautogui import tripleClick as tripleclick
+from pyautogui import leftClick as leftclick  # It is used
+from pyautogui import rightClick as rightclick  # It is used
+from pyautogui import middleClick as middleclick  # It is used
+from pyautogui import doubleClick as doubleclick  # It is used
+from pyautogui import tripleClick as tripleclick  # It is used
 from keyboard import send as keys3  # works mostly on windows - TODO: Check difference to below
 from keyboard import press_and_release as keys4  # works mostly on windows
 
+from win32con import WM_CLOSE
+from win32con import SW_RESTORE
+from win32con import SW_MINIMIZE
+from win32con import SW_MAXIMIZE
+
+from win32gui import IsIconic
+from win32gui import ShowWindow
 from win32gui import FindWindow
+from win32gui import PostMessage
 from win32gui import EnumWindows
 from win32gui import GetWindowText
 from win32gui import SetForegroundWindow
-from win32gui import GetForegroundWindow
 
 from pytesseract import image_to_string
 
 from screeninfo import get_monitors
 
-# from cv2 import cv2
 import cv2
 from cv2 import imread
 from numpy import where
-
 
 # Image Extensions supported
 # TODO: Check if all work
@@ -129,8 +126,12 @@ KEYBOARD_ACTIONS = (
 
 APPS_ACTIONS = (
     "startfile",
-    "focus_word",
-    "office_replace",
+    "close",
+    "focus",
+    "minimize",
+    "maximize",
+    "restore",
+    "msoffice_replace",
 )
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS
@@ -423,7 +424,7 @@ def get_text_from_region(region) -> str:
     return text
 
 
-def count_needles(needle: str, haystack: str) -> int:
+def count_needles(needle: str, haystack: str = None) -> int:
     """Counts how many times an image appears in a bigger image
 
     Args:
@@ -435,9 +436,11 @@ def count_needles(needle: str, haystack: str) -> int:
     """
 
     needle = __add_ext(needle)
-    haystack = __add_ext(haystack)
-
-    hay = imread(haystack)
+    if haystack:
+        haystack = __add_ext(haystack)
+        hay = imread(haystack)
+    else:
+        hay = imread(screenshot())
     need = imread(needle)
 
     res = cv2.cv2.matchTemplate(hay, need, cv2.cv2.TM_CCOEFF_NORMED)
@@ -507,13 +510,13 @@ def pastetext(text: str):
     temp_clipboard = paste()
     while paste() != text:
         copy(text)
-    keys('ctrl+v')
-    sleep(0.1)
+    keys2('ctrl', 'v')
     copy(temp_clipboard)
 
 
 def scrolldown(clicks: int):
     """Scroll down a given number of clicks
+    Note: You have to select the scrollable area first
 
     Args:
         clicks (int): number of clicks
@@ -522,6 +525,7 @@ def scrolldown(clicks: int):
 
 def scrollleft(clicks):
     """Scroll left a given number of clicks
+    Note: You have to select the scrollable area first
 
     Args:
         clicks (int): number of clicks
@@ -565,29 +569,27 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
     """
     copy(replace_this)
     sleep(0.2)
-    keys('ctrl+h')
+    keys2('ctrl', 'h')
     sleep(0.2)
-    keys('alt+n')
+    keys2('alt', 'n')
     sleep(0.2)
-    keys('ctrl+v')
+    keys2('ctrl', 'v')
     sleep(0.2)
     copy(with_this)
     sleep(0.2)
-    keys('alt+i')
+    keys2('alt', 'i')
     sleep(0.2)
-    keys('ctrl+v')
+    keys2('ctrl', 'v')
     sleep(0.2)
-    keys('ctrl+v')
+    keys2('alt', 'a')
     sleep(0.2)
-    keys('alt+a')
-    sleep(0.2)
-    keys('enter')
+    keys2('enter')
     sleep(0.2 * delay_factor)
-    keys('enter')
+    keys2('enter')
     sleep(0.2 * delay_factor)
-    keys('esc')
+    keys2('esc')
     sleep(0.2)
-    keys('esc')
+    keys2('esc')
     sleep(0.2)
 
 
@@ -605,7 +607,7 @@ class WindowManager:
     def _parse_windows(self, hwnd, pattern):
         """Pass to EnumWindows() to check all opened windows
         """
-        if match(pattern, str(GetWindowText(hwnd))) is not None:
+        if search(pattern, str(GetWindowText(hwnd))) is not None:
             self._handle = hwnd
 
     def get_window_by_title(self, pattern):
@@ -620,21 +622,114 @@ class WindowManager:
         # SetForegroundWindow works well only after pressing alt
         keyDown('alt')
         SetForegroundWindow(self._handle)
+        self.restore()
         keyUp('alt')
 
+    def minimize(self):
+        if not IsIconic(self._handle):
+            ShowWindow(self._handle, SW_MINIMIZE)
 
-def focus_word(title):
-    """Bring Focus to an opened Word document
+    def restore(self):
+        if IsIconic(self._handle):
+            ShowWindow(self._handle, SW_RESTORE)
+
+    def maximize(self):
+        ShowWindow(self._handle, SW_MAXIMIZE)
+
+    def close(self):
+        PostMessage(self._handle, WM_CLOSE, 0, 0)
+
+def close(title: str):
+    """Close a window
     """
-    title = title if (not title.endswith('.docx')
-                      and not title.endswith('.doc')
-                      and not title.endswith('.docm'))\
-        else title.replace('.docx', '')\
-                  .replace('.docm', '')\
-                  .replace('.doc', '')
     win_man = WindowManager()
-    win_man.get_window_by_title(f"{title} - Word")
+    win_man.get_window_by_title(f".*?{title}.*?")
+    win_man.close()
+
+def minimize(title: str):
+    """Minimize a window
+    """
+    win_man = WindowManager()
+    win_man.get_window_by_title(f".*?{title}.*?")
+    win_man.minimize()
+
+def maximize(title: str):
+    """Minimize a window
+    """
+    win_man = WindowManager()
+    win_man.get_window_by_title(f".*?{title}.*?")
+    win_man.maximize()
+
+def restore(title: str):
+    """Restore a window
+    """
+    win_man = WindowManager()
+    win_man.get_window_by_title(f".*?{title}.*?")
+    win_man.restore()
+
+def focus(title: str):
+    """Bring Focus to a window
+    """
+    win_man = WindowManager()
+    win_man.get_window_by_title(f".*?{title}.*?")
     win_man.focus()
+
+def __wait_for_target(target: any, skip: bool = False):
+    """Wait for a target to be available"""
+    slept = 0
+    while not is_on_screen(target) and not skip:
+        sleep(0.1)
+        slept += 0.1
+        if int(slept) == 30:  # For production make it 300
+            stop = confirm("Next target was not found for 5 minutes.\
+                           Would you like to continue or stop?",
+                           "Continue?",
+                           ["Continue", "Stop"])
+            if stop == "Stop":
+                end()
+
+def __prepare_step(raw_step: dict) -> dict:
+    """Transform the raw step into a step that can be used by the script
+
+    Args:
+        raw_step (dict): The raw step from the json file
+
+    Raises:
+        AutoMonkeyNoAction: If the action is not supported
+        AutoMonkeyNoTarget: If the target is not supported
+
+    Returns:
+        dict: The step that can be used by the script
+    """
+    step = dict(
+        action=None,
+        target=None,
+        skip=False,
+        wait=0,
+        confidence=0.9,
+        v_offset=0,
+        h_offset=0,
+        offset=None,
+        monitor=1,
+    )
+
+    for arg_pair in raw_step.items():
+        step["action"] = arg_pair[0] if arg_pair[0] in ALL_ACTIONS else step["action"]
+        step["target"] = arg_pair[1] if arg_pair[0] in ALL_ACTIONS else step["target"]
+        step["skip"] = bool(arg_pair[1]) if arg_pair[0] == 'skip' else step["skip"]
+        step["wait"] = float(arg_pair[1]) if arg_pair[0] == 'wait' else step["wait"]
+        step["confidence"] = float(arg_pair[1]) if arg_pair[0] == 'confidence' else step["confidence"]
+        step["v_offset"] = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else step["v_offset"]
+        step["h_offset"] = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else step["h_offset"]
+        step["offset"] = str(arg_pair[1]) if arg_pair[0] == 'offset' else step["offset"]
+        step["monitor"] = arg_pair[1] if arg_pair[0] == 'monitor' else step["monitor"]
+
+    if step["action"] not in ALL_ACTIONS:
+        raise AutoMonkeyNoAction(step["action"])
+
+    if step["target"] is None:
+        raise AutoMonkeyNoTarget(step["target"])
+    return step
 
 
 def chain(*steps: dict, debug=False):
@@ -646,10 +741,14 @@ def chain(*steps: dict, debug=False):
             - First pair is the Action - Target pair. The only mandatory pair.
               Example: dict(click: "image.jpg") or {"click": "image.jpg"}
             - Next possible pairs are optional:
+                * skip (True/False) - optional. If True, the step will be skipped if the target is not found.
                 * wait - Seconds to wait after performing the action. Defaults to zero.
                 * confidence - optional. Used only for actions on images. Confidence on locating the image.
                   Defaults to 0.9
-                *
+                * v_offset - optional. Vertical offset from the center of the target.
+                * h_offset - optional. Horizontal offset from the center of the target.
+                * offset - optional. Offset from the center of the target. Overrides v_offset and h_offset.
+                * monitor - optional. Monitor number to perform the action on. Defaults to 1.
 
         Example of steps:
             chain(
@@ -659,80 +758,67 @@ def chain(*steps: dict, debug=False):
                 debug=True)
 
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
+
+        Notes:
+        1. To use the scroll functions you have to select the scrollable area first
+        2. Horizontal scroll (left, right) is not supported on Windows
+        3. write function cannot write special characters like German or Chinese characters.
+        4. startfile keeps the file opened only until the end of the chain.
+           If you want to keep the file opened you need to perform other operations on it.
+        5. When using startfile you are responsible for saving and closing the file.
+        6. For the app functions (start, close, minimize, maximize, restore, focus) you need to provide the title of the window.add()
+           You can also use regex to match the title.
+
     """
     monitors = {}
-    mon_list = [(mon.x, mon.y) for mon in get_monitors()]
-    mon_list = sorted(mon_list, key=lambda tup: tup[0])
-    for ind, mon in enumerate(mon_list):
-        monitors[ind] = (mon[0], mon[1])
+    for _, mon in enumerate(sorted([(mon.x, mon.y) for mon in get_monitors()], key=lambda tup: tup[0])):
+        monitors[_] = (mon[0], mon[1])
 
-    for step in steps:
-        action = None
-        target = None
-        for arg_pair in step.items():
-            action = arg_pair[0] if arg_pair[0] in ALL_ACTIONS else action
-            target = arg_pair[1] if arg_pair[0] in ALL_ACTIONS else target
-            skip = bool(arg_pair[1]) if arg_pair[0] == 'skip' else False
-            wait = float(arg_pair[1]) if arg_pair[0] == 'wait' else 0
-            confidence = float(arg_pair[1]) if arg_pair[0] == 'confidence' else 0.9
-            v_offset = int(arg_pair[1]) if arg_pair[0] == 'v_offset' else 0
-            h_offset = int(arg_pair[1]) if arg_pair[0] == 'h_offset' else 0
-            offset = str(arg_pair[1]) if arg_pair[0] == 'offset' else None
-            monitor = arg_pair[1] if arg_pair[0] == 'monitor' else 1
-
-        if action not in ALL_ACTIONS:
-            raise AutoMonkeyNoAction(action)
-
-        if target is None:
-            raise AutoMonkeyNoTarget(target)
+    for _ in steps:
+        step = __prepare_step(_)
 
         if debug:
-            print(step)
+            print(_)
 
-        target = target.split("+") if action in ("keys", "keys2") else target  # keys is from pyautogui import press. Ex: pyautogui.press(['left', 'left', 'left'])
+        step["target"] = step["target"].split("+") if step["action"] in ("keys", "keys2") else step["target"]
         try:
-            target = (target[0] + monitors[monitor - 1][0], target[1]) if isinstance(target, tuple) and target[0] < monitors[1][0] else target
+            if step["action"] in ("keys", "keys2") and isinstance(step["target"], tuple):
+                step["target"] = (step["target"][0] + monitors[step["monitor"] - 1][0], step["target"][1]) if step["target"][0] < monitors[1][0] else step["target"]
         except IndexError:
             pass
         except KeyError:
             pass
 
-        if action in MOUSE_ACTIONS and not isinstance(target, tuple) and not isinstance(target, int):
-            slept = 0
-            target = __add_ext(target)
+        if step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int):
+            step["target"] = __add_ext(step["target"])
+            __wait_for_target(step["target"], step["skip"])
 
-            # Wait until next target comes into view
-            while not is_on_screen(target) and not skip:
-                sleep(0.1)
-                slept += 0.1
-                if int(slept) == 30:  # For production make it 300
-                    stop = confirm("Next target was not found for 5 minutes.\
-                                    Would you like to continue or stop?",
-                                   "Continue?",
-                                   ["Continue", "Stop"]
-                                   )
-                    if stop == "Stop":
-                        end()
-
-            bullseye = locateOnScreen(target, confidence=confidence)
+            bullseye = locateOnScreen(step["target"], confidence=step["confidence"])
             bullseye = get_center(bullseye)
-            bullseye = diagonal_point(bullseye, h_offset, v_offset)
-            if offset != "" and offset is not None:
-                globals()["__offset_clicks"](bullseye, target, offset, action)
+            bullseye = diagonal_point(bullseye, step["h_offset"], step["v_offset"])
+            if step["offset"] not in ("", None):
+                globals()["__offset_clicks"](bullseye, step["target"], step["offset"], step["action"])
             else:
-                globals()[action](bullseye)
+                globals()[step["action"]](bullseye)
         else:
-            # Keyboard Actions
-            # Wait Actions
-            # Apps Actions
-            # Mouse Actions with point given as tuple
-            if target == "keys2":
-                globals()[action](*target)
+            if step["action"] in ("keys2", "msoffice_replace"):
+                globals()[step["action"]](*step["target"])
+            elif step["action"] == "paste":
+                pastetext(paste())
             else:
-                globals()[action](target)
+                globals()[step["action"]](step["target"])
 
-        sleep(wait)
+        sleep(step["wait"])
 
 if __name__ == "__main__":
-    PositionTracker()
-    # track_mouse()
+    # chain(
+    #     dict(close=r".*?CATIA.*?", wait=3),
+    #     debug=True
+    # )
+    
+    # TODO: check
+    # count_needles(r"tests/U")
+    # copy_from
+    # copy_from_to
+    # get_text_from_region   
+
