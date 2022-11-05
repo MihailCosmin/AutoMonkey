@@ -142,7 +142,7 @@ ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + I
 
 class AutoMonkeyNoAction(Exception):
     """
-    AutoMonkey chain function will raise this Exception if no action exists
+    AutoMonkey chain function will raise this Exception if no valid action exists
     in an automation step of the chain sequence.
     """
     def __init__(self, message):
@@ -151,7 +151,7 @@ class AutoMonkeyNoAction(Exception):
 
 class AutoMonkeyNoTarget(Exception):
     """
-    AutoMonkey chain function will raise this Exception if no target exists
+    AutoMonkey chain function will raise this Exception if no valid target exists
     in an automation step of the chain sequence.
     """
     def __init__(self, message):
@@ -191,7 +191,7 @@ def is_on_screen(what: str) -> bool:
     return found
 
 
-def get_center(image: str):
+def get_center(image: str) -> tuple:
     """Find the center of an image on screen
     Args:
         image ([str]): image to be located
@@ -211,31 +211,31 @@ def get_center(image: str):
         return None
 
 
-def vertical_point(point, _):
+def vertical_point(point, offset) -> tuple:
     """Returns a PyAutoGUI point that is offset vertically
     Args:
         point (PyAutoGUI point): [A Tuple with an X and a Y]
-        _ (int): The offset. Can be positive or negative.
+        offset (int): The offset. Can be positive or negative.
                 Positive = Above. Negative = Below
     Returns:
         [PyAutoGUI point]: The PyAutoGUI point offset vertically.
     """
-    return point[0], point[1] - _
+    return point[0], point[1] - offset
 
 
-def horizontal_point(point, _):
+def horizontal_point(point, offset) -> tuple:
     """Returns a PyAutoGUI point that is offset horizontally
     Args:
         point (PyAutoGUI point): [A Tuple with an X and a Y]
-        _ (int): The offset. Can be positive or negative.
+        offset (int): The offset. Can be positive or negative.
                 Positive = Right. Negative = Left
     Returns:
         [PyAutoGUI point]: The PyAutoGUI point offset horizontally.
     """
-    return point[0] + _, point[1]
+    return point[0] + offset, point[1]
 
 
-def diagonal_point(point, x_point, y_point):
+def diagonal_point(point, x_point, y_point) -> tuple:
     """Returns a PyAutoGUI point that is offset diagonally
     Args:
         point (PyAutoGUI point): [A Tuple with an X and a Y]
@@ -258,11 +258,14 @@ def clear_clipboard():
         copy('')
 
 
-def copy_from_to(*args):
+def copy_from_to(*args) -> str:
     """This function will copy text from one point to another.
     Args:
         point1 (PyAutoGUI point): PyAutoGUI start point (from)
         point2 (PyAutoGUI point): PyAutoGUI end point (to)
+
+    Returns:
+        str: The copied text
     """
     if len(args) == 1:
         assert isinstance(args[0][0], tuple), "The argument must be a tuple. First point tuple"
@@ -297,7 +300,7 @@ def copy_from_to(*args):
     return copied
 
 
-def copy_from(point):
+def copy_from(point) -> str:
     """This function will copy text from one point to the end of line.
     This function uses select all functionality (ctrl+a) and as such
     it should be used only when you are sure ctrl+a will select only
@@ -344,7 +347,7 @@ def track_mouse():
 class PositionTracker(Toplevel):
     def __init__(self, follow_mouse: bool = False):
         self.follow_mouse = follow_mouse
-        self.window = Tk()  # Toplevel()  # Tk()
+        self.window = Tk()
         self.canvas = None
         self.start()
 
@@ -398,7 +401,7 @@ class PositionTracker(Toplevel):
         self.window.after(1, self._crosshair, coords)
 
 
-def get_img_height(image_file):
+def get_img_height(image_file: str) -> int:
     """Function that returns the height of an image.
     Args:
         image_file (path): path to an image file, including filename.
@@ -414,7 +417,7 @@ def get_img_height(image_file):
     return height
 
 
-def get_img_width(image_file):
+def get_img_width(image_file: str) -> int:
     """Function that returns the width of an image.
     Args:
         image_file (path): path to an image file, including filename.
@@ -580,7 +583,7 @@ def scrolldown(clicks: int):
     scrollup(-clicks)
 
 
-def scrollleft(clicks):
+def scrollleft(clicks: int):
     """Scroll left a given number of clicks
     Note: You have to select the scrollable area first
 
