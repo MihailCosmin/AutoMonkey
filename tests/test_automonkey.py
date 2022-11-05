@@ -84,3 +84,17 @@ chain(
     dict(close=r".*?CATIA.*?", wait=3),
     debug=True
 )
+
+print(get_text_from_region((136, 121, 53, 19)))  # 189, 140
+print(get_text_from_region((136, 121), (189, 140)))  # 189, 140
+print(get_text_from_region(136, 121, 189, 140))  # 189, 140
+print(get_text_from_region(136, 121, 53, 19))  # 189, 140
+
+chain(
+    dict(get_text_from_region=(136, 121, 189, 140), wait=1),
+    dict(click="tests/notepad.jpg"),
+    dict(waituntil="tests/notepad_opened", wait=1, monitor=1),
+    dict(leftclick=(400, 500), wait=1),
+    dict(paste="", wait=1),
+    debug=True
+)

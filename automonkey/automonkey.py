@@ -1,14 +1,12 @@
 """Python Automation using Mouse and Keyboard, for the masses
 """
 
-# pylint: disable=unused-import
 from time import sleep
 from sys import exit as end
 
 from os import remove
 from os import startfile  # It is used
 from os.path import isfile
-from os.path import sep
 
 from re import search
 
@@ -73,8 +71,6 @@ import cv2
 from cv2 import imread
 from numpy import where
 
-# Image Extensions supported
-# TODO: Check if all work
 IMG_EXT = (
     ".png",
     ".jpg",
@@ -131,10 +127,17 @@ APPS_ACTIONS = (
     "minimize",
     "maximize",
     "restore",
+    "copy_from",
+    "copy_from_to",
+    "get_text_from_region",
     "msoffice_replace",
 )
 
-ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS
+IMG_ACTIONS = (
+    "count_img",
+)
+
+ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS
 
 
 class AutoMonkeyNoAction(Exception):
@@ -153,6 +156,7 @@ class AutoMonkeyNoTarget(Exception):
     """
     def __init__(self, message):
         super().__init__(f"The provided target is not supported: {message}")
+
 
 def __add_ext(filename: str) -> str:
     """Adds extension to an image filename if missing
@@ -254,23 +258,42 @@ def clear_clipboard():
         copy('')
 
 
-def copy_from_to(point1, point2):
+def copy_from_to(*args):
     """This function will copy text from one point to another.
     Args:
         point1 (PyAutoGUI point): PyAutoGUI start point (from)
         point2 (PyAutoGUI point): PyAutoGUI end point (to)
     """
+    if len(args) == 1:
+        assert isinstance(args[0][0], tuple), "The argument must be a tuple. First point tuple"
+        assert isinstance(args[0][1], tuple), "The argument must be a tuple. Second point tuple"
+        assert isinstance(args[0][0][0], int), "The argument must be an integer. First point X"
+        assert isinstance(args[0][0][1], int), "The argument must be an integer. First point Y"
+        assert isinstance(args[0][1][0], int), "The argument must be an integer. Second point X"
+        assert isinstance(args[0][1][1], int), "The argument must be an integer. Second point Y"
+        point1 = (args[0][0][0], args[0][0][1])
+        point2 = (args[0][1][0], args[0][1][1])
+    elif len(args) == 2:
+        assert isinstance(args[0], tuple), "The argument must be a tuple. First point tuple"
+        assert isinstance(args[1], tuple), "The argument must be a tuple. Second point tuple"
+        assert isinstance(args[0][0], int), "The argument must be an integer. First point X"
+        assert isinstance(args[0][1], int), "The argument must be an integer. First point Y"
+        assert isinstance(args[1][0], int), "The argument must be an integer. Second point X"
+        assert isinstance(args[1][1], int), "The argument must be an integer. Second point Y"
+        point1 = args[0]
+        point2 = args[1]
 
     mouseDown(point1)
     moveTo(point2)
     mouseUp()
     clear_clipboard()
 
-    while paste() == '':
-        keys('ctrl+c')
+    while str(paste()) == '':
+        keys2('ctrl', 'c')
 
     copied = paste()
-    clear_clipboard()
+    print(copied)
+    copy(copied)
     return copied
 
 
@@ -288,14 +311,14 @@ def copy_from(point):
     clear_clipboard()
     click(point)
     sleep(0.2)
-    keys("ctrl+a")
+    keys2('ctrl', 'a')
     sleep(0.2)
 
-    while paste() == "":
-        keys("ctrl+c")
+    while str(paste()) == '':
+        keys2('ctrl', 'c')
 
     copied = paste()
-    clear_clipboard()
+    copy(copied)
 
     return copied
 
@@ -316,6 +339,7 @@ def track_mouse():
             sleep(1)
     except KeyboardInterrupt:
         print("Tracking mouse position stopped")
+
 
 class PositionTracker(Toplevel):
     def __init__(self, follow_mouse: bool = False):
@@ -373,6 +397,7 @@ class PositionTracker(Toplevel):
             )
         self.window.after(1, self._crosshair, coords)
 
+
 def get_img_height(image_file):
     """Function that returns the height of an image.
     Args:
@@ -405,13 +430,38 @@ def get_img_width(image_file):
     return width
 
 
-def get_text_from_region(region) -> str:
+def get_text_from_region(*args) -> str:
     """Makes a screenshot of a screen region and performs OCR on it
     Args:
-        region (PyAutoGUI region): Left, Top, Width, Height
+        Top left corner X, top left corner Y, bottom right corner X, bottom right corner Y
+        or
+        Top point (Tuple): (x, y) and Bottom point (Tuple): (x, y)
+        or
+        region (Tuple or PyAutoGUI region): (Left, Top, Width, Height)
+        or
+        Left (int), Top (int), Width (int), Height (int)
     Returns:
         str: The text from the region
     """
+    if len(args) == 1:
+        assert isinstance(args[0], tuple), "The argument must be a tuple of 4 integers: Left, Top, Width, Height"
+        if args[0][2] > args[0][0] and args[0][3] > args[0][1]:
+            region = (args[0][0], args[0][1], args[0][2] - args[0][0], args[0][3] - args[0][1])
+        else:
+            region = args[0]
+    elif len(args) == 2:
+        assert isinstance(args[0], tuple), "The first argument must be a tuple of 2 integers: X, Y coordinates of the top left corner"
+        assert isinstance(args[1], tuple), "The second argument must be a tuple of 2 integers: X, Y coordinates of the bottom right corner"
+        region = (args[0][0], args[0][1], args[1][0] - args[0][0], args[1][1] - args[0][1])
+    elif len(args) == 4:
+        assert isinstance(args[0], int), "The first argument must be an integer: X coordinate of the top left corner"
+        assert isinstance(args[1], int), "The second argument must be an integer: Y coordinate of the top left corner"
+        assert isinstance(args[2], int), "The third argument must be an integer: Width of the region"
+        assert isinstance(args[3], int), "The fourth argument must be an integer: Height of the region"
+        if args[2] > args[0] and args[3] > args[1]:
+            region = (args[0], args[1], args[2] - args[0], args[3] - args[1])
+        else:
+            region = (args[0], args[1], args[2], args[3])
 
     snap = screenshot(region=region)
     snap.save("temp.jpg")
@@ -421,10 +471,12 @@ def get_text_from_region(region) -> str:
     custom_config = r'--oem 3 --psm 6'
     text = image_to_string(img, config=custom_config)
     remove('temp.jpg')
+
+    copy(text)  # in order to make the text available in the clipboard
     return text
 
 
-def count_needles(needle: str, haystack: str = None) -> int:
+def count_img(needle: str, haystack: str = None) -> int:
     """Counts how many times an image appears in a bigger image
 
     Args:
@@ -440,7 +492,10 @@ def count_needles(needle: str, haystack: str = None) -> int:
         haystack = __add_ext(haystack)
         hay = imread(haystack)
     else:
-        hay = imread(screenshot())
+        haystack = screenshot("temp.jpg")
+        hay = imread("temp.jpg")
+        remove("temp.jpg")
+
     need = imread(needle)
 
     res = cv2.cv2.matchTemplate(hay, need, cv2.cv2.TM_CCOEFF_NORMED)
@@ -448,6 +503,7 @@ def count_needles(needle: str, haystack: str = None) -> int:
     threshold = .9  # 9 is more precise. 8 gives some false positives
     loc = where(res >= threshold)
 
+    copy(len(loc[0]))  # in order to make the text available in the clipboard
     return len(loc[0])
 
 
@@ -522,6 +578,7 @@ def scrolldown(clicks: int):
         clicks (int): number of clicks
     """
     scrollup(-clicks)
+
 
 def scrollleft(clicks):
     """Scroll left a given number of clicks
@@ -639,12 +696,14 @@ class WindowManager:
     def close(self):
         PostMessage(self._handle, WM_CLOSE, 0, 0)
 
+
 def close(title: str):
     """Close a window
     """
     win_man = WindowManager()
     win_man.get_window_by_title(f".*?{title}.*?")
     win_man.close()
+
 
 def minimize(title: str):
     """Minimize a window
@@ -653,12 +712,14 @@ def minimize(title: str):
     win_man.get_window_by_title(f".*?{title}.*?")
     win_man.minimize()
 
+
 def maximize(title: str):
     """Minimize a window
     """
     win_man = WindowManager()
     win_man.get_window_by_title(f".*?{title}.*?")
     win_man.maximize()
+
 
 def restore(title: str):
     """Restore a window
@@ -667,12 +728,14 @@ def restore(title: str):
     win_man.get_window_by_title(f".*?{title}.*?")
     win_man.restore()
 
+
 def focus(title: str):
     """Bring Focus to a window
     """
     win_man = WindowManager()
     win_man.get_window_by_title(f".*?{title}.*?")
     win_man.focus()
+
 
 def __wait_for_target(target: any, skip: bool = False):
     """Wait for a target to be available"""
@@ -687,6 +750,7 @@ def __wait_for_target(target: any, skip: bool = False):
                            ["Continue", "Stop"])
             if stop == "Stop":
                 end()
+
 
 def __prepare_step(raw_step: dict) -> dict:
     """Transform the raw step into a step that can be used by the script
@@ -810,15 +874,13 @@ def chain(*steps: dict, debug=False):
 
         sleep(step["wait"])
 
-if __name__ == "__main__":
-    # chain(
-    #     dict(close=r".*?CATIA.*?", wait=3),
-    #     debug=True
-    # )
-    
-    # TODO: check
-    # count_needles(r"tests/U")
-    # copy_from
-    # copy_from_to
-    # get_text_from_region   
 
+if __name__ == "__main__":
+    chain(
+        dict(copy_from=(394, 478), wait=1),
+        dict(click="tests/notepad.jpg"),
+        dict(waituntil="tests/notepad_opened", wait=1, monitor=1),
+        dict(leftclick=(400, 500), wait=1),
+        dict(paste="", wait=1),
+        debug=True
+    )
