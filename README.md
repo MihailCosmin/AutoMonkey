@@ -20,7 +20,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
 
         1.1.1. In order to find the coordinates of a position on the screen you can use the "track_mouse" function or the PositionTracker class
 
-        ```
+        ```python
             from automonkey import track_mouse
             track_mouse()
         ```
@@ -28,7 +28,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
         <img alt="track_mouse" src="demo/track_mouse.gif" width="416px" height="304px"/>
 
 
-        ```
+        ```python
             from automonkey import PositionTracker
             PositionTracker()
         ```
@@ -38,7 +38,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
         1.2.1. Now that you have the coordinates of the position you want to click on, you can use the "chain" function to click on it
 
 
-        ```
+        ```python
             from automonkey import chain
             chain(  
                 dict(click=(780, 1175), wait=1),  
@@ -59,7 +59,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
 
         1.2.2. Now that we have the image we want to click on, we can use the "chain" function to click on it
 
-        ```
+        ```python
             chain(
                 dict(click="demo/edge_toolbar.jpg"),
                 dict(click="demo/google_create_account", wait=1),
