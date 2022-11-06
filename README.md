@@ -20,7 +20,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
         from automonkey import track_mouse
         track_mouse()
     ```
-    <img alt="AutoMonkey" src="demo/track_mouse.gif" width="200px" height="200px"/>
+    <img alt="AutoMonkey" src="demo/track_mouse.gif" width="416px" height="304px"/>
 
 
 
