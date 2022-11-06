@@ -21,6 +21,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
         track_mouse()
     ```
     <img alt="AutoMonkey" src="demo/track_mouse.gif" width="416px" height="304px"/>
+
     ```
         from automonkey import PositionTracker
         PositionTracker()
