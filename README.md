@@ -197,7 +197,7 @@ or
 
     ```python
         chain(
-            dict(open="notepad.exe"),
+            dict(open_app="notepad.exe"),
             dict(write="Hello World!", wait=1),
             dict(close="notepad.exe"),
             debug=True
@@ -208,7 +208,7 @@ or
 
     ```python
         chain(
-            dict(open="notepad.exe"),
+            dict(open_app="notepad.exe"),
             dict(write="Hello World!", wait=1),
             dict(minimize="notepad.exe"),
             debug=True
@@ -219,7 +219,7 @@ or
 
     ```python
         chain(
-            dict(open="notepad.exe"),
+            dict(open_app="notepad.exe"),
             dict(write="Hello World!", wait=1),
             dict(maximize="notepad.exe"),
             debug=True
@@ -230,7 +230,7 @@ or
 
     ```python
         chain(
-            dict(open="notepad.exe"),
+            dict(open_app="notepad.exe"),
             dict(write="Hello World!", wait=1),
             dict(minimize="notepad.exe"),
             dict(restore="notepad.exe"),
@@ -240,7 +240,7 @@ or
 
     4.6. All app actions:
 
-        * open
+        * open_app
         * close
         * startfile
         * focus
