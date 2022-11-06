@@ -1,5 +1,5 @@
 # AutoMonkey
-<img alt="AutoMonkey" src="img/monkey.ico" width="100px" height="100px"/>
+<img alt="AutoMonkey" src="https://github.com/MihailCosmin/AutoMonkey/blob/06181954fa23605583d61843226f5f3997157435/img/monkey.ico" width="100px" height="100px"/>
 
 Python Automation using Mouse and Keyboard, for the masses
 
