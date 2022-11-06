@@ -1,5 +1,5 @@
 # AutoMonkey
-<img alt="AutoMonkey" src="img/monkey.ico" width="100px" height="100px"/>
+<img alt="AutoMonkey" src="https://github.com/MihailCosmin/AutoMonkey/blob/06181954fa23605583d61843226f5f3997157435/img/monkey.ico" width="100px" height="100px"/>
 
 Python Automation using Mouse and Keyboard, for the masses
 
@@ -58,7 +58,7 @@ or
         track_mouse()
     ```
 
-    <img alt="track_mouse" src="demo/track_mouse.gif" width="416px" height="304px"/>
+    <img alt="track_mouse" src="https://github.com/MihailCosmin/AutoMonkey/blob/25eaed263793bf548d42f616e241f435baa9d719/demo/track_mouse.gif" width="416px" height="304px"/>
 
 
     ```python
@@ -66,7 +66,7 @@ or
         PositionTracker()
     ```
 
-    <img alt="PositionTracker" src="demo/PositionTracker.gif" width="918px" height="574px"/>
+    <img alt="PositionTracker" src="https://github.com/MihailCosmin/AutoMonkey/blob/25eaed263793bf548d42f616e241f435baa9d719/demo/PositionTracker.gif" width="918px" height="574px"/>
 
     1.2.1. Now that you have the coordinates of the position you want to click on, you can use the "chain" function to click on it
 
@@ -81,7 +81,7 @@ or
         )
     ```
 
-    <img alt="click" src="demo/click.gif" width="960px" height="576px"/>
+    <img alt="click" src="https://github.com/MihailCosmin/AutoMonkey/blob/0eaa82fd64371b9070d7a129a9802a393c85a28e/demo/click.gif" width="960px" height="576px"/>
 
     1.2. Clicking by image
 
@@ -89,7 +89,7 @@ or
         For this you can use any screenshot tool you want, or you could use monkeyshot: https://github.com/MihailCosmin/monkeyshot
         For example you can make a screenshot of the Edge icon from your toolbar, then we can click on it by using the "chain" function.
 
-    <img alt="edge_toolbar" src="demo/edge_toolbar.jpg" width="33px" height="33px"/>
+    <img alt="edge_toolbar" src="https://github.com/MihailCosmin/AutoMonkey/blob/25eaed263793bf548d42f616e241f435baa9d719/demo/edge_toolbar.jpg" width="33px" height="33px"/>
 
     1.2.2. Now that we have the image we want to click on, we can use the "chain" function to click on it
 
@@ -102,7 +102,7 @@ or
         )
     ```
 
-    <img alt="click_image" src="demo/click_image.gif" width="918px" height="600px"/>
+    <img alt="click_image" src="https://github.com/MihailCosmin/AutoMonkey/blob/25eaed263793bf548d42f616e241f435baa9d719/demo/click_image.gif" width="918px" height="600px"/>
 
     1.3. All click actions:
 
@@ -128,7 +128,7 @@ or
         )
     ```
 
-    <img alt="write" src="demo/write.gif" width="918px" height="600px"/>
+    <img alt="write" src="https://github.com/MihailCosmin/AutoMonkey/blob/25eaed263793bf548d42f616e241f435baa9d719/demo/write.gif" width="918px" height="600px"/>
 
     2.2. Paste text - This works well with non-english characters
 
@@ -153,7 +153,7 @@ or
         )
     ```
 
-    <img alt="keys" src="demo/keys.gif" width="918px" height="600px"/>
+    <img alt="keys" src="https://github.com/MihailCosmin/AutoMonkey/blob/25eaed263793bf548d42f616e241f435baa9d719/demo/keys.gif" width="918px" height="600px"/>
 
     2.4. All key actions:
 
