@@ -20,18 +20,18 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
         
         1.1.1. In order to find the coordinates of a position on the screen you can use the "track_mouse" function or the PositionTracker class
 
-        ```python
-            from automonkey import track_mouse
-            track_mouse()
-        ```
+    ```python
+        from automonkey import track_mouse
+        track_mouse()
+    ```
 
-        <img alt="track_mouse" src="demo/track_mouse.gif" width="416px" height="304px"/>
+    <img alt="track_mouse" src="demo/track_mouse.gif" width="416px" height="304px"/>
 
 
-        ```python
-            from automonkey import PositionTracker
-            PositionTracker()
-        ```
+    ```python
+        from automonkey import PositionTracker
+        PositionTracker()
+    ```
 
         <img alt="PositionTracker" src="demo/PositionTracker.gif" width="918px" height="574px"/>
 
