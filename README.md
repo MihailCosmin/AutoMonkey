@@ -16,17 +16,35 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
     * There are 2 main ways to click, either by giving the coordinates of the position where to click or by giving the filename of the image you want to click on.
 
     1.1. In order to find the coordinates of a position on the screen you can use the "track_mouse" function or the PositionTracker class.
+
     ```
         from automonkey import track_mouse
         track_mouse()
     ```
     <img alt="AutoMonkey" src="demo/track_mouse.gif" width="416px" height="304px"/>
 
+
     ```
         from automonkey import PositionTracker
         PositionTracker()
     ```
+
     <img alt="AutoMonkey" src="demo/PositionTracker.gif" width="918px" height="574px"/>
+
+    1.2. Now that you have the coordinates of the position you want to click on, you can use the "chain" function to click on it.
+
+
+    ```
+        from automonkey import chain
+        chain(  
+            dict(click=(780, 1175), wait=1),  
+            dict(click=(444, 194), wait=1),  
+            dict(click=(1892, 110), wait=1),  
+            debug=True  
+        )
+    ```
+
+    <img alt="AutoMonkey" src="demo/click.gif" width="960px" height="576px"/>
 
 Ex:
 

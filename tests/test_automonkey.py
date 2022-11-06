@@ -69,32 +69,53 @@ APPS_ACTIONS = (
 #     debug=True
 # )
 
-chain(
-    dict(focus_word=r"CATIA - Tips and Tricks.docx", wait=2),
-    debug=True
-)
+# chain(
+#     dict(focus_word=r"CATIA - Tips and Tricks.docx", wait=2),
+#     debug=True
+# )
 
-chain(
-    dict(minimize=r"Visual Studio Code", wait=3),
-    dict(maximize=r"Visual Studio Code", wait=1),
-    debug=True
-)
+# chain(
+#     dict(minimize=r"Visual Studio Code", wait=3),
+#     dict(maximize=r"Visual Studio Code", wait=1),
+#     debug=True
+# )
 
-chain(
-    dict(close=r".*?CATIA.*?", wait=3),
-    debug=True
-)
+# chain(
+#     dict(close=r".*?CATIA.*?", wait=3),
+#     debug=True
+# )
 
-print(get_text_from_region((136, 121, 53, 19)))  # 189, 140
-print(get_text_from_region((136, 121), (189, 140)))  # 189, 140
-print(get_text_from_region(136, 121, 189, 140))  # 189, 140
-print(get_text_from_region(136, 121, 53, 19))  # 189, 140
+# print(get_text_from_region((136, 121, 53, 19)))  # 189, 140
+# print(get_text_from_region((136, 121), (189, 140)))  # 189, 140
+# print(get_text_from_region(136, 121, 189, 140))  # 189, 140
+# print(get_text_from_region(136, 121, 53, 19))  # 189, 140
 
+# chain(
+#     dict(get_text_from_region=(136, 121, 189, 140), wait=1),
+#     dict(click="tests/notepad.jpg"),
+#     dict(waituntil="tests/notepad_opened", wait=1, monitor=1),
+#     dict(leftclick=(400, 500), wait=1),
+#     dict(paste="", wait=1),
+#     debug=True
+# )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from automonkey import chain
 chain(
-    dict(get_text_from_region=(136, 121, 189, 140), wait=1),
-    dict(click="tests/notepad.jpg"),
-    dict(waituntil="tests/notepad_opened", wait=1, monitor=1),
-    dict(leftclick=(400, 500), wait=1),
-    dict(paste="", wait=1),
+    dict(click=(780, 1175), wait=1),
+    dict(click=(444, 194), wait=1),
+    dict(click=(1892, 110), wait=1),
     debug=True
 )
