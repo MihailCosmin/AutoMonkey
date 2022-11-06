@@ -1,3 +1,4 @@
+from automonkey import track_mouse
 from automonkey import PositionTracker
 
-tracker = PositionTracker()
+track_mouse()
