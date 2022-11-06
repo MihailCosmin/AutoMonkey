@@ -454,8 +454,11 @@ def get_text_from_region(*args) -> str:
         assert isinstance(args[0], tuple), "The argument must be a tuple of 4 integers: Left, Top, Width, Height"
         if len(args[0]) == 4:
             region = (args[0][0], args[0][1], args[0][2] - args[0][0], args[0][3] - args[0][1])
-        elif args[0][2] > args[0][0] and args[0][3] > args[0][1]:
-            region = (args[0][0], args[0][1], args[0][2] - args[0][0], args[0][3] - args[0][1])
+        elif len(args[0]) == 2:
+            if args[0][1][1] > args[0][0][0] and args[0][1][1] > args[0][0][1]:
+                region = (args[0][0][0], args[0][0][1], args[0][1][0] - args[0][0][0], args[0][1][1] - args[0][0][1])
+            else:
+                region = (args[0][0][0], args[0][0][1], args[0][1][0], args[0][1][1])
         else:
             region = args[0]
     elif len(args) == 2:
@@ -900,10 +903,8 @@ def chain(*steps: dict, debug=False):
 
 if __name__ == "__main__":
     chain(
-        dict(copy_from=(394, 478), wait=1),
-        dict(click="tests/notepad.jpg"),
-        dict(waituntil="tests/notepad_opened", wait=1, monitor=1),
-        dict(leftclick=(400, 500), wait=1),
-        dict(paste="", wait=1),
+        dict(get_text_from_region=((136, 121), (189, 140)), wait=1),  # The text will be copied to the clipboard
+        dict(open_app="notepad++.exe", wait=1),
+        dict(paste="", wait=1),  # with paste we can paste the text from the clipboard
         debug=True
     )
