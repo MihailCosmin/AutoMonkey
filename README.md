@@ -44,7 +44,7 @@ or
 }
 ```
 
-1. You can connect multiple click (or rightclick) actions together by using the "chain" function. Just by doing this you can generally automate most of the tasks you would do on a daily basis.
+1. You can connect multiple mouse actions together by using the "chain" function. Just by doing this you can generally automate most of the tasks you would do on a daily basis.
 
     There are 2 main ways to click, either by giving the coordinates of the position where to click or by giving the filename of the image you want to click on
 
