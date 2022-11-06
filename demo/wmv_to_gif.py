@@ -7,7 +7,7 @@ from moviepy.editor import VideoFileClip
 current_file_path = dirname(__file__)
 
 for movie in listdir(current_file_path):
-    if movie.endswith('.wmv') and not isfile(movie[:-4] + '.gif'):
+    if movie.endswith('.wmv') and not isfile(join(current_file_path, movie[:-4] + '.gif')):
         movie = join(current_file_path, movie)
         clip = VideoFileClip(movie)
         clip.write_gif(movie[:-4] + '.gif')
