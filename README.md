@@ -58,7 +58,7 @@ or
         track_mouse()
     ```
 
-    <img alt="track_mouse" src="https://github.com/MihailCosmin/AutoMonkey/raw/25eaed263793bf548d42f616e241f435baa9d719/demo/track_mouse.gif" width="416px" height="304px"/>
+    <img alt="track_mouse" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/track_mouse.gif" width="416px" height="304px"/>
 
 
     ```python
@@ -66,7 +66,7 @@ or
         PositionTracker()
     ```
 
-    <img alt="PositionTracker" src="https://github.com/MihailCosmin/AutoMonkey/raw/25eaed263793bf548d42f616e241f435baa9d719/demo/PositionTracker.gif" width="918px" height="574px"/>
+    <img alt="PositionTracker" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/PositionTracker.gif" width="918px" height="574px"/>
 
     1.2.1. Now that you have the coordinates of the position you want to click on, you can use the "chain" function to click on it
 
@@ -81,7 +81,7 @@ or
         )
     ```
 
-    <img alt="click" src="https://github.com/MihailCosmin/AutoMonkey/raw/0eaa82fd64371b9070d7a129a9802a393c85a28e/demo/click.gif" width="960px" height="576px"/>
+    <img alt="click" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/click.gif" width="960px" height="576px"/>
 
     1.2. Clicking by image
 
@@ -102,7 +102,7 @@ or
         )
     ```
 
-    <img alt="click_image" src="https://github.com/MihailCosmin/AutoMonkey/raw/25eaed263793bf548d42f616e241f435baa9d719/demo/click_image.gif" width="918px" height="600px"/>
+    <img alt="click_image" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/click_image.gif" width="918px" height="600px"/>
 
     1.3. All click actions:
 
@@ -128,7 +128,7 @@ or
         )
     ```
 
-    <img alt="write" src="https://github.com/MihailCosmin/AutoMonkey/raw/25eaed263793bf548d42f616e241f435baa9d719/demo/write.gif" width="918px" height="600px"/>
+    <img alt="write" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/write.gif" width="918px" height="600px"/>
 
     2.2. Paste text - This works well with non-english characters
 
@@ -153,7 +153,7 @@ or
         )
     ```
 
-    <img alt="keys" src="https://github.com/MihailCosmin/AutoMonkey/raw/25eaed263793bf548d42f616e241f435baa9d719/demo/keys.gif" width="918px" height="600px"/>
+    <img alt="keys" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/keys.gif" width="918px" height="600px"/>
 
     2.4. All key actions:
 
