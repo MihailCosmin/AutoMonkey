@@ -1,15 +1,12 @@
 pyautogui>=0.9.53
 pytesseract>=0.3.9
-pandas>=1.4.0
 numpy>=1.21.5
 keyboard>=0.13.5
 clipboard>=0.0.4
 opencv-python==4.5.5.62
 pillow>=9.0.1
-tqdm>=4.62.3
-colorama>=0.4.5
-docx>=0.2.4
-pymupdf>=1.19.5
 pywin32>=303
 pywin32-ctypes>=0.2.0
 screeninfo>=0.8
+pyperclip==1.8.2
+PyScreeze>=0.1.27

@@ -10,8 +10,23 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-with open("requirements.txt", "r", encoding="utf-8") as _:
-    requirements = _.read().splitlines()
+# with open("requirements.txt", "r", encoding="utf-8") as _:
+#     requirements = _.read().splitlines()
+
+requirements = [
+    "pyautogui>=0.9.53",
+    "pytesseract>=0.3.9",
+    "numpy>=1.21.5",
+    "keyboard>=0.13.5",
+    "clipboard>=0.0.4",
+    "opencv-python==4.5.5.62",
+    "pillow>=9.0.1",
+    "pywin32>=303",
+    "pywin32-ctypes>=0.2.0",
+    "screeninfo>=0.8",
+    "pyperclip==1.8.2",
+    "PyScreeze>=0.1.27",
+]
 
 test_requirements = ['pytest>=3', ]
 
