@@ -57,7 +57,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
         For this you can use any screenshot tool you want, or you could use monkeyshot: https://github.com/MihailCosmin/monkeyshot
         For example you can make a screenshot of the Edge icon from your toolbar, then we can click on it by using the "chain" function.
 
-        <img alt="edge_toolbar" src="demo/edge_toolbar.jpg" width="33px" height="33px"/>
+    <img alt="edge_toolbar" src="demo/edge_toolbar.jpg" width="33px" height="33px"/>
 
     1.2.2. Now that we have the image we want to click on, we can use the "chain" function to click on it
 
