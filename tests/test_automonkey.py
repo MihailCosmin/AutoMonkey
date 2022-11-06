@@ -114,8 +114,8 @@ APPS_ACTIONS = (
 
 from automonkey import chain
 chain(
-    dict(click=(780, 1175), wait=1),
-    dict(click=(444, 194), wait=1),
-    dict(click=(1892, 110), wait=1),
+    dict(click="demo/edge_toolbar.jpg"),
+    dict(click="demo/google_create_account", wait=1),
+    dict(click="demo/personal_use", wait=1),
     debug=True
 )
