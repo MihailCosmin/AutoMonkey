@@ -12,33 +12,34 @@ Main function to be used is "chain"
 This will allow you to "chain" together most of the other functions of automonkey.  
 Which in turn will enable you to create sequences of mouse and/or keyboard actions in order to automate any given task.
 
-A step can have this structure:  
-    ```python
+A step can have this structure:
 
-    dict(
-        <action> = <target>,  # action can be any of the automonkey functions, target on which the action will be performed
-        wait = 1,  # wait is an optional parameter, which will wait for the given amount of seconds before executing the next step
-        skip = False,  # if True, will skip this step
-        confidence = 0.9, # confidence is an optional parameter, Used only for actions on images. Confidence on locating the image.
-        v_offset = 0,  # v_offset is an optional parameter, Used only for actions on images. Vertical offset from the center of the image.
-        h_offset = 0,  # h_offset is an optional parameter, Used only for actions on images. Horizontal offset from the center of the image.
-        offset = 0, # offset is an optional parameter, Used only for actions on images. Offset from the center of the image.
-        monitor = 0,  # monitor is an optional parameter, Used only for actions on images. Monitor on which to search for the image.
-    )
+```python
 
-    or 
+dict(
+    <action> = <target>,  # action can be any of the automonkey functions, target on which the action will be performed
+    wait = 1,  # wait is an optional parameter, which will wait for the given amount of seconds before executing the next step
+    skip = False,  # if True, will skip this step
+    confidence = 0.9, # confidence is an optional parameter, Used only for actions on images. Confidence on locating the image.
+    v_offset = 0,  # v_offset is an optional parameter, Used only for actions on images. Vertical offset from the center of the image.
+    h_offset = 0,  # h_offset is an optional parameter, Used only for actions on images. Horizontal offset from the center of the image.
+    offset = 0, # offset is an optional parameter, Used only for actions on images. Offset from the center of the image.
+    monitor = 0,  # monitor is an optional parameter, Used only for actions on images. Monitor on which to search for the image.
+)
 
-    {
-        "<action>": "<target>",  # action can be any of the automonkey functions, target on which the action will be performed
-        "wait": 1,  # wait is an optional parameter, which will wait for the given amount of seconds before executing the next step
-        "skip": False,  # if True, will skip this step
-        "confidence": 0.9, # confidence is an optional parameter, Used only for actions on images. Confidence on locating the image.
-        "v_offset": 0,  # v_offset is an optional parameter, Used only for actions on images. Vertical offset from the center of the image.
-        "h_offset": 0,  # h_offset is an optional parameter, Used only for actions on images. Horizontal offset from the center of the image.
-        "offset": 0, # offset is an optional parameter, Used only for actions on images. Offset from the center of the image.
-        "monitor": 0,  # monitor is an optional parameter, Used only for actions on images. Monitor on which to search for the image.
-    }
-    ```
+or 
+
+{
+    "<action>": "<target>",  # action can be any of the automonkey functions, target on which the action will be performed
+    "wait": 1,  # wait is an optional parameter, which will wait for the given amount of seconds before executing the next step
+    "skip": False,  # if True, will skip this step
+    "confidence": 0.9, # confidence is an optional parameter, Used only for actions on images. Confidence on locating the image.
+    "v_offset": 0,  # v_offset is an optional parameter, Used only for actions on images. Vertical offset from the center of the image.
+    "h_offset": 0,  # h_offset is an optional parameter, Used only for actions on images. Horizontal offset from the center of the image.
+    "offset": 0, # offset is an optional parameter, Used only for actions on images. Offset from the center of the image.
+    "monitor": 0,  # monitor is an optional parameter, Used only for actions on images. Monitor on which to search for the image.
+}
+```
 
 1. You can connect multiple click (or rightclick) actions together by using the "chain" function. Just by doing this you can generally automate most of the tasks you would do on a daily basis.
 
@@ -101,6 +102,7 @@ A step can have this structure:
     <img alt="click_image" src="demo/click_image.gif" width="918px" height="600px"/>
 
     1.3. All click actions:
+
         * click
         * rightclick
         * leftclick
@@ -151,6 +153,7 @@ A step can have this structure:
     <img alt="keys" src="demo/keys.gif" width="918px" height="600px"/>
 
     2.4. All key actions:
+
         * write
         * pastetext
         * keys
