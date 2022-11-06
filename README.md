@@ -14,11 +14,11 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
 
 1. You can connect multiple click (or rightclick) actions together by using the "chain" function. Just by doing this you can generally automate most of the tasks you would do on a daily basis.
 
-    There are 2 main ways to click, either by giving the coordinates of the position where to click or by giving the filename of the image you want to click on:
+    There are 2 main ways to click, either by giving the coordinates of the position where to click or by giving the filename of the image you want to click on
 
-    1.1. Clicking by coordinates:
+    1.1. Clicking by coordinates
 
-        1.1.1. In order to find the coordinates of a position on the screen you can use the "track_mouse" function or the PositionTracker class.
+        1.1.1. In order to find the coordinates of a position on the screen you can use the "track_mouse" function or the PositionTracker class
 
         ```
             from automonkey import track_mouse
@@ -35,7 +35,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
 
         <img alt="PositionTracker" src="demo/PositionTracker.gif" width="918px" height="574px"/>
 
-        1.2.1. Now that you have the coordinates of the position you want to click on, you can use the "chain" function to click on it.
+        1.2.1. Now that you have the coordinates of the position you want to click on, you can use the "chain" function to click on it
 
 
         ```
@@ -50,14 +50,14 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
 
         <img alt="click" src="demo/click.gif" width="960px" height="576px"/>
 
-    1.2. Clicking by image:
+    1.2. Clicking by image
 
         1.2.1. To click on an image you first need to make a screenshot of the area you want to click on and save it somewhere on your computer.
             For this you can use any screenshot tool you want, or you could use monkeyshot: https://github.com/MihailCosmin/monkeyshot
             For example you can make a screenshot of the Edge icon from your toolbar, then we can click on it by using the "chain" function.
             <img alt="edge_toolbar" src="demo/edge_toolbar.gif" width="33px" height="33px"/>
 
-        1.2.2. Now that we have the image we want to click on, we can use the "chain" function to click on it.
+        1.2.2. Now that we have the image we want to click on, we can use the "chain" function to click on it
 
         ```
             chain(
