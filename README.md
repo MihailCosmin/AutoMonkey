@@ -81,7 +81,7 @@ or
         )
     ```
 
-    <img alt="click" src="demo/click.gif" width="960px" height="576px"/>
+    <img alt="click" src="https://github.com/MihailCosmin/AutoMonkey/blob/0eaa82fd64371b9070d7a129a9802a393c85a28e/demo/click.gif" width="960px" height="576px"/>
 
     1.2. Clicking by image
 
