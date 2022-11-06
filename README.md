@@ -182,6 +182,7 @@ or
     3.2. Wait while an image is on the screen
 
 4. App (window) actions:
+
     4.1. Open an app
 
     ```python
