@@ -114,8 +114,10 @@ APPS_ACTIONS = (
 
 from automonkey import chain
 chain(
-    dict(click="demo/edge_toolbar.jpg"),
-    dict(click="demo/google_create_account", wait=1),
-    dict(click="demo/personal_use", wait=1),
+    dict(click="demo/notepad.jpg", wait=1),
+    dict(write="Hello World!", wait=1),
+    dict(keys2="ctrl+a", wait=1),
+    dict(keys2="ctrl+x", wait=1),
+    dict(keys2="alt+f4", wait=1),  # close notepad
     debug=True
 )
