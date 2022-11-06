@@ -165,3 +165,85 @@ or
         * keys4
         * copy
         * paste
+
+3. Wait actions:
+    3.1. Wait until an image appears on the screen
+    This can used when you are waiting for a window to finish loading completely and you don't know exactly how long that would take.
+
+    ```python
+        chain(
+            dict(click="demo/notepad.jpg"),
+            dict(waituntil="demo/notepad_opened.jpg", wait=1),
+            dict(write="Hello World!", wait=1),
+            debug=True
+        )
+    ```
+
+    3.2. Wait while an image is on the screen
+
+4. App (window) actions:
+    4.1. Open an app
+
+    ```python
+        chain(
+            dict(open_app="notepad.exe"),
+            dict(write="Hello World!", wait=1),
+            debug=True
+        )
+    ```
+
+    4.2. Close an app
+
+    ```python
+        chain(
+            dict(open="notepad.exe"),
+            dict(write="Hello World!", wait=1),
+            dict(close="notepad.exe"),
+            debug=True
+        )
+    ```
+
+    4.3. Minimize an app
+
+    ```python
+        chain(
+            dict(open="notepad.exe"),
+            dict(write="Hello World!", wait=1),
+            dict(minimize="notepad.exe"),
+            debug=True
+        )
+    ```
+
+    4.4. Maximize an app
+
+    ```python
+        chain(
+            dict(open="notepad.exe"),
+            dict(write="Hello World!", wait=1),
+            dict(maximize="notepad.exe"),
+            debug=True
+        )
+    ```
+
+    4.5. Restore an app
+
+    ```python
+        chain(
+            dict(open="notepad.exe"),
+            dict(write="Hello World!", wait=1),
+            dict(minimize="notepad.exe"),
+            dict(restore="notepad.exe"),
+            debug=True
+        )
+    ```
+
+    4.6. All app actions:
+
+        * open
+        * close
+        * startfile
+        * focus
+        * minimize
+        * maximize
+        * restore
+        * msoffice_replace

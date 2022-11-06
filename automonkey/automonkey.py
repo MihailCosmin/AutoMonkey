@@ -6,7 +6,10 @@ from sys import exit as end
 
 from os import remove
 from os import startfile  # It is used
+from os import system
 from os.path import isfile
+
+from subprocess import Popen
 
 from re import search
 
@@ -121,9 +124,10 @@ KEYBOARD_ACTIONS = (
 )
 
 APPS_ACTIONS = (
-    "startfile",
     "close",
     "focus",
+    "open_app",
+    "startfile",
     "minimize",
     "maximize",
     "restore",
@@ -739,6 +743,20 @@ def focus(title: str):
     win_man.get_window_by_title(f".*?{title}.*?")
     win_man.focus()
 
+
+def open_app(app: str):
+    """Open an application
+
+    Args:
+        app_path (str): path to the application
+    """
+    if isfile(app):
+        Popen(app)
+    else:
+        try:
+            system(f"start {app}")
+        except Exception as err:
+            raise Exception(f"Could not open {app} because of {err}") from err
 
 def __wait_for_target(target: any, skip: bool = False):
     """Wait for a target to be available"""

@@ -114,10 +114,7 @@ APPS_ACTIONS = (
 
 from automonkey import chain
 chain(
-    dict(click="demo/notepad.jpg", wait=1),
+    dict(open_app="notepad.exe"),
     dict(write="Hello World!", wait=1),
-    dict(keys2="ctrl+a", wait=1),
-    dict(keys2="ctrl+x", wait=1),
-    dict(keys2="alt+f4", wait=1),  # close notepad
     debug=True
 )
