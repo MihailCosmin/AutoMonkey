@@ -17,7 +17,7 @@ Which in turn will enable you to create sequences of mouse and/or keyboard actio
     There are 2 main ways to click, either by giving the coordinates of the position where to click or by giving the filename of the image you want to click on
 
     1.1. Clicking by coordinates
-
+        
         1.1.1. In order to find the coordinates of a position on the screen you can use the "track_mouse" function or the PositionTracker class
 
         ```python
