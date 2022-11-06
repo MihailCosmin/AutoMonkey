@@ -187,7 +187,8 @@ or
 
     ```python
         chain(
-            dict(open_app="notepad.exe"),
+            dict(open_app="notepad++.exe", wait=1),
+            dict(waituntil="demo/notepad_opened.jpg", wait=1),
             dict(write="Hello World!", wait=1),
             debug=True
         )
@@ -197,9 +198,9 @@ or
 
     ```python
         chain(
-            dict(open_app="notepad.exe"),
+            dict(open_app="notepad++.exe", wait=1),
             dict(write="Hello World!", wait=1),
-            dict(close="notepad.exe"),
+            dict(close="Notepad", wait=1),
             debug=True
         )
     ```
@@ -208,9 +209,9 @@ or
 
     ```python
         chain(
-            dict(open_app="notepad.exe"),
+            dict(open_app="notepad++.exe", wait=1),
             dict(write="Hello World!", wait=1),
-            dict(minimize="notepad.exe"),
+            dict(minimize="Notepad", wait=1),
             debug=True
         )
     ```
@@ -219,9 +220,9 @@ or
 
     ```python
         chain(
-            dict(open_app="notepad.exe"),
+            dict(open_app="notepad++.exe", wait=1),
             dict(write="Hello World!", wait=1),
-            dict(maximize="notepad.exe"),
+            dict(maximize="Notepad", wait=1),
             debug=True
         )
     ```
@@ -230,10 +231,10 @@ or
 
     ```python
         chain(
-            dict(open_app="notepad.exe"),
+            dict(open_app="notepad++.exe", wait=1),
             dict(write="Hello World!", wait=1),
-            dict(minimize="notepad.exe"),
-            dict(restore="notepad.exe"),
+            dict(minimize="Notepad", wait=1),
+            dict(restore="Notepad", wait=1),
             debug=True
         )
     ```
@@ -248,3 +249,29 @@ or
         * maximize
         * restore
         * msoffice_replace
+        * copy_from
+        * copy_from_to
+
+5. Image actions
+
+    5.1 count_img. With this function you can count how many times one image appears on the screen.
+
+    ```python
+        chain(
+            dict(count_img="demo/M.jpg", wait=1),  # The result will be copied to the clipboard
+            dict(open_app="notepad++.exe", wait=1),
+            dict(paste="", wait=1),  # with paste we can paste the text from the clipboard
+            debug=True
+        )
+    ```
+
+    5.2. get_text_from_region
+
+    ```python
+        chain(
+            dict(get_text_from_region=((136, 121), (189, 140)), wait=1),  # The text will be copied to the clipboard
+            dict(open_app="notepad++.exe", wait=1),
+            dict(paste="", wait=1),  # with paste we can paste the text from the clipboard
+            debug=True
+        )
+    ```

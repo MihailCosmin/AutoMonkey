@@ -114,7 +114,8 @@ APPS_ACTIONS = (
 
 from automonkey import chain
 chain(
-    dict(open_app="notepad.exe"),
-    dict(write="Hello World!", wait=1),
+    dict(get_text_from_region=((136, 121), (189, 140)), wait=1),  # The text will be copied to the clipboard
+    dict(open_app="notepad++.exe", wait=1),
+    dict(paste="", wait=1),  # with paste we can paste the text from the clipboard
     debug=True
 )

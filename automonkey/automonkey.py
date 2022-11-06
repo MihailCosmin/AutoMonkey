@@ -133,12 +133,12 @@ APPS_ACTIONS = (
     "restore",
     "copy_from",
     "copy_from_to",
-    "get_text_from_region",
     "msoffice_replace",
 )
 
 IMG_ACTIONS = (
     "count_img",
+    "get_text_from_region",
 )
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS
@@ -452,7 +452,9 @@ def get_text_from_region(*args) -> str:
     """
     if len(args) == 1:
         assert isinstance(args[0], tuple), "The argument must be a tuple of 4 integers: Left, Top, Width, Height"
-        if args[0][2] > args[0][0] and args[0][3] > args[0][1]:
+        if len(args[0]) == 4:
+            region = (args[0][0], args[0][1], args[0][2] - args[0][0], args[0][3] - args[0][1])
+        elif args[0][2] > args[0][0] and args[0][3] > args[0][1]:
             region = (args[0][0], args[0][1], args[0][2] - args[0][0], args[0][3] - args[0][1])
         else:
             region = args[0]
