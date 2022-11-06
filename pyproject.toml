@@ -17,8 +17,8 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "AutoMonkey_MihailCosmin"
-version = "0.0.2"
+name = "AutoMonkey"
+version = "0.0.4"
 authors = [
   { name="Mihail-Cosmin Munteanu", email="munteanumihailcosmin@gmail.com" },
 ]
