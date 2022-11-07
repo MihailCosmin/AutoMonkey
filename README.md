@@ -283,8 +283,12 @@ or
     ```
 
 # Frequently Asked Questions:
+
 1. I made an image but it doesn't click on it.
+
 A: Make sure you have not changed resolution of your screen or the theme (dark/light) of the window.
 
+
 2. Keys combination using "keys" function doesn't work.
+
 A: Try other keys functions. Preferably "keys2". Other options "keys3", "keys4".
