@@ -110,7 +110,7 @@ or
 
     <img alt="click_image" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/click_image.gif" width="918px" height="600px"/>
 
-    1.3. All click actions:
+    1.3. All mouse actions:
 
         * click
         * rightclick
