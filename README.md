@@ -110,7 +110,7 @@ or
 
     <img alt="click_image" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/click_image.gif" width="918px" height="600px"/>
 
-    1.3. All click actions:
+    1.3. All mouse actions:
 
         * click
         * rightclick
@@ -281,3 +281,14 @@ or
             debug=True
         )
     ```
+
+# Frequently Asked Questions:
+
+1. I made an image but it doesn't click on it.
+
+    A: Make sure you have not changed resolution of your screen or the theme (dark/light) of the window.
+
+
+2. Keys combination using "keys" function doesn't work.
+
+    A: Try other keys functions. Preferably "keys2". Other options "keys3", "keys4".
