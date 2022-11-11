@@ -860,6 +860,13 @@ def chain(*steps: dict, debug=False):
            You can also use regex to match the title.
 
     """
+
+    # TODO: To have a function that can be called with different number and different types of arguments look into function overloading
+    # https://stackoverflow.com/questions/6434482/python-function-overloading
+    # This could be needed for:
+    # 1. get_text_from_region
+    # 2. copy_from_to
+
     monitors = {}
     for _, mon in enumerate(sorted([(mon.x, mon.y) for mon in get_monitors()], key=lambda tup: tup[0])):
         monitors[_] = (mon[0], mon[1])
