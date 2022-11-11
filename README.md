@@ -5,11 +5,13 @@ Python Automation using Mouse and Keyboard, for the masses
 
 # Installation
 
+1. From <a href="https://pypi.org/project/AutoMonkey/">pypi</a>:
+
 ```
 pip install AutoMonkey
 ```
 
-or
+2. From <a href="https://github.com/MihailCosmin/AutoMonkey">github</a>:
 
 ```
 pip install git+https://github.com/MihailCosmin/AutoMonkey
