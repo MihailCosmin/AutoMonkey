@@ -353,12 +353,16 @@ class PositionTracker(Toplevel):
         self.follow_mouse = follow_mouse
         self.window = Tk()
         self.canvas = None
+        self.coords = None
         self.start()
 
-    def start(self):
+    def start(self, get_coords: bool = False):
         """Take the screenshot
         """
-        self.window.bind('<Escape>', lambda e: self.window.destroy())
+        if get_coords:
+            self.window.bind('<Control-Button-1>', self.window.destroy)
+        else:
+            self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
@@ -371,38 +375,44 @@ class PositionTracker(Toplevel):
         self.canvas.configure(highlightthickness=0, bg='black')
         self.canvas.pack()
 
-        self.window.after(1, self._crosshair, None)
+        self.window.after(1, self._crosshair, None, get_coords)
         self.window.mainloop()
+        if get_coords:
+            return self.coords
+        return None
 
-    def _crosshair(self, coords):
-        x_point, y_point = position()
-
-        self.canvas.delete(coords)
-        if coords is None:
-            self.canvas.create_text(
-                180,
-                20,
-                text=f"Press ESC to exit.",
-                fill='red',
-                font=("Helvetica", 30),
-            )
-        if self.follow_mouse:
-            coords = self.canvas.create_text(
-                x_point + 100 if x_point < size()[0] - 200 else x_point - 100 if x_point < size()[0] + 100 else size()[0] / 2,
-                size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100,
-                text=f"x={x_point}, y={y_point}",
-                fill='red',
-                font=("Helvetica", 20) if x_point < size()[0] + 100 else ("Helvetica", 40),
-            )
+    def _crosshair(self, coords, get_coords: bool = False):
+        if get_coords:
+            self.coords = position()
         else:
-            coords = self.canvas.create_text(
-                size()[0] / 2,
-                size()[1] / 2,
-                text=f"x={x_point}, y={y_point}",
-                fill='red',
-                font=("Helvetica", 40),
-            )
-        self.window.after(1, self._crosshair, coords)
+            x_point, y_point = position()
+
+            self.canvas.delete(coords)
+            if coords is None:
+                self.canvas.create_text(
+                    180,
+                    20,
+                    text=f"Press ESC to exit.",
+                    fill='red',
+                    font=("Helvetica", 30),
+                )
+            if self.follow_mouse:
+                coords = self.canvas.create_text(
+                    x_point + 100 if x_point < size()[0] - 200 else x_point - 100 if x_point < size()[0] + 100 else size()[0] / 2,
+                    size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100,
+                    text=f"x={x_point}, y={y_point}",
+                    fill='red',
+                    font=("Helvetica", 20) if x_point < size()[0] + 100 else ("Helvetica", 40),
+                )
+            else:
+                coords = self.canvas.create_text(
+                    size()[0] / 2,
+                    size()[1] / 2,
+                    text=f"x={x_point}, y={y_point}",
+                    fill='red',
+                    font=("Helvetica", 40),
+                )
+            self.window.after(1, self._crosshair, coords)
 
 
 def get_img_height(image_file: str) -> int:
