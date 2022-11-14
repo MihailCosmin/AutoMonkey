@@ -383,9 +383,9 @@ class PositionTracker(Toplevel):
     def _crosshair(self, coords, get_coords: bool = False):
         if get_coords:
             self.canvas.create_text(
-                180,
+                400,
                 20,
-                text="CTRL+Left Click to get the coordinates",
+                text="CTRL+Left Click to get the cursor coordinates",
                 fill='red',
                 font=("Helvetica", 30),
             )
@@ -925,9 +925,4 @@ def chain(*steps: dict, debug=False):
 
 
 if __name__ == "__main__":
-    chain(
-        dict(get_text_from_region=((136, 121), (189, 140)), wait=1),  # The text will be copied to the clipboard
-        dict(open_app="notepad++.exe", wait=1),
-        dict(paste="", wait=1),  # with paste we can paste the text from the clipboard
-        debug=True
-    )
+    PositionTracker().start(True)

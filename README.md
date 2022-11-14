@@ -71,7 +71,8 @@ or
 
     ```python
         from automonkey import PositionTracker
-        PositionTracker()
+        tracker = PositionTracker()
+        tracker.start()
     ```
 
     <img alt="PositionTracker" src="https://github.com/MihailCosmin/AutoMonkey/raw/1fa19ba4517875d00c08cf320e628669d60714dc/demo/PositionTracker.gif" width="918px" height="574px"/>
