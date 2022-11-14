@@ -354,7 +354,6 @@ class PositionTracker(Toplevel):
         self.window = Tk()
         self.canvas = None
         self.coords = None
-        self.start()
 
     def start(self, get_coords: bool = False):
         """Take the screenshot
