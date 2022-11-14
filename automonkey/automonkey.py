@@ -359,7 +359,7 @@ class PositionTracker(Toplevel):
         """Take the screenshot
         """
         if get_coords:
-            self.window.bind('<Control-Button-1>', self.window.destroy)
+            self.window.bind('<Control-Button-1>', lambda e: self.window.destroy())
         else:
             self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
@@ -382,6 +382,13 @@ class PositionTracker(Toplevel):
 
     def _crosshair(self, coords, get_coords: bool = False):
         if get_coords:
+            self.canvas.create_text(
+                180,
+                20,
+                text="CTRL+Left Click to get the coordinates",
+                fill='red',
+                font=("Helvetica", 30),
+            )
             self.coords = position()
         else:
             x_point, y_point = position()
