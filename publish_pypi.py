@@ -3,6 +3,8 @@ from os.path import isdir
 
 from shutil import rmtree
 
+# User: __token__
+
 if isdir('dist'):
     rmtree('dist')
 
