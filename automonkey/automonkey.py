@@ -296,10 +296,10 @@ class PositionTracker:  # was Toplevel
     def start(self, get_coords: bool = False):
         """Take the screenshot
         """
-        if get_coords:
-            self.window.bind('<Control-Button-1>', lambda e: self.window.destroy())
-        else:
-            self.window.bind('<Escape>', lambda e: self.window.destroy())
+        # if get_coords:
+        #     self.window.bind('<Control-Button-1>', lambda e: self.window.destroy())
+        # else:
+        self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
@@ -336,7 +336,7 @@ class PositionTracker:  # was Toplevel
                 self.window.canvas.create_text(
                     180,
                     20,
-                    text=f"Press ESC to exit.",
+                    text="Press ESC to exit.",
                     fill='red',
                     font=("Helvetica", 30),
                 )
