@@ -74,93 +74,19 @@ import cv2
 from cv2 import imread
 from numpy import where
 
-IMG_EXT = (
-    ".png",
-    ".jpg",
-    ".jpeg",
-    ".tiff",
-    ".tif",
-    ".bmp",
-    ".gif",
-    ".pdf",
-    ".webp",
-    ".PNG",
-    ".JPG",
-    ".JPEG",
-    ".TIFF",
-    ".TIF",
-    ".BMP",
-    ".GIF",
-    ".PDF",
-    ".WEBP"
-)
+from constants import IMG_EXT
+from constants import MOUSE_ACTIONS
+from constants import WAIT_ACTIONS
+from constants import KEYBOARD_ACTIONS
+from constants import APPS_ACTIONS
+from constants import IMG_ACTIONS
+from constants import COMMON_APPS
 
-MOUSE_ACTIONS = (
-    "click",
-    "leftclick",
-    "rightclick",
-    "doubleclick",
-    "tripleclick",
-    "scrollup",
-    "scrolldown",
-    "scrollleft",
-    "scrollright",
-)
+from exceptions import AutoMonkeyNoAction
+from exceptions import AutoMonkeyNoTarget
 
-WAIT_ACTIONS = (
-    "waitwhile",
-    "waituntil",
-)
-
-KEYBOARD_ACTIONS = (
-    "write",
-    "pastetext",
-    "keys",
-    "keys2",
-    "keys3",
-    "keys4",
-    "copy",
-    "paste",
-)
-
-APPS_ACTIONS = (
-    "close",
-    "focus",
-    "open_app",
-    "startfile",
-    "minimize",
-    "maximize",
-    "restore",
-    "copy_from",
-    "copy_from_to",
-    "msoffice_replace",
-)
-
-IMG_ACTIONS = (
-    "count_img",
-    "get_text_from_region",
-)
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS
-
-
-class AutoMonkeyNoAction(Exception):
-    """
-    AutoMonkey chain function will raise this Exception if no valid action exists
-    in an automation step of the chain sequence.
-    """
-    def __init__(self, message):
-        super().__init__(f"The provided action is not supported: {message}")
-
-
-class AutoMonkeyNoTarget(Exception):
-    """
-    AutoMonkey chain function will raise this Exception if no valid target exists
-    in an automation step of the chain sequence.
-    """
-    def __init__(self, message):
-        super().__init__(f"The provided target is not supported: {message}")
-
 
 def __add_ext(filename: str) -> str:
     """Adds extension to an image filename if missing
@@ -918,6 +844,11 @@ def chain(*steps: dict, debug=False):
                 globals()[step["action"]](*step["target"])
             elif step["action"] == "paste":
                 pastetext(paste())
+            elif step["action"] == "start_app":
+                if step["target"].lower() in COMMON_APPS:
+                    globals()[step["action"]](COMMON_APPS[step["target"].lower()])
+                else:
+                    globals()[step["action"]](step["target"])
             else:
                 globals()[step["action"]](step["target"])
 
