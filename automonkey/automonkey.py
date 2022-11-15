@@ -290,7 +290,7 @@ class PositionTracker():  # was Toplevel
     def __init__(self, follow_mouse: bool = False):
         self.follow_mouse = follow_mouse
         self.window = Tk()  # Was Tk()
-        self.canvas = None
+        self.window.canvas = None
         self.coords = None
 
     def start(self, get_coords: bool = False):
@@ -303,14 +303,14 @@ class PositionTracker():  # was Toplevel
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
-        self.canvas = Canvas(
+        self.window.canvas = Canvas(
             self.window,
             width=self.window.winfo_screenwidth(),
             height=self.window.winfo_screenheight(),
             cursor="crosshair"
         )
-        self.canvas.configure(highlightthickness=0, bg='black')
-        self.canvas.pack()
+        self.window.canvas.configure(highlightthickness=0, bg='black')
+        self.window.canvas.pack()
 
         self.window.after(1, self._crosshair, None, get_coords)
         self.window.mainloop()
@@ -320,7 +320,7 @@ class PositionTracker():  # was Toplevel
 
     def _crosshair(self, coords, get_coords: bool = False):
         if get_coords:
-            self.canvas.create_text(
+            self.window.canvas.create_text(
                 400,
                 20,
                 text="CTRL+Left Click to get the cursor coordinates",
@@ -331,9 +331,9 @@ class PositionTracker():  # was Toplevel
         else:
             x_point, y_point = position()
 
-            self.canvas.delete(coords)
+            self.window.canvas.delete(coords)
             if coords is None:
-                self.canvas.create_text(
+                self.window.canvas.create_text(
                     180,
                     20,
                     text=f"Press ESC to exit.",
@@ -341,7 +341,7 @@ class PositionTracker():  # was Toplevel
                     font=("Helvetica", 30),
                 )
             if self.follow_mouse:
-                coords = self.canvas.create_text(
+                coords = self.window.canvas.create_text(
                     x_point + 100 if x_point < size()[0] - 200 else x_point - 100 if x_point < size()[0] + 100 else size()[0] / 2,
                     size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100,
                     text=f"x={x_point}, y={y_point}",
@@ -349,7 +349,7 @@ class PositionTracker():  # was Toplevel
                     font=("Helvetica", 20) if x_point < size()[0] + 100 else ("Helvetica", 40),
                 )
             else:
-                coords = self.canvas.create_text(
+                coords = self.window.canvas.create_text(
                     size()[0] / 2,
                     size()[1] / 2,
                     text=f"x={x_point}, y={y_point}",
