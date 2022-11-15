@@ -319,11 +319,8 @@ class PositionTracker:  # was Toplevel
 
         self.after = self.window.after(1, self._crosshair, None)
         self.window.mainloop()
-        self.window.after_cancel(self.after)
         if get_coords:
-            self.window.after_cancel(self.after)
             return self.coords
-        self.window.after_cancel(self.after)
         return None
 
     def _crosshair(self, coords):
