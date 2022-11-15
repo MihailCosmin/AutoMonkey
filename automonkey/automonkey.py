@@ -298,6 +298,8 @@ class PositionTracker:  # was Toplevel
     def start(self, get_coords: bool = False):
         """Take the screenshot
         """
+        if self.after:
+            self.window.after_cancel(self.after)
         if get_coords:
             self.get_coords = True
             self.window.bind('<Control-Button-1>', lambda e: self._destroy())
