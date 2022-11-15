@@ -5,6 +5,7 @@ VER_FILES = [
     "setup.py",
     "setup.cfg",
     "pyproject.toml",
+    "__init__.py",
 ]
 
 VER_REGEX = r"([ \"']{1})(\d.\d.\d)([ \"'\n]{1})"
