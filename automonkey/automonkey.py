@@ -316,6 +316,7 @@ class PositionTracker:  # was Toplevel
         self.window.canvas.pack()
 
         self.window.after_cancel(self.window)
+        self.window.after_cancel(self._crosshair)
         self.window.after(1, self._crosshair, None)
         self.window.mainloop()
         if get_coords:
@@ -365,6 +366,7 @@ class PositionTracker:  # was Toplevel
 
     def destroy(self):
         self.window.after_cancel(self.window)
+        self.window.after_cancel(self._crosshair)
         self.window.destroy()
 
 def get_img_height(image_file: str) -> int:
