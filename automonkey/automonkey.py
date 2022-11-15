@@ -292,14 +292,16 @@ class PositionTracker:  # was Toplevel
         self.window = Tk()  # Was Tk()
         self.window.canvas = None
         self.coords = None
+        self.get_coords = False
 
     def start(self, get_coords: bool = False):
         """Take the screenshot
         """
-        # if get_coords:
-        #     self.window.bind('<Control-Button-1>', lambda e: self.window.destroy())
-        # else:
-        self.window.bind('<Escape>', lambda e: self.window.destroy())
+        if get_coords:
+            self.get_coords = True
+            self.window.bind('<Control-Button-1>', lambda e: self.window.destroy())
+        else:
+            self.window.bind('<Escape>', lambda e: self.window.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
@@ -312,14 +314,14 @@ class PositionTracker:  # was Toplevel
         self.window.canvas.configure(highlightthickness=0, bg='black')
         self.window.canvas.pack()
 
-        self.window.after(1, self._crosshair, None, get_coords)
+        self.window.after(1, self._crosshair, None)
         self.window.mainloop()
         if get_coords:
             return self.coords
         return None
 
-    def _crosshair(self, coords, get_coords: bool = False):
-        if get_coords:
+    def _crosshair(self, coords):
+        if self.get_coords:
             self.window.canvas.create_text(
                 400,
                 20,
@@ -356,7 +358,7 @@ class PositionTracker:  # was Toplevel
                     fill='red',
                     font=("Helvetica", 40),
                 )
-        self.window.after(1, self._crosshair, coords, get_coords)
+        self.window.after(1, self._crosshair, coords)
 
 
 def get_img_height(image_file: str) -> int:
