@@ -856,7 +856,7 @@ def chain(*steps: dict, debug=False):
                 globals()[step["action"]](*step["target"])
             elif step["action"] == "paste":
                 pastetext(paste())
-            elif step["action"] == "start_app":
+            elif step["action"] == "open_app":
                 if step["target"].lower() in COMMON_APPS:
                     globals()[step["action"]](COMMON_APPS[step["target"].lower()])
                 else:
