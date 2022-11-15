@@ -314,8 +314,7 @@ class PositionTracker:  # was Toplevel
         self.window.canvas.configure(highlightthickness=0, bg='black')
         self.window.canvas.pack()
 
-        if self.window:
-            self.window.after(1, self._crosshair, None)
+        self.window.after(1, self._crosshair, None)
         self.window.mainloop()
         if get_coords:
             return self.coords
@@ -359,9 +358,12 @@ class PositionTracker:  # was Toplevel
                     fill='red',
                     font=("Helvetica", 40),
                 )
-        if self.window:
-            self.window.after(1, self._crosshair, coords)
 
+        self.window.after(1, self._crosshair, coords)
+
+    def destroy(self):
+        self.window.after_cancel(1)
+        self.window.destroy()
 
 def get_img_height(image_file: str) -> int:
     """Function that returns the height of an image.
