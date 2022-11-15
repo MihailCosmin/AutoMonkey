@@ -286,18 +286,16 @@ def track_mouse():
         print("Tracking mouse position stopped")
 
 
-class PositionTracker(Toplevel):
+class PositionTracker(Toplevel):  # was Toplevel
     def __init__(self, follow_mouse: bool = False):
         self.follow_mouse = follow_mouse
-        self.window = Tk()
+        self.window = Tk()  # Was Tk()
         self.canvas = None
         self.coords = None
 
     def start(self, get_coords: bool = False):
         """Take the screenshot
         """
-        # hide tk window
-        self.window.withdraw()
         if get_coords:
             self.window.bind('<Control-Button-1>', lambda e: self.window.destroy())
         else:
