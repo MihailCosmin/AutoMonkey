@@ -74,16 +74,28 @@ import cv2
 from cv2 import imread
 from numpy import where
 
-from constants import IMG_EXT
-from constants import MOUSE_ACTIONS
-from constants import WAIT_ACTIONS
-from constants import KEYBOARD_ACTIONS
-from constants import APPS_ACTIONS
-from constants import IMG_ACTIONS
-from constants import COMMON_APPS
+if __name__ == "__main__":
+    from constants import IMG_EXT
+    from constants import MOUSE_ACTIONS
+    from constants import WAIT_ACTIONS
+    from constants import KEYBOARD_ACTIONS
+    from constants import APPS_ACTIONS
+    from constants import IMG_ACTIONS
+    from constants import COMMON_APPS
 
-from exceptions import AutoMonkeyNoAction
-from exceptions import AutoMonkeyNoTarget
+    from exceptions import AutoMonkeyNoAction
+    from exceptions import AutoMonkeyNoTarget
+else:
+    from .constants import IMG_EXT
+    from .constants import MOUSE_ACTIONS
+    from .constants import WAIT_ACTIONS
+    from .constants import KEYBOARD_ACTIONS
+    from .constants import APPS_ACTIONS
+    from .constants import IMG_ACTIONS
+    from .constants import COMMON_APPS
+
+    from .exceptions import AutoMonkeyNoAction
+    from .exceptions import AutoMonkeyNoTarget
 
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS
