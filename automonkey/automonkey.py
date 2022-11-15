@@ -314,7 +314,8 @@ class PositionTracker:  # was Toplevel
         self.window.canvas.configure(highlightthickness=0, bg='black')
         self.window.canvas.pack()
 
-        self.window.after(1, self._crosshair, None)
+        if isinstance(self.window, Tk):
+            self.window.after(1, self._crosshair, None)
         self.window.mainloop()
         if get_coords:
             return self.coords
@@ -358,7 +359,8 @@ class PositionTracker:  # was Toplevel
                     fill='red',
                     font=("Helvetica", 40),
                 )
-        self.window.after(1, self._crosshair, coords)
+        if isinstance(self.window, Tk):
+            self.window.after(1, self._crosshair, coords)
 
 
 def get_img_height(image_file: str) -> int:
