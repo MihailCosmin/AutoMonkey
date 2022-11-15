@@ -314,7 +314,7 @@ class PositionTracker:  # was Toplevel
         self.window.canvas.configure(highlightthickness=0, bg='black')
         self.window.canvas.pack()
 
-        if isinstance(self.window, Tk):
+        if self.window:
             self.window.after(1, self._crosshair, None)
         self.window.mainloop()
         if get_coords:
@@ -359,7 +359,7 @@ class PositionTracker:  # was Toplevel
                     fill='red',
                     font=("Helvetica", 40),
                 )
-        if isinstance(self.window, Tk):
+        if self.window:
             self.window.after(1, self._crosshair, coords)
 
 
