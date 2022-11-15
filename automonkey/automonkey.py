@@ -418,7 +418,7 @@ class PositionTracker(Toplevel):
                     fill='red',
                     font=("Helvetica", 40),
                 )
-            self.window.after(1, self._crosshair, coords)
+        self.window.after(1, self._crosshair, coords, get_coords)
 
 
 def get_img_height(image_file: str) -> int:
@@ -925,4 +925,5 @@ def chain(*steps: dict, debug=False):
 
 
 if __name__ == "__main__":
-    PositionTracker().start(True)
+    tracker = PositionTracker()
+    print(tracker.start(True))
