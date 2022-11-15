@@ -286,7 +286,7 @@ def track_mouse():
         print("Tracking mouse position stopped")
 
 
-class PositionTracker(Toplevel):  # was Toplevel
+class PositionTracker():  # was Toplevel
     def __init__(self, follow_mouse: bool = False):
         self.follow_mouse = follow_mouse
         self.window = Tk()  # Was Tk()
