@@ -302,7 +302,7 @@ class PositionTracker:  # was Toplevel
             # self.window.bind('<Control-Button-1>', lambda e: self.window.destroy())
             self.window.bind('<Control-Button-1>', lambda e: self.destroy())
         else:
-            self.window.bind('<Escape>', lambda e: self.window.destroy())
+            self.window.bind('<Escape>', lambda e: self.destroy())
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
@@ -317,6 +317,7 @@ class PositionTracker:  # was Toplevel
 
         self.window.after(1, self._crosshair, None)
         self.window.mainloop()
+        self.destroy()
         if get_coords:
             return self.coords
         return None
