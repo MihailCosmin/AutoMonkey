@@ -1,4 +1,4 @@
-[![Known Vulnerabilities](https://snyk.io/test/github/MihailCosmin/AutoMonkey/badge.svg?targetFile=package.json)](https://snyk.io/test/github/MihailCosmin/AutoMonkey?targetFile=package.json)
+[![Known Vulnerabilities](https://snyk.io/test/github/MihailCosmin/AutoMonkey/badge.svg)](https://snyk.io/test/github/MihailCosmin/AutoMonkey)
 
 # AutoMonkey
 <img alt="AutoMonkey" src="https://github.com/MihailCosmin/AutoMonkey/raw/06181954fa23605583d61843226f5f3997157435/img/monkey.ico" width="100px" height="100px"/>
