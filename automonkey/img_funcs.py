@@ -255,6 +255,10 @@ def _offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
                                          - lower-right
         click_type (str): click, rightClick, doubleClick, etc
     """
+    __offset_clicks_1(point, img, offset_value, click_type)
+    __offset_clicks_2(point, img, offset_value, click_type)
+
+def __offset_clicks_1(point: tuple, img: str, offset_value: str, click_type: str):
     if offset_value == "above":
         globals()[click_type](vertical_point(point, get_img_height(img)))
     if offset_value == "bellow":
@@ -263,6 +267,8 @@ def _offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
         globals()[click_type](horizontal_point(point, get_img_width(img)))
     if offset_value == "left":
         globals()[click_type](horizontal_point(point, 0 - get_img_width(img)))
+
+def __offset_clicks_2(point: tuple, img: str, offset_value: str, click_type: str):
     if offset_value == "upper-left":
         globals()[click_type](diagonal_point(point, 0 - get_img_width(img), get_img_height(img)))
     if offset_value == "upper-right":
