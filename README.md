@@ -176,6 +176,7 @@ or
         * paste
 
 3. Wait actions:
+
     3.1. Wait until an image appears on the screen
     This can used when you are waiting for a window to finish loading completely and you don't know exactly how long that would take.
 
