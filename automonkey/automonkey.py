@@ -159,6 +159,10 @@ def __monitors():
     return monitors
 
 def __target_1(step: dict):
+    step["target"] = step["target"].split("+") if step["action"] in ("keys", "keys2") else step["target"]
+    return step
+
+def __target_2(step: dict):
     monitors = __monitors()
     try:
         if step["action"] in ("keys", "keys2") and isinstance(step["target"], tuple):
@@ -220,8 +224,9 @@ def chain(*steps: dict, debug=False):
         if debug:
             print(_)
 
-        step["target"] = step["target"].split("+") if step["action"] in ("keys", "keys2") else step["target"]
         step = __target_1(step)
+        step = __target_2(step)
+        
 
         if step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int):
             __run_1(step)
