@@ -1,6 +1,5 @@
 """Python Automation using Mouse and Keyboard, for the masses
 """
-
 from time import sleep
 from sys import exit as end
 
