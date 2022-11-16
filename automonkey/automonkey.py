@@ -172,6 +172,7 @@ def __target_2(step: dict):
         pass
     except KeyError:
         pass
+    return step
 
 def __run_1_cond(step: dict):
     return step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int)
