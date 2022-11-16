@@ -1,3 +1,4 @@
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=5Q6TUMXS2QJW4)
 [![Known Vulnerabilities](https://snyk.io/test/github/MihailCosmin/AutoMonkey/badge.svg)](https://snyk.io/test/github/MihailCosmin/AutoMonkey)
 [![HitCount](https://hits.dwyl.com/MihailCosmin/AutoMonkey.svg?style=flat-square&show=unique)](http://hits.dwyl.com/MihailCosmin/AutoMonkey)
 [![build](https://github.com/MihailCosmin/AutoMonkey/actions/workflows/python-package.yml/badge.svg)](https://github.com/MihailCosmin/AutoMonkey/actions/workflows/python-package.yml)
