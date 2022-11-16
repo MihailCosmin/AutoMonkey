@@ -25,6 +25,8 @@ def track_mouse():
 
 
 class PositionTracker:  # was Toplevel
+    """PositionTracker
+    """
     def __init__(self, follow_mouse: bool = False):
         self.follow_mouse = follow_mouse
         self.window = Tk()  # Was Tk()
@@ -40,9 +42,9 @@ class PositionTracker:  # was Toplevel
             self.window.after_cancel(self.after)
         if get_coords:
             self.get_coords = True
-            self.window.bind('<Control-Button-1>', lambda e: self._destroy())
+            self.window.bind('<Control-Button-1>', lambda e: self.destroy_())
         else:
-            self.window.bind('<Escape>', lambda e: self._destroy())
+            self.window.bind('<Escape>', lambda e: self.destroy_())
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
@@ -96,8 +98,8 @@ class PositionTracker:  # was Toplevel
 
     def _make_coords_1(self, x_point: int, y_point: int) -> any:
         return self.window.canvas.create_text(
-            self._make_coords_1_X(x_point),
-            self._make_coords_1_Y(x_point, y_point),
+            self._make_coords_1_x(x_point),
+            self._make_coords_1_y(x_point, y_point),
             text=f"x={x_point}, y={y_point}",
             fill='red',
             font=("Helvetica", 20) if x_point < size()[0] + 100 else ("Helvetica", 40),
@@ -113,11 +115,11 @@ class PositionTracker:  # was Toplevel
         )
 
     @staticmethod
-    def _make_coords_1_X(x_point: int) -> int:
+    def _make_coords_1_x(x_point: int) -> int:
         return x_point + 100 if x_point < size()[0] - 200 else x_point - 100 if x_point < size()[0] + 100 else size()[0] / 2
 
     @staticmethod
-    def _make_coords_1_Y(x_point: int, y_point: int) -> int:
+    def _make_coords_1_y(x_point: int, y_point: int) -> int:
         if x_point > size()[0] + 100:
             return size()[1] / 2
         if (y_point < 70 and x_point < 300):
@@ -125,8 +127,7 @@ class PositionTracker:  # was Toplevel
         if y_point < size()[1] - 200:
             return y_point + 20
         return y_point - 100
-        # return size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100
 
-    def _destroy(self):
+    def destroy_(self):
         self.window.after_cancel(self.after)
         self.window.destroy()
