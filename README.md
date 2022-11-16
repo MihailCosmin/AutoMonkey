@@ -19,19 +19,19 @@ pip install git+https://github.com/MihailCosmin/AutoMonkey
 
 # Dependencies
 * Automonkey is based on:
-<a href="https://github.com/asweigart/pyautogui">pyautogui</a>
+- <a href="https://github.com/asweigart/pyautogui">pyautogui</a>
 
 * Other dependencies:
-PyScreeze
-pyperclip
-clipboard
-keyboard
-screeninfo
-pywin32
-pillow
-opencv-python
-numpy
-pytesserac
+- PyScreeze
+- pyperclip
+- clipboard
+- keyboard
+- screeninfo
+- pywin32
+- pillow
+- opencv-python
+- numpy
+- pytesserac
 
 # Usage
 Main function to be used is "chain"  
