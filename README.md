@@ -31,7 +31,7 @@ pip install git+https://github.com/MihailCosmin/AutoMonkey
 - pillow
 - opencv-python
 - numpy
-- pytesserac
+- pytesseract
 
 # Usage
 Main function to be used is "chain"  
