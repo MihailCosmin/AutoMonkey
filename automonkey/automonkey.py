@@ -124,6 +124,30 @@ def _prepare_step(raw_step: dict) -> dict:
         raise AutoMonkeyNoTarget(step["target"])
     return step
 
+def __run_1(step: dict):
+    step["target"] = _add_ext(step["target"])
+    _wait_for_target(step["target"], step["skip"])
+
+    bullseye = locateOnScreen(step["target"], confidence=step["confidence"])
+    bullseye = get_center(bullseye)
+    bullseye = diagonal_point(bullseye, step["h_offset"], step["v_offset"])
+    if step["offset"] not in ("", None):
+        globals()["_offset_clicks"](bullseye, step["target"], step["offset"], step["action"])
+    else:
+        globals()[step["action"]](bullseye)
+
+def __run_2(step: dict):
+    if step["action"] in ("keys2", "msoffice_replace"):
+        globals()[step["action"]](*step["target"])
+    elif step["action"] == "paste":
+        pastetext(paste())
+    elif step["action"] == "open_app":
+        if step["target"].lower() in COMMON_APPS:
+            globals()[step["action"]](COMMON_APPS[step["target"].lower()])
+        else:
+            globals()[step["action"]](step["target"])
+    else:
+        globals()[step["action"]](step["target"])
 
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
@@ -190,27 +214,8 @@ def chain(*steps: dict, debug=False):
             pass
 
         if step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int):
-            step["target"] = _add_ext(step["target"])
-            _wait_for_target(step["target"], step["skip"])
-
-            bullseye = locateOnScreen(step["target"], confidence=step["confidence"])
-            bullseye = get_center(bullseye)
-            bullseye = diagonal_point(bullseye, step["h_offset"], step["v_offset"])
-            if step["offset"] not in ("", None):
-                globals()["_offset_clicks"](bullseye, step["target"], step["offset"], step["action"])
-            else:
-                globals()[step["action"]](bullseye)
+            __run_1(step)
         else:
-            if step["action"] in ("keys2", "msoffice_replace"):
-                globals()[step["action"]](*step["target"])
-            elif step["action"] == "paste":
-                pastetext(paste())
-            elif step["action"] == "open_app":
-                if step["target"].lower() in COMMON_APPS:
-                    globals()[step["action"]](COMMON_APPS[step["target"].lower()])
-                else:
-                    globals()[step["action"]](step["target"])
-            else:
-                globals()[step["action"]](step["target"])
+            __run_2(step)
 
         sleep(step["wait"])
