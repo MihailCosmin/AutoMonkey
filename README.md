@@ -18,10 +18,10 @@ pip install git+https://github.com/MihailCosmin/AutoMonkey
 ```
 
 # Dependencies
-** Automonkey is based on:
+## Automonkey is based on:
 - <a href="https://github.com/asweigart/pyautogui">pyautogui</a>
 
-** Other dependencies:
+## Other dependencies:
 - PyScreeze
 - pyperclip
 - clipboard
