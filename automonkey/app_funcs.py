@@ -25,10 +25,7 @@ from pyautogui import keyUp
 from pyautogui import keyDown
 from pyautogui import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
 
-if __name__ == "__main__":
-    from utils import copy
-else:
-    from utils import copy
+from .utils import copy
 
 def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1):
     """Search and replace in all MS Office Software. No Guarantees.
