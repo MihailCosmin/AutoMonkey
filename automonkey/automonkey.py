@@ -152,6 +152,23 @@ def __run_3(step: dict):
     else:
         globals()[step["action"]](step["target"])
 
+def __monitors():
+    monitors = {}
+    for _, mon in enumerate(sorted([(mon.x, mon.y) for mon in get_monitors()], key=lambda tup: tup[0])):
+        monitors[_] = (mon[0], mon[1])
+    return monitors
+
+def __target_1(step: dict):
+    monitors = __monitors()
+    try:
+        if step["action"] in ("keys", "keys2") and isinstance(step["target"], tuple):
+            step["target"] = (step["target"][0] + monitors[step["monitor"] - 1][0], step["target"][1]) if step["target"][0] < monitors[1][0] else step["target"]
+            return step
+    except IndexError:
+        pass
+    except KeyError:
+        pass
+
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
 
@@ -197,10 +214,6 @@ def chain(*steps: dict, debug=False):
     # 1. get_text_from_region
     # 2. copy_from_to
 
-    monitors = {}
-    for _, mon in enumerate(sorted([(mon.x, mon.y) for mon in get_monitors()], key=lambda tup: tup[0])):
-        monitors[_] = (mon[0], mon[1])
-
     for _ in steps:
         step = _prepare_step(_)
 
@@ -208,13 +221,7 @@ def chain(*steps: dict, debug=False):
             print(_)
 
         step["target"] = step["target"].split("+") if step["action"] in ("keys", "keys2") else step["target"]
-        try:
-            if step["action"] in ("keys", "keys2") and isinstance(step["target"], tuple):
-                step["target"] = (step["target"][0] + monitors[step["monitor"] - 1][0], step["target"][1]) if step["target"][0] < monitors[1][0] else step["target"]
-        except IndexError:
-            pass
-        except KeyError:
-            pass
+        step = __target_1(step)
 
         if step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int):
             __run_1(step)
