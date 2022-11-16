@@ -89,22 +89,27 @@ class PositionTracker:  # was Toplevel
                 font=("Helvetica", 30),
             )
         if self.follow_mouse:
-            coords = self.window.canvas.create_text(
+            coords = self._make_coords_1(x_point, y_point)
+        else:
+            coords = self._make_coords_2(x_point, y_point)
+        return coords
+
+    def _make_coords_1(self, x_point: int, y_point: int) -> any:
+        return self.window.canvas.create_text(
                 x_point + 100 if x_point < size()[0] - 200 else x_point - 100 if x_point < size()[0] + 100 else size()[0] / 2,
                 size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100,
                 text=f"x={x_point}, y={y_point}",
                 fill='red',
                 font=("Helvetica", 20) if x_point < size()[0] + 100 else ("Helvetica", 40),
             )
-        else:
-            coords = self.window.canvas.create_text(
+    def _make_coords_2(self, x_point: int, y_point: int) -> any:
+        return self.window.canvas.create_text(
                 size()[0] / 2,
                 size()[1] / 2,
                 text=f"x={x_point}, y={y_point}",
                 fill='red',
                 font=("Helvetica", 40),
             )
-        return coords
 
     def _destroy(self):
         self.window.after_cancel(self.after)
