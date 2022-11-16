@@ -2,6 +2,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/MihailCosmin/AutoMonkey/badge.svg)](https://snyk.io/test/github/MihailCosmin/AutoMonkey)
 [![HitCount](https://hits.dwyl.com/MihailCosmin/AutoMonkey.svg?style=flat-square&show=unique)](http://hits.dwyl.com/MihailCosmin/AutoMonkey)
 [![build](https://github.com/MihailCosmin/AutoMonkey/actions/workflows/python-package.yml/badge.svg)](https://github.com/MihailCosmin/AutoMonkey/actions/workflows/python-package.yml)
+[![Code Climate](https://codeclimate.com/github/MihailCosmin/AutoMonkey/badges/gpa.svg)](https://codeclimate.com/github/MihailCosmin/AutoMonkey)
 
 # AutoMonkey
 <img alt="AutoMonkey" src="https://github.com/MihailCosmin/AutoMonkey/raw/06181954fa23605583d61843226f5f3997157435/img/monkey.ico" width="100px" height="100px"/>
