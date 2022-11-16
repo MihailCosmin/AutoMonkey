@@ -102,7 +102,7 @@ class PositionTracker:  # was Toplevel
             fill='red',
             font=("Helvetica", 20) if x_point < size()[0] + 100 else ("Helvetica", 40),
         )
-        
+
     def _make_coords_2(self, x_point: int, y_point: int) -> any:
         return self.window.canvas.create_text(
             size()[0] / 2,
@@ -111,7 +111,7 @@ class PositionTracker:  # was Toplevel
             fill='red',
             font=("Helvetica", 40),
         )
-    
+
     @staticmethod
     def _make_coords_1_X(x_point: int) -> int:
         return x_point + 100 if x_point < size()[0] - 200 else x_point - 100 if x_point < size()[0] + 100 else size()[0] / 2
