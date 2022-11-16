@@ -214,8 +214,3 @@ def chain(*steps: dict, debug=False):
                 globals()[step["action"]](step["target"])
 
         sleep(step["wait"])
-
-
-if __name__ == "__main__":
-    tracker = PositionTracker()
-    print(tracker.start(True))
