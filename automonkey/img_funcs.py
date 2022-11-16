@@ -165,6 +165,11 @@ def __transform_region_1(*args) -> tuple:
         region = args[0]
     return region
 
+# TODO: To have a function that can be called with different number and different types of arguments look into function overloading
+# https://stackoverflow.com/questions/6434482/python-function-overloading
+# This could be needed for:
+# 1. get_text_from_region
+# 2. copy_from_to
 
 def __transform_region_2(*args) -> tuple:
     assert isinstance(args[0], tuple), "The first argument must be a tuple of 2 integers: X, Y coordinates of the top left corner"

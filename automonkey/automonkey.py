@@ -173,6 +173,9 @@ def __target_2(step: dict):
     except KeyError:
         pass
 
+def __run_1_cond(step: dict):
+    return step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int)
+
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
 
@@ -211,13 +214,6 @@ def chain(*steps: dict, debug=False):
            You can also use regex to match the title.
 
     """
-
-    # TODO: To have a function that can be called with different number and different types of arguments look into function overloading
-    # https://stackoverflow.com/questions/6434482/python-function-overloading
-    # This could be needed for:
-    # 1. get_text_from_region
-    # 2. copy_from_to
-
     for _ in steps:
         step = _prepare_step(_)
 
@@ -226,9 +222,8 @@ def chain(*steps: dict, debug=False):
 
         step = __target_1(step)
         step = __target_2(step)
-        
 
-        if step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int):
+        if __run_1_cond(step):
             __run_1(step)
         else:
             __run_2(step)
