@@ -176,6 +176,10 @@ def __target_2(step: dict):
 def __run_1_cond(step: dict):
     return step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int)
 
+def __debug_1(debug: bool, step: dict):
+    if debug:
+        print(step)
+
 def chain(*steps: dict, debug=False):
     """Chain together a series of automation steps
 
@@ -216,6 +220,7 @@ def chain(*steps: dict, debug=False):
     """
     for _ in steps:
         step = _prepare_step(_)
+        __debug_1(debug, step)
 
         step = __target_1(step)
         step = __target_2(step)
