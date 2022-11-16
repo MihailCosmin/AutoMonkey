@@ -155,26 +155,23 @@ def get_img_width(image_file: str) -> int:
 
     return width
 
-def __tranform_region_1(*args) -> tuple:
+def __transform_region_1(*args) -> tuple:
     assert isinstance(args[0], tuple), "The argument must be a tuple of 4 integers: Left, Top, Width, Height"
     if len(args[0]) == 4:
         region = (args[0][0], args[0][1], args[0][2] - args[0][0], args[0][3] - args[0][1])
     elif len(args[0]) == 2:
-        if args[0][1][1] > args[0][0][0] and args[0][1][1] > args[0][0][1]:
-            region = (args[0][0][0], args[0][0][1], args[0][1][0] - args[0][0][0], args[0][1][1] - args[0][0][1])
-        else:
-            region = (args[0][0][0], args[0][0][1], args[0][1][0], args[0][1][1])
+        region = __transform_region_4(args)
     else:
         region = args[0]
     return region
 
 
-def __tranform_region_2(*args) -> tuple:
+def __transform_region_2(*args) -> tuple:
     assert isinstance(args[0], tuple), "The first argument must be a tuple of 2 integers: X, Y coordinates of the top left corner"
     assert isinstance(args[1], tuple), "The second argument must be a tuple of 2 integers: X, Y coordinates of the bottom right corner"
     return (args[0][0], args[0][1], args[1][0] - args[0][0], args[1][1] - args[0][1])
 
-def __tranform_region_3(*args) -> tuple:
+def __transform_region_3(*args) -> tuple:
     assert isinstance(args[0], int), "The first argument must be an integer: X coordinate of the top left corner"
     assert isinstance(args[1], int), "The second argument must be an integer: Y coordinate of the top left corner"
     assert isinstance(args[2], int), "The third argument must be an integer: Width of the region"
@@ -183,6 +180,13 @@ def __tranform_region_3(*args) -> tuple:
         region = (args[0], args[1], args[2] - args[0], args[3] - args[1])
     else:
         region = (args[0], args[1], args[2], args[3])
+    return region
+
+def __transform_region_4(*args) -> tuple:
+    if args[0][1][1] > args[0][0][0] and args[0][1][1] > args[0][0][1]:
+        region = (args[0][0][0], args[0][0][1], args[0][1][0] - args[0][0][0], args[0][1][1] - args[0][0][1])
+    else:
+        region = (args[0][0][0], args[0][0][1], args[0][1][0], args[0][1][1])
     return region
 
 def get_text_from_region(*args) -> str:
@@ -199,11 +203,11 @@ def get_text_from_region(*args) -> str:
         str: The text from the region
     """
     if len(args) == 1:
-        region = __tranform_region_1(args)
+        region = __transform_region_1(args)
     elif len(args) == 2:
-        region = __tranform_region_2(args)
+        region = __transform_region_2(args)
     elif len(args) == 4:
-        region = __tranform_region_3(args)
+        region = __transform_region_3(args)
 
     snap = screenshot(region=region)
     snap.save("temp.jpg")
