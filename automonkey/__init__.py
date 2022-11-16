@@ -5,4 +5,3 @@ __email__ = 'munteanumihailcosmin@gmail.com'
 __version__ = '0.1.4'
 
 from .automonkey import *
-from .automonkey import _wait_for_target
