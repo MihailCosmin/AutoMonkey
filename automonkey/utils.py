@@ -13,7 +13,7 @@ from pyautogui import scroll as scrollup
 from pyautogui import hscroll as scrollright
 from pyautogui import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
 
-from img_funcs import is_on_screen
+from .img_funcs import is_on_screen
 
 def copy(text: str):
     """Copy text to clipboard using two functions

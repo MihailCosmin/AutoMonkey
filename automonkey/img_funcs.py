@@ -23,7 +23,7 @@ from numpy import where
 
 from pyautogui import screenshot
 
-from constants import IMG_EXT
+from .constants import IMG_EXT
 
 def copy(text: str):
     """Copy text to clipboard using two functions

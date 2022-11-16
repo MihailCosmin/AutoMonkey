@@ -29,76 +29,40 @@ from keyboard import press_and_release as keys4  # works mostly on windows
 
 from screeninfo import get_monitors
 
-if __name__ == "__main__":
-    from constants import MOUSE_ACTIONS
-    from constants import WAIT_ACTIONS
-    from constants import KEYBOARD_ACTIONS
-    from constants import APPS_ACTIONS
-    from constants import IMG_ACTIONS
-    from constants import COMMON_APPS
+from .constants import MOUSE_ACTIONS
+from .constants import WAIT_ACTIONS
+from .constants import KEYBOARD_ACTIONS
+from .constants import APPS_ACTIONS
+from .constants import IMG_ACTIONS
+from .constants import COMMON_APPS
 
-    from exceptions import AutoMonkeyNoAction
-    from exceptions import AutoMonkeyNoTarget
+from .exceptions import AutoMonkeyNoAction
+from .exceptions import AutoMonkeyNoTarget
 
-    from mouse_tracker import track_mouse
-    from mouse_tracker import PositionTracker
+from .mouse_tracker import track_mouse
+from .mouse_tracker import PositionTracker
 
-    from app_funcs import open_app
-    from app_funcs import minimize
-    from app_funcs import maximize
-    from app_funcs import close
-    from app_funcs import restore
-    from app_funcs import focus
-    from app_funcs import msoffice_replace
-    from app_funcs import copy
+from .app_funcs import open_app
+from .app_funcs import minimize
+from .app_funcs import maximize
+from .app_funcs import close
+from .app_funcs import restore
+from .app_funcs import focus
+from .app_funcs import msoffice_replace
+from .app_funcs import copy
 
-    from img_funcs import _add_ext
-    from img_funcs import is_on_screen
-    from img_funcs import get_center
-    from img_funcs import diagonal_point
+from .img_funcs import _add_ext
+from .img_funcs import is_on_screen
+from .img_funcs import get_center
+from .img_funcs import diagonal_point
 
-    from utils import waitwhile
-    from utils import waituntil
-    from utils import pastetext
-    from utils import copy_from
-    from utils import scrolldown
-    from utils import scrollleft
-    from utils import copy_from_to
-else:
-    from .constants import MOUSE_ACTIONS
-    from .constants import WAIT_ACTIONS
-    from .constants import KEYBOARD_ACTIONS
-    from .constants import APPS_ACTIONS
-    from .constants import IMG_ACTIONS
-    from .constants import COMMON_APPS
-
-    from .exceptions import AutoMonkeyNoAction
-    from .exceptions import AutoMonkeyNoTarget
-
-    from .mouse_tracker import track_mouse
-    from .mouse_tracker import PositionTracker
-
-    from .app_funcs import open_app
-    from .app_funcs import minimize
-    from .app_funcs import maximize
-    from .app_funcs import close
-    from .app_funcs import restore
-    from .app_funcs import focus
-    from .app_funcs import msoffice_replace
-    from .app_funcs import copy
-
-    from .img_funcs import _add_ext
-    from .img_funcs import is_on_screen
-    from .img_funcs import get_center
-    from .img_funcs import diagonal_point
-
-    from .utils import waitwhile
-    from .utils import waituntil
-    from .utils import pastetext
-    from .utils import copy_from
-    from .utils import scrolldown
-    from .utils import scrollleft
-    from .utils import copy_from_to
+from .utils import waitwhile
+from .utils import waituntil
+from .utils import pastetext
+from .utils import copy_from
+from .utils import scrolldown
+from .utils import scrollleft
+from .utils import copy_from_to
 
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS
