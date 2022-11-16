@@ -1,4 +1,3 @@
-[![HitCount](https://hits.dwyl.com/MihailCosmin/AutoMonkey.svg?style=flat-square&show=unique)](http://hits.dwyl.com/MihailCosmin/AutoMonkey)
 [![Known Vulnerabilities](https://snyk.io/test/github/MihailCosmin/AutoMonkey/badge.svg)](https://snyk.io/test/github/MihailCosmin/AutoMonkey)
 
 # AutoMonkey
