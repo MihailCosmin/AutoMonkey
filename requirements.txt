@@ -5,8 +5,8 @@ keyboard>=0.13.5
 clipboard>=0.0.4
 opencv-python==4.5.5.62
 pillow>=9.0.1
-pywin32>=303
-pywin32-ctypes>=0.2.0
+pywin32>=303; platform_system=="Windows"
+pywin32-ctypes>=0.2.0; platform_system=="Windows"
 screeninfo>=0.8
 pyperclip==1.8.2
 PyScreeze>=0.1.27
