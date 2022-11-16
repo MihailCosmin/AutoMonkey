@@ -217,9 +217,6 @@ def chain(*steps: dict, debug=False):
     for _ in steps:
         step = _prepare_step(_)
 
-        if debug:
-            print(_)
-
         step = __target_1(step)
         step = __target_2(step)
 
