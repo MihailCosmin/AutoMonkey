@@ -100,7 +100,7 @@ else:
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS
 
-def __add_ext(filename: str) -> str:
+def _add_ext(filename: str) -> str:
     """Adds extension to an image filename if missing
 
     Args:
@@ -125,7 +125,7 @@ def is_on_screen(what: str) -> bool:
     """
 
     found = False
-    what = __add_ext(what)
+    what = _add_ext(what)
 
     if locateOnScreen(what, confidence=0.9) is not None:
         found = True
@@ -141,7 +141,7 @@ def get_center(image: str) -> tuple:
         [point]: Returns the center of the located image as a point or None
     """
 
-    image = __add_ext(image)
+    image = _add_ext(image)
 
     try:
         if not isinstance(image, Box):
@@ -376,7 +376,7 @@ def get_img_height(image_file: str) -> int:
         int: Height of the image
     """
 
-    image_file = __add_ext(image_file)
+    image_file = _add_ext(image_file)
 
     img = Image.open(image_file)
     _, height = img.size
@@ -392,7 +392,7 @@ def get_img_width(image_file: str) -> int:
         int: Width of the image
     """
 
-    image_file = __add_ext(image_file)
+    image_file = _add_ext(image_file)
 
     img = Image.open(image_file)
     width, _ = img.size
@@ -462,9 +462,9 @@ def count_img(needle: str, haystack: str = None) -> int:
         int: Count of occurrences of needle in the haystack
     """
 
-    needle = __add_ext(needle)
+    needle = _add_ext(needle)
     if haystack:
-        haystack = __add_ext(haystack)
+        haystack = _add_ext(haystack)
         hay = imread(haystack)
     else:
         haystack = screenshot("temp.jpg")
@@ -482,7 +482,7 @@ def count_img(needle: str, haystack: str = None) -> int:
     return len(loc[0])
 
 
-def __offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
+def _offset_clicks(point: tuple, img: str, offset_value: str, click_type: str):
     """Offset Clicks
 
     Args:
@@ -726,7 +726,7 @@ def open_app(app: str):
         except Exception as err:
             raise Exception(f"Could not open {app} because of {err}") from err
 
-def __wait_for_target(target: any, skip: bool = False):
+def _wait_for_target(target: any, skip: bool = False):
     """Wait for a target to be available"""
     slept = 0
     while not is_on_screen(target) and not skip:
@@ -741,7 +741,7 @@ def __wait_for_target(target: any, skip: bool = False):
                 end()
 
 
-def __prepare_step(raw_step: dict) -> dict:
+def _prepare_step(raw_step: dict) -> dict:
     """Transform the raw step into a step that can be used by the script
 
     Args:
@@ -835,7 +835,7 @@ def chain(*steps: dict, debug=False):
         monitors[_] = (mon[0], mon[1])
 
     for _ in steps:
-        step = __prepare_step(_)
+        step = _prepare_step(_)
 
         if debug:
             print(_)
@@ -850,14 +850,14 @@ def chain(*steps: dict, debug=False):
             pass
 
         if step["action"] in MOUSE_ACTIONS and not isinstance(step["target"], tuple) and not isinstance(step["target"], int):
-            step["target"] = __add_ext(step["target"])
-            __wait_for_target(step["target"], step["skip"])
+            step["target"] = _add_ext(step["target"])
+            _wait_for_target(step["target"], step["skip"])
 
             bullseye = locateOnScreen(step["target"], confidence=step["confidence"])
             bullseye = get_center(bullseye)
             bullseye = diagonal_point(bullseye, step["h_offset"], step["v_offset"])
             if step["offset"] not in ("", None):
-                globals()["__offset_clicks"](bullseye, step["target"], step["offset"], step["action"])
+                globals()["_offset_clicks"](bullseye, step["target"], step["offset"], step["action"])
             else:
                 globals()[step["action"]](bullseye)
         else:
