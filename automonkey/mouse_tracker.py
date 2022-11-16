@@ -118,7 +118,14 @@ class PositionTracker:  # was Toplevel
 
     @staticmethod
     def _make_coords_1_Y(x_point: int, y_point: int) -> int:
-        return size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100
+        if x_point > size()[0] + 100:
+            return size()[1] / 2
+        if (y_point < 70 and x_point < 300):
+            return y_point + 100
+        if y_point < size()[1] - 200:
+            return y_point + 20
+        return y_point - 100
+        # return size()[1] / 2 if x_point > size()[0] + 100 else y_point + 100 if (y_point < 70 and x_point < 300) else y_point + 20 if y_point < size()[1] - 200 else y_point - 100
 
     def _destroy(self):
         self.window.after_cancel(self.after)
