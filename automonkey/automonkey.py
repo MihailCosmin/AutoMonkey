@@ -142,10 +142,13 @@ def __run_2(step: dict):
     elif step["action"] == "paste":
         pastetext(paste())
     elif step["action"] == "open_app":
-        if step["target"].lower() in COMMON_APPS:
-            globals()[step["action"]](COMMON_APPS[step["target"].lower()])
-        else:
-            globals()[step["action"]](step["target"])
+        __run_3(step)
+    else:
+        globals()[step["action"]](step["target"])
+
+def __run_3(step: dict):
+    if step["target"].lower() in COMMON_APPS:
+        globals()[step["action"]](COMMON_APPS[step["target"].lower()])
     else:
         globals()[step["action"]](step["target"])
 
