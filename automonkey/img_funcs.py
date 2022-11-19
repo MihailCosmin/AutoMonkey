@@ -25,6 +25,8 @@ from pyautogui import screenshot
 
 from .constants import IMG_EXT
 
+# TODO: Add mousedown, mouseup, drag, and drop functions
+
 def copy(text: str):
     """Copy text to clipboard using two functions
 
