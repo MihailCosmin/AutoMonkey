@@ -27,7 +27,7 @@ from pyautogui import hotkey as keys2  # this is best solution, pass list to be 
 
 from .utils import copy
 
-def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1):
+def msoffice_replace(replace_this: str, with_this: str, match_case: bool = True, whole_words: bool = True, delay_factor: float = 1):
     """Search and replace in all MS Office Software. No Guarantees.
 
     Args:
@@ -41,6 +41,15 @@ def msoffice_replace(replace_this: str, with_this: str, delay_factor: float = 1)
     sleep(0.2)
     keys2('ctrl', 'h')
     sleep(0.2)
+    if match_case or whole_words:
+        keys2('alt', 'm')
+        sleep(0.2)
+    if match_case:
+        keys2('alt', 'h')
+        sleep(0.2)
+    if whole_words:
+        keys2('alt', 'y')
+        sleep(0.2)
     keys2('alt', 'n')
     sleep(0.2)
     keys2('ctrl', 'v')
