@@ -3,7 +3,14 @@
 from time import sleep
 from sys import exit as end
 
-from os import startfile  # It is used
+from sys import platform
+
+if platform == "win32":
+    from os import startfile  # It is used
+elif platform == "linux":
+    from subprocess import call
+    def startfile(file):
+        call(["xdg-open", file])
 
 from clipboard import paste
 
@@ -41,14 +48,15 @@ from .exceptions import AutoMonkeyNoTarget
 from .mouse_tracker import track_mouse
 from .mouse_tracker import PositionTracker
 
-from .app_funcs import open_app
-from .app_funcs import minimize
-from .app_funcs import maximize
-from .app_funcs import close
-from .app_funcs import restore
-from .app_funcs import focus
-from .app_funcs import msoffice_replace
-from .app_funcs import copy
+if platform == "win32":
+    from .app_funcs import open_app
+    from .app_funcs import minimize
+    from .app_funcs import maximize
+    from .app_funcs import close
+    from .app_funcs import restore
+    from .app_funcs import focus
+    from .app_funcs import msoffice_replace
+    from .app_funcs import copy
 
 from .img_funcs import _add_ext
 from .img_funcs import is_on_screen
