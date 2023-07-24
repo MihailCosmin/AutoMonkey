@@ -1,6 +1,13 @@
 from time import sleep
 
-from os import startfile  # It is used
+from sys import platform
+
+if platform == "win32":
+    from os import startfile  # It is used
+elif platform == "linux":
+    from subprocess import call
+    def startfile(file):
+        call(["xdg-open", file])
 from os import system
 from os.path import isfile
 
