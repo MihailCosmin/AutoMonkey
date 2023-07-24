@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-
 """The setup script."""
+from sys import platform
 
 from setuptools import setup, find_packages
 
@@ -10,7 +10,8 @@ with open('README.md') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-with open("requirements.txt", "r", encoding="utf-8") as _:
+requirements = "requirements.txt" if platform == "win32" else "requirements_linux.txt"
+with open(requirements, "r", encoding="utf-8") as _:
     requirements = _.read().splitlines()
 
 test_requirements = ['pytest>=3', ]
