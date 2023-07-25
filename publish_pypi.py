@@ -11,6 +11,7 @@ if isdir('dist'):
 if isdir('AutoMonkey.egg-info'):
     rmtree('AutoMonkey.egg-info')
 
-system("py -m build")
+# system("py -m build")
+system("python setup.py sdist")
 
 system("python -m twine upload --repository pypi dist/*")
