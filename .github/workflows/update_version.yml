@@ -1,0 +1,30 @@
+name: Update version
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.9
+
+      - name: Update version
+        run: |
+          python update_version.py
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "munteanu@althom.de"
+          git config --local user.name "Cosmin Munteanu"
+          git commit -am "Bump version number"
+          git push
