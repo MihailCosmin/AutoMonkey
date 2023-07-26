@@ -58,6 +58,11 @@ if platform == "win32":
     from .app_funcs import msoffice_replace
     from .app_funcs import copy
 
+from .mouse_funcs import movedown
+from .mouse_funcs import moveleft
+from .mouse_funcs import moveright
+from .mouse_funcs import moveup
+
 from .img_funcs import _add_ext
 from .img_funcs import is_on_screen
 from .img_funcs import get_center

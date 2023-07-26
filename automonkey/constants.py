@@ -29,6 +29,10 @@ MOUSE_ACTIONS = (
     "scrolldown",
     "scrollleft",
     "scrollright",
+    "moveup",
+    "movedown",
+    "moveleft",
+    "moveright"
 )
 
 WAIT_ACTIONS = (
