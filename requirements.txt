@@ -1,6 +1,6 @@
-pyautogui>=0.9.53
+pyautogui>=0.9.54
 pytesseract>=0.3.9
-numpy==1.23.5
+numpy==1.24.4
 keyboard>=0.13.5
 clipboard>=0.0.4
 opencv-python==4.8.1.78
