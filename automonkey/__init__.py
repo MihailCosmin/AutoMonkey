@@ -2,6 +2,6 @@
 
 __author__ = """Mihail-Cosmin Munteanu"""
 __email__ = 'munteanumihailcosmin@gmail.com'
-__version__ = '0.2.7'
+__version__ = '0.2.8'
 
 from .automonkey import *
