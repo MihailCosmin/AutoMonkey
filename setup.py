@@ -32,9 +32,12 @@ setup(
     entry_points={
         'console_scripts': [
             'automonkey=automonkey.cli:main',
+            'automonkey-ai=automonkey.ai.__main__:main',
+            'automonkey-mcp=automonkey.ai.mcp_server:main',
         ],
     },
     install_requires=requirements,
+    extras_require={'ai': ['mcp>=2.0']},
     license="GNU General Public License v3",
     long_description=readme + '\n\n' + history,
     include_package_data=True,

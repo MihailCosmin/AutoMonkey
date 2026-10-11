@@ -105,3 +105,7 @@ ENV/
 # IDE settings
 .vscode/
 .idea/
+
+# AutoMonkey AI screenshots
+screenshots/
+browser_search.png
