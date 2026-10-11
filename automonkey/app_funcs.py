@@ -15,18 +15,19 @@ from re import search
 
 from subprocess import Popen
 
-from win32con import WM_CLOSE
-from win32con import SW_RESTORE
-from win32con import SW_MINIMIZE
-from win32con import SW_MAXIMIZE
+if platform == "win32":
+    from win32con import WM_CLOSE
+    from win32con import SW_RESTORE
+    from win32con import SW_MINIMIZE
+    from win32con import SW_MAXIMIZE
 
-from win32gui import IsIconic
-from win32gui import ShowWindow
-from win32gui import FindWindow
-from win32gui import PostMessage
-from win32gui import EnumWindows
-from win32gui import GetWindowText
-from win32gui import SetForegroundWindow
+    from win32gui import IsIconic
+    from win32gui import ShowWindow
+    from win32gui import FindWindow
+    from win32gui import PostMessage
+    from win32gui import EnumWindows
+    from win32gui import GetWindowText
+    from win32gui import SetForegroundWindow
 
 from pyautogui import keyUp
 from pyautogui import keyDown
@@ -79,91 +80,110 @@ def msoffice_replace(replace_this: str, with_this: str, match_case: bool = True,
     sleep(0.2 * delay_factor)
 
 
-class WindowManager:
-    """Window Manager
-    """
-    def __init__(self):
-        self._handle = None
-
-    def get_window_by_class(self, class_name, window_name=None):
-        """Find a window by the class name
+if platform == "win32":
+    class WindowManager:
+        """Window Manager
         """
-        self._handle = FindWindow(class_name, window_name)
+        def __init__(self):
+            self._handle = None
 
-    def _parse_windows(self, hwnd, pattern):
-        """Pass to EnumWindows() to check all opened windows
+        def get_window_by_class(self, class_name, window_name=None):
+            """Find a window by the class name
+            """
+            self._handle = FindWindow(class_name, window_name)
+
+        def _parse_windows(self, hwnd, pattern):
+            """Pass to EnumWindows() to check all opened windows
+            """
+            if search(pattern, str(GetWindowText(hwnd))) is not None:
+                self._handle = hwnd
+
+        def get_window_by_title(self, pattern):
+            """Find a window whose title matches the given regex pattern
+            """
+            self._handle = None
+            EnumWindows(self._parse_windows, pattern)
+
+        def focus(self):
+            """Bring focus to the selected window
+            """
+            # SetForegroundWindow works well only after pressing alt
+            keyDown('alt')
+            SetForegroundWindow(self._handle)
+            self.restore()
+            keyUp('alt')
+
+        def minimize(self):
+            if not IsIconic(self._handle):
+                ShowWindow(self._handle, SW_MINIMIZE)
+
+        def restore(self):
+            if IsIconic(self._handle):
+                ShowWindow(self._handle, SW_RESTORE)
+
+        def maximize(self):
+            ShowWindow(self._handle, SW_MAXIMIZE)
+
+        def close(self):
+            PostMessage(self._handle, WM_CLOSE, 0, 0)
+
+    def close(title: str):
+        """Close a window
         """
-        if search(pattern, str(GetWindowText(hwnd))) is not None:
-            self._handle = hwnd
+        win_man = WindowManager()
+        win_man.get_window_by_title(f".*?{title}.*?")
+        win_man.close()
 
-    def get_window_by_title(self, pattern):
-        """Find a window whose title matches the given regex pattern
+    def minimize(title: str):
+        """Minimize a window
         """
-        self._handle = None
-        EnumWindows(self._parse_windows, pattern)
+        win_man = WindowManager()
+        win_man.get_window_by_title(f".*?{title}.*?")
+        win_man.minimize()
 
-    def focus(self):
-        """Bring focus to the selected window
+    def maximize(title: str):
+        """Minimize a window
         """
-        # SetForegroundWindow works well only after pressing alt
-        keyDown('alt')
-        SetForegroundWindow(self._handle)
-        self.restore()
-        keyUp('alt')
+        win_man = WindowManager()
+        win_man.get_window_by_title(f".*?{title}.*?")
+        win_man.maximize()
 
-    def minimize(self):
-        if not IsIconic(self._handle):
-            ShowWindow(self._handle, SW_MINIMIZE)
+    def restore(title: str):
+        """Restore a window
+        """
+        win_man = WindowManager()
+        win_man.get_window_by_title(f".*?{title}.*?")
+        win_man.restore()
 
-    def restore(self):
-        if IsIconic(self._handle):
-            ShowWindow(self._handle, SW_RESTORE)
+    def focus(title: str):
+        """Bring Focus to a window
+        """
+        win_man = WindowManager()
+        win_man.get_window_by_title(f".*?{title}.*?")
+        win_man.focus()
+else:
+    # These window-management features rely on the Win32 API and have no
+    # Linux equivalent. Keep the module importable on other platforms and
+    # fail with a clear message if one of them is actually used.
+    def _unsupported(name: str):
+        raise NotImplementedError(
+            f"'{name}' is only supported on Windows (Win32 API)."
+        )
 
-    def maximize(self):
-        ShowWindow(self._handle, SW_MAXIMIZE)
+    def close(title: str):
+        _unsupported("close")
 
-    def close(self):
-        PostMessage(self._handle, WM_CLOSE, 0, 0)
+    def minimize(title: str):
+        _unsupported("minimize")
 
+    def maximize(title: str):
+        _unsupported("maximize")
 
-def close(title: str):
-    """Close a window
-    """
-    win_man = WindowManager()
-    win_man.get_window_by_title(f".*?{title}.*?")
-    win_man.close()
+    def restore(title: str):
+        _unsupported("restore")
 
-
-def minimize(title: str):
-    """Minimize a window
-    """
-    win_man = WindowManager()
-    win_man.get_window_by_title(f".*?{title}.*?")
-    win_man.minimize()
-
-
-def maximize(title: str):
-    """Minimize a window
-    """
-    win_man = WindowManager()
-    win_man.get_window_by_title(f".*?{title}.*?")
-    win_man.maximize()
-
-
-def restore(title: str):
-    """Restore a window
-    """
-    win_man = WindowManager()
-    win_man.get_window_by_title(f".*?{title}.*?")
-    win_man.restore()
-
-
-def focus(title: str):
-    """Bring Focus to a window
-    """
-    win_man = WindowManager()
-    win_man.get_window_by_title(f".*?{title}.*?")
-    win_man.focus()
+    def focus(title: str):
+        _unsupported("focus")
 
 
 def open_app(app: str):
