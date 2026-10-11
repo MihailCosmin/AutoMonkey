@@ -74,6 +74,7 @@ The script stops at the first failing step and tells you which one failed and ho
 ## Environment notes (Raspberry Pi, Wayland/labwc)
 
 - **Only X11 windows receive input.** pyautogui sends input through XWayland. `launch` sets the variables that force apps onto X11 (`MOZ_ENABLE_WAYLAND=0`, `GDK_BACKEND=x11`, `QT_QPA_PLATFORM=xcb`, and `--ozone-platform=x11` for Chromium-based apps). **Start apps with `launch`, not from the desktop.**
+- **Browsers get their own automation profile.** If the user's Firefox or Chromium is already open as a native Wayland window, a plain `firefox` launch would be handed to it and come out uncontrollable. So `launch` uses a dedicated profile in `~/.cache/automonkey/profiles/`. For Firefox, that profile also turns off first-run tabs and the translation popup. It has no logins or cookies from the user's normal browser.
 - **Screenshots use `grim`.** The layer captures at full resolution and shrinks the image in Python, because `grim -s` is about 3x slower.
 - **Some windows are invisible to the tools.** Wayland-native windows, such as the terminal you're running in, don't show up in `windows()` and can't be focused. Don't click into them by accident.
 - **Firefox's translation popup** shows up on Romanian pages, sometimes while you type. Use `key escape`.

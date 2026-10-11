@@ -22,6 +22,7 @@ X11_ENV = {
     "SDL_VIDEODRIVER": "x11",            # SDL
     "ELECTRON_OZONE_PLATFORM_HINT": "x11",
 }
+FIREFOX_LIKE = ("firefox", "firefox-esr", "thunderbird")
 CHROMIUM_LIKE = ("chromium", "chromium-browser", "google-chrome", "chrome", "code", "brave-browser")
 
 
@@ -112,6 +113,49 @@ def active_window() -> dict:
     raise LookupError("no active window")
 
 
+PROFILE_DIR = os.path.join(os.path.expanduser("~"), ".cache", "automonkey", "profiles")
+
+# Quiet automation profile: no first-run tabs, default-browser nags or translation popups.
+FIREFOX_PREFS = """\
+user_pref("browser.aboutwelcome.enabled", false);
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("browser.startup.homepage_override.mstone", "ignore");
+user_pref("startup.homepage_welcome_url", "");
+user_pref("startup.homepage_welcome_url.additional", "");
+user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification", true);
+user_pref("datareporting.policy.firstRunURL", "");
+user_pref("toolkit.telemetry.reportingpolicy.firstRun", false);
+user_pref("browser.translations.automaticallyPopup", false);
+user_pref("browser.translations.panelShown", true);
+user_pref("browser.tabs.warnOnClose", false);
+user_pref("browser.sessionstore.resume_from_crash", false);
+"""
+
+
+def _separate_browser_instance(args: list[str]) -> list[str]:
+    """Browsers hand a launch over to an already running instance of the same profile.
+    If the user's own browser runs as a native Wayland window, our window would end
+    up there and be uncontrollable, so use a dedicated automation profile instead.
+    Relaunching later reuses that (X11) instance, which is what we want."""
+    name = os.path.basename(args[0])
+    if name in FIREFOX_LIKE and not {"-P", "--profile", "-profile"} & set(args):
+        path = os.path.join(PROFILE_DIR, name)
+        os.makedirs(path, exist_ok=True)
+        user_js = os.path.join(path, "user.js")
+        if not os.path.exists(user_js):
+            with open(user_js, "w", encoding="utf-8") as f:
+                f.write(FIREFOX_PREFS)
+        return [args[0], "--profile", path, *args[1:]]
+    if name in CHROMIUM_LIKE:
+        extra = ["--ozone-platform=x11"]
+        if not any(a.startswith("--user-data-dir") for a in args):
+            path = os.path.join(PROFILE_DIR, name)
+            os.makedirs(path, exist_ok=True)
+            extra.append(f"--user-data-dir={path}")
+        return [args[0], *extra, *args[1:]]
+    return args
+
+
 def launch(command: str, timeout: float = 60.0) -> dict:
     """Start `command` detached and return its first new window once it is visible."""
     before = {w["id"] for w in list_windows()}
@@ -119,8 +163,7 @@ def launch(command: str, timeout: float = 60.0) -> dict:
     env = dict(os.environ)
     if session_type() == "wayland":
         env.update(X11_ENV)
-        if os.path.basename(args[0]) in CHROMIUM_LIKE:
-            args.insert(1, "--ozone-platform=x11")
+        args = _separate_browser_instance(args)
     kwargs = dict(stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, env=env)
     if sys.platform == "win32":
         kwargs["creationflags"] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP

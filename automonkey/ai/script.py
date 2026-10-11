@@ -110,12 +110,15 @@ def run_step(line: str) -> str:
         ok, t = screen.wait_change(timeout=float(args[0]) if args else 15)
         return f"changed after {t:.1f}s" if ok else f"no change within {t:.1f}s"
     elif cmd == "url":
-        before = screen.grab()
         pyautogui.hotkey("ctrl", "l")
         time.sleep(0.15)
         _type(rest)
+        time.sleep(0.3)  # let the address bar's suggestion list catch up before Enter
+        before = screen.grab()  # after typing, so the typed text alone doesn't count as "loaded"
         pyautogui.press("enter")
-        screen.wait_change(before, timeout=10)
+        changed, _ = screen.wait_change(before, timeout=30)
+        if not changed:
+            return "no visible change 30s after Enter (still loading, or not navigated)"
         ok, t = screen.wait_stable(timeout=20)
         return f"loaded{'' if ok else ' (still changing)'}"
     elif cmd == "launch":
