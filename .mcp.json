@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "automonkey": {
+      "command": ".venv/bin/python",
+      "args": ["-m", "automonkey.ai.mcp_server"]
+    }
+  }
+}
