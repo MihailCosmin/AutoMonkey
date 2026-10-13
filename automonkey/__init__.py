@@ -2,7 +2,7 @@
 
 __author__ = """Mihail-Cosmin Munteanu"""
 __email__ = 'munteanumihailcosmin@gmail.com'
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 
 
 def _default_display_env():
