@@ -11,6 +11,8 @@ Coordinates are image pixels of the latest screenshot.
     url ADDRESS                         (focus address bar, type, Enter, wait for load)
     click_text TEXT...                  wait_text TEXT...   (OCR, needs tesseract)
     click_image PATH                    (template match)
+    press [BUTTON]                      release [BUTTON]
+    path X1 Y1 X2 Y2 ...                (freehand: press, glide through every point, release)
 """
 from __future__ import annotations
 
@@ -25,7 +27,7 @@ from ..key_funcs import hotkey, press, write
 pyautogui.PAUSE = 0.03  # default 0.1s per call adds up quickly
 
 INPUT_COMMANDS = {"click", "dclick", "rclick", "move", "drag", "scroll", "type", "key", "hotkey",
-                  "url", "click_text", "click_image"}
+                  "url", "click_text", "click_image", "press", "release", "path"}
 
 
 class StepError(Exception):
@@ -82,6 +84,22 @@ def run_step(line: str) -> str:
         x2, y2 = _xy(args, 2)
         pyautogui.moveTo(x1, y1)
         pyautogui.dragTo(x2, y2, duration=0.4, button="left")
+    elif cmd == "press":
+        pyautogui.mouseDown(button=args[0] if args else "left")
+    elif cmd == "release":
+        pyautogui.mouseUp(button=args[0] if args else "left")
+    elif cmd == "path":
+        if len(args) < 4 or len(args) % 2:
+            raise StepError("path needs an even number of X Y values (at least two points)")
+        pts = [_xy(args, i) for i in range(0, len(args), 2)]
+        pyautogui.moveTo(*pts[0])
+        pyautogui.mouseDown()
+        try:
+            for p in pts[1:]:
+                pyautogui.moveTo(*p, duration=0.02)
+        finally:
+            pyautogui.mouseUp()
+        return f"drew through {len(pts)} points"
     elif cmd == "scroll":
         if len(args) >= 3:
             pyautogui.moveTo(*_xy(args, 1))

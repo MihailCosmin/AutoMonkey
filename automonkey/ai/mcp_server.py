@@ -46,7 +46,8 @@ def act(script: str, screenshot: bool = True, grid: int = 0) -> list:
     Commands: click X Y [button] [N] | dclick X Y | rclick X Y | move X Y | drag X1 Y1 X2 Y2 |
     scroll N [X Y] | type TEXT | key K [K..] | hotkey ctrl+l | wait S | stable [T] | change [T] |
     url ADDRESS | launch CMD | focus WINDOW | maximize [WINDOW] | close WINDOW |
-    click_text TEXT | wait_text TEXT | click_image PATH
+    click_text TEXT | wait_text TEXT | click_image PATH | press [BUTTON] | release [BUTTON] |
+    path X1 Y1 X2 Y2 .. (freehand: press, glide through the points, release)
 
     Example: "launch firefox; maximize; url google.ro; click 640 290; type betano.ro"
     Set screenshot=false when you don't need to look (saves tokens); grid=100 adds a grid."""
