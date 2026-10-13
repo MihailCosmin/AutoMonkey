@@ -8,13 +8,13 @@ Raw pyautogui costs about 3 tool calls per step (act, screenshot, look at the im
 
 ## Option A: MCP tools (preferred)
 
-The repo's `.mcp.json` registers the `automonkey` MCP server. Approve it when Claude Code asks. If it isn't registered, run this from the repo root:
+The repo's `.mcp.json` registers the `automonkey` MCP server. Approve it when Claude Code asks. It runs `automonkey/ai/mcp_launch.py` with `python3`, and the launcher finds the venv's interpreter on any OS (`.venv/bin/python` on Linux/macOS, `.venv\Scripts\python.exe` on Windows). If `python3` isn't a real interpreter on the machine (a python.org-only Windows install has `py` and `python` but not `python3`), set `AUTOMONKEY_PYTHON=py` in the environment Claude Code starts from. If it isn't registered, run this from the repo root:
 
 ```bash
-claude mcp add automonkey -- "$PWD/.venv/bin/python" -m automonkey.ai.mcp_server
+claude mcp add automonkey -- python3 "$PWD/automonkey/ai/mcp_launch.py"
 ```
 
-Install the dependency first: `.venv/bin/pip install "mcp>=2"`.
+Install the dependency first: `.venv/bin/pip install "mcp>=2"` (Windows: `.venv\Scripts\pip`).
 
 | Tool | Use it for |
 |---|---|
@@ -26,7 +26,7 @@ Install the dependency first: `.venv/bin/pip install "mcp>=2"`.
 
 ## Option B: shell only
 
-Run the same features from Bash:
+Run the same features from Bash (on Windows the interpreter is `.venv/Scripts/python`):
 
 ```bash
 .venv/bin/python -m automonkey.ai do "launch firefox; maximize; url google.ro"   # prints log + screenshot path

@@ -1,7 +1,8 @@
 """MCP server exposing AutoMonkey to Claude (or any MCP client).
 
-Register with Claude Code (from the repo root):
-    claude mcp add automonkey -- "$PWD/.venv/bin/python" -m automonkey.ai.mcp_server
+The repo's .mcp.json starts it through mcp_launch.py, which finds the venv on any OS.
+Register it by hand with Claude Code (from the repo root):
+    claude mcp add automonkey -- python3 "$PWD/automonkey/ai/mcp_launch.py"
 """
 from __future__ import annotations
 
