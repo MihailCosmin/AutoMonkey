@@ -16,13 +16,19 @@ from .key_funcs import hotkey as keys2  # keyboard-layout aware
 from .img_funcs import is_on_screen
 
 def copy(text: str):
-    """Copy text to clipboard using two functions
+    """Copy text to clipboard using two functions, falling back to the next one on
+    failure - e.g. pyperclip's auto-detected "gtk" backend raises AttributeError
+    (not ImportError, so pyperclip's own guard doesn't catch it) once gi.repository
+    has been imported in-process, which the AT-SPI backend (atspi_funcs.py) does.
 
     Args:
         text (str): text to be copied to clipboard
     """
-    copy1(text)
-    copy2(text)
+    for copy_fn in (copy1, copy2):
+        try:
+            copy_fn(text)
+        except Exception:  # pylint: disable=broad-except
+            pass
 
 
 def clear_clipboard():

@@ -309,15 +309,20 @@ or
         )
     ```
 
-6. Control actions (Windows only, based on <a href="https://github.com/pywinauto/pywinauto">pywinauto</a>)
+6. Control actions (Windows: <a href="https://github.com/pywinauto/pywinauto">pywinauto</a>; Linux: AT-SPI; macOS: not implemented yet)
 
-    These find buttons, text boxes and menus through the Windows accessibility tree instead of
+    These find buttons, text boxes and menus through the OS accessibility tree instead of
     coordinates or images, so they keep working when the resolution, theme or window position changes.
+    Same function names and arguments on both OSes - a `chain` script using them needs no changes
+    to run on either one; only the `backend` argument's value differs (`"uia"`/`"win32"` on Windows,
+    `"atspi"` on Linux).
 
     Every function takes the window title (regex, matched anywhere in the title, like focus/close)
     and a control:
-    * a pywinauto "best match" name: `"Save"`, `"SaveButton"`, `"Edit"`
+    * a "best match" name: `"Save"`, `"SaveButton"`, `"Edit"`
     * or a dict of search criteria: `{"title": "Save", "control_type": "Button"}`, `{"auto_id": "num7Button"}`
+
+    6.1 Windows (pywinauto)
 
     Optional for all: `backend="uia"` (default, modern apps) or `"win32"` (older apps), `timeout=10` seconds.
 
@@ -357,6 +362,105 @@ or
     * wait_control, control_exists
     * list_controls
     * get_window, get_control - return the pywinauto objects for anything else
+
+    6.2 Linux (AT-SPI)
+
+    Setup (distro packages, not pip - PyGObject needs system build dependencies pip can't
+    guarantee): on Debian/Ubuntu/Raspberry Pi OS,
+
+    ```bash
+        sudo apt-get install python3-gi gir1.2-atspi-2.0 at-spi2-core
+        gsettings set org.gnome.desktop.interface toolkit-accessibility true
+    ```
+
+    The `toolkit-accessibility` key only affects apps started *after* it's enabled -
+    restart anything already running. Apps must also not have `NO_AT_BRIDGE=1` set in
+    their environment, which silently disables AT-SPI registration.
+
+    Not every app exposes an accessibility tree: GTK, GNOME and LibreOffice apps and
+    Firefox work out of the box; Qt apps need `QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1` in
+    their environment before they start; Chrome/Electron apps need the
+    `--force-renderer-accessibility` flag; self-drawn/custom-rendered UIs (games,
+    canvas-based apps) can't expose one at all.
+
+    `control_type` maps to an AT-SPI role, not quite the same names pywinauto uses on
+    Windows - confirmed against real GTK widgets, not just the spec (a push button's role
+    is `BUTTON`, not `PUSH_BUTTON`, for instance):
+
+    | control_type | AT-SPI role(s) |
+    | --- | --- |
+    | `Button` | `BUTTON`, `PUSH_BUTTON`, `TOGGLE_BUTTON` |
+    | `CheckBox` | `CHECK_BOX` |
+    | `RadioButton` | `RADIO_BUTTON` |
+    | `ComboBox` | `COMBO_BOX` |
+    | `Edit` | `TEXT`, `ENTRY`, `PASSWORD_TEXT` (also a plain GTK text editor's main area - see note below) |
+    | `Document` | `DOCUMENT_TEXT`, `DOCUMENT_FRAME`, `DOCUMENT_WEB`, ... (LibreOffice/WebKit-style content) |
+    | `Static` | `LABEL` |
+    | `MenuItem` | `MENU_ITEM`, `CHECK_MENU_ITEM`, `RADIO_MENU_ITEM`, `TEAROFF_MENU_ITEM` |
+    | `Menu` | `MENU`, `POPUP_MENU` |
+    | `MenuBar` | `MENU_BAR` |
+    | `List` | `LIST`, `LIST_BOX` |
+    | `ListItem` | `LIST_ITEM` |
+    | `Tab` / `TabControl` | `PAGE_TAB` / `PAGE_TAB_LIST` |
+    | `Window` / `Dialog` | `FRAME` / `DIALOG` |
+
+    `auto_id` matches the AT-SPI accessible-id or an `"id"` attribute if the app sets one
+    (most GTK apps don't), falling back to the accessible name otherwise.
+
+    Known Wayland limits: AT-SPI tree reading and actions (`invoke=True`, `check_control`,
+    `select_menu`, ...) work the same as on X11/Xwayland. What doesn't: mouse clicks
+    (`click_control(invoke=False)`) and keyboard injection (`type_in_control`) only reach
+    apps running under Xwayland - a native-Wayland client never receives them at all, no
+    matter what has focus (confirmed directly: the identical app forced through Xwayland
+    via `GDK_BACKEND=x11` works, the native-Wayland instance silently doesn't). Raising/
+    activating a window doesn't work either. `click_control(invoke=False)` detects a
+    Wayland session and falls back to `invoke=True` with a warning; `type_in_control` has
+    no such fallback - use `invoke=True`-based actions where possible, or run the target
+    app under Xwayland (`GDK_BACKEND=x11` for GTK apps) if it must be driven by mouse/
+    keyboard injection on Wayland.
+
+    ```python
+        from automonkey import chain, list_controls
+
+        list_controls("Calculator")  # prints the controls and the names you can use
+
+        chain(
+            # a short wait after each click matters here: Atspi.Action.do_action() returns
+            # once the D-Bus call completes, not once the app has processed the resulting
+            # GTK signal - clicking straight through with no pause silently drops presses
+            # (confirmed directly while building this).
+            dict(start_app="gnome-calculator", wait=1),
+            dict(wait_control="Calculator"),
+            dict(click_control=dict(window="Calculator", control={"title": "7", "control_type": "Button"}, invoke=True), wait=0.3),
+            dict(click_control=dict(window="Calculator", control={"title": "+", "control_type": "Button"}, invoke=True), wait=0.3),
+            dict(click_control=dict(window="Calculator", control={"title": "5", "control_type": "Button"}, invoke=True), wait=0.3),
+            dict(click_control=dict(window="Calculator", control={"title": "=", "control_type": "Button"}, invoke=True), wait=0.3),
+            dict(get_control_text=("Calculator", {"control_type": "Edit"})),  # copied to the clipboard
+        )
+
+        chain(
+            # control_type "Edit" (AT-SPI role "text"), not "Document": gnome-text-editor's
+            # main area is a plain GtkSourceView widget, same as most GTK text editors -
+            # "Document*" roles are for LibreOffice/WebKit-style content, confirmed against
+            # a GtkSourceView-based app while building this.
+            dict(start_app="gnome-text-editor", wait=1),
+            dict(type_in_control=dict(window="Text Editor", control={"control_type": "Edit"}, text="Hello (world)!")),
+            dict(get_control_text=("Text Editor", {"control_type": "Edit"})),  # copied to the clipboard
+        )
+    ```
+
+    `select_menu` isn't shown against gnome-text-editor above: it's a modern GNOME app
+    with no traditional File/Edit menu bar at all (confirmed - zero AT-SPI menu-role nodes
+    anywhere in its tree), not an AT-SPI limitation. It works the same way as on Windows
+    against any app that does have one, e.g. `select_menu("Mousepad", "File->Save As...")`.
+
+    Same available functions as the Windows list above (`backend="atspi"`, the default on
+    Linux, instead of `"uia"`/`"win32"`); `get_window`/`get_control` return `Atspi.Accessible`
+    objects instead of pywinauto wrappers for anything not covered here.
+
+    See `pywinauto_for_linux.md` in the repo for the full implementation notes (role
+    mapping, best-match lookup, the AT-SPI-bus-down detection, known gotchas found while
+    building this) if you need to go beyond what's documented above.
 
 
 # Frequently Asked Questions:

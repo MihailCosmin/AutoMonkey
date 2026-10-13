@@ -11,6 +11,7 @@ from mcp.server.mcpserver import Image, MCPServer
 from . import act as _act
 from . import observe, ocr, screen, window_list
 from .script import __doc__ as SCRIPT_DOC
+from .. import list_controls as _list_controls
 
 INSTRUCTIONS = f"""Control this computer's screen, mouse and keyboard.
 
@@ -73,6 +74,19 @@ def zoom(x: int, y: int, width: int, height: int, grid: int = 0) -> list:
 def windows() -> str:
     """List open windows ('*' = active) with ids, titles and their screenshot-coordinate bounds."""
     return window_list()
+
+
+@mcp.tool()
+def list_controls(window: str, depth: int = None) -> str:
+    """List a window's controls via the OS accessibility tree (pywinauto on Windows,
+    AT-SPI on Linux; not implemented on macOS yet) - role, name and the dict to pass as
+    `control` to click/type/etc. Use this instead of screenshots/OCR when the app exposes
+    an accessibility tree (most GTK/Qt/native apps do; Electron needs
+    --force-renderer-accessibility, canvas-drawn UIs don't expose one at all).
+
+    window: title of the top-level window, regex matched anywhere in the title.
+    depth: how many levels deep to go (default: all)."""
+    return _list_controls(window, depth)
 
 
 @mcp.tool()

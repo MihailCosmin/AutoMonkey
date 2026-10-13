@@ -24,6 +24,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install AT-SPI / accessibility system packages (for the Linux control-actions tests)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-gi gir1.2-atspi-2.0 at-spi2-core \
+          xvfb dbus-daemon \
+          gnome-calculator gnome-text-editor
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
@@ -35,6 +42,28 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    # - name: Test with pytest
-    #   run: |
-    #     pytest
+    - name: Test with pytest
+      env:
+        # Opt in to tests/test_atspi_integration.py (gnome-calculator/gnome-text-editor,
+        # installed above); everything else in tests/ runs regardless.
+        AUTOMONKEY_ATSPI_INTEGRATION: "1"
+      run: |
+        # python3-gi above installs PyGObject for Ubuntu's own system python3, not for
+        # whichever interpreter actions/setup-python just put on PATH for this matrix
+        # entry - so gi is made reachable by appending its dist-packages dir to
+        # sys.path in-process (pytest.main()) rather than via a plain PYTHONPATH env
+        # var: PYTHONPATH prepends to sys.path, which can shadow this job's own
+        # installed packages with a different version of the same name from
+        # dist-packages (hit exactly this locally - it broke pytest's own plugin
+        # loading - while preparing this workflow; appending after pytest's normal
+        # startup avoids it). This only lines up cleanly when matrix.python-version
+        # matches the runner's system python3 ABI; a mismatch fails just the two
+        # opt-in AT-SPI integration tests (ImportError from gi), not the rest of the
+        # suite - see pywinauto_for_linux.md section 6 for why this tradeoff was made
+        # instead of pip-building PyGObject from source for every matrix entry.
+        xvfb-run -a dbus-run-session -- python -c "
+        import sys
+        sys.path.append('/usr/lib/python3/dist-packages')
+        import pytest
+        sys.exit(pytest.main())
+        "

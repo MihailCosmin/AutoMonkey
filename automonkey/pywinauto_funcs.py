@@ -24,6 +24,16 @@ from .utils import copy
 
 _TYPE_KEYS_SPECIAL = "{}+^%~()"
 
+_VALID_BACKENDS = ("uia", "win32", None)
+
+
+def _check_backend(backend: str):
+    if backend not in _VALID_BACKENDS:
+        raise ValueError(
+            f"backend={backend!r} is not valid on Windows. Use backend='uia' (the default) "
+            "or 'win32' here; 'atspi' is the Linux backend (automonkey/atspi_funcs.py)."
+        )
+
 
 def _pywinauto():
     try:
@@ -47,6 +57,7 @@ def get_window(window, backend: str = "uia", timeout: float = 10):
     Returns:
         pywinauto WindowSpecification, for anything not covered by these functions.
     """
+    _check_backend(backend)
     if not isinstance(window, str):
         return window
     spec = _pywinauto().Desktop(backend=backend).window(title_re=f".*?{window}.*?", found_index=0)
@@ -89,6 +100,7 @@ def start_app(command: str, backend: str = "uia", timeout: float = 10):
     Returns:
         pywinauto Application
     """
+    _check_backend(backend)
     return _pywinauto().Application(backend=backend).start(command, timeout=timeout)
 
 

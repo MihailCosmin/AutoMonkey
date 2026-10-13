@@ -1,7 +1,11 @@
 """Unit tests for automonkey.pywinauto_funcs that don't touch real windows."""
+import sys
+
 import pytest
 
 pytest.importorskip("pyautogui")
+
+pytestmark = pytest.mark.skipif(sys.platform != "win32", reason="pywinauto_funcs is Windows-only")
 
 import automonkey.automonkey as am
 from automonkey import pywinauto_funcs as pf

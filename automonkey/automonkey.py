@@ -78,22 +78,40 @@ from .utils import scrolldown
 from .utils import scrollleft
 from .utils import copy_from_to
 
-from .pywinauto_funcs import get_window
-from .pywinauto_funcs import get_control
-from .pywinauto_funcs import start_app
-from .pywinauto_funcs import click_control
-from .pywinauto_funcs import double_click_control
-from .pywinauto_funcs import right_click_control
-from .pywinauto_funcs import type_in_control
-from .pywinauto_funcs import set_control_text
-from .pywinauto_funcs import get_control_text
-from .pywinauto_funcs import select_menu
-from .pywinauto_funcs import select_item
-from .pywinauto_funcs import check_control
-from .pywinauto_funcs import uncheck_control
-from .pywinauto_funcs import wait_control
-from .pywinauto_funcs import control_exists
-from .pywinauto_funcs import list_controls
+if platform == "win32":
+    from .pywinauto_funcs import get_window
+    from .pywinauto_funcs import get_control
+    from .pywinauto_funcs import start_app
+    from .pywinauto_funcs import click_control
+    from .pywinauto_funcs import double_click_control
+    from .pywinauto_funcs import right_click_control
+    from .pywinauto_funcs import type_in_control
+    from .pywinauto_funcs import set_control_text
+    from .pywinauto_funcs import get_control_text
+    from .pywinauto_funcs import select_menu
+    from .pywinauto_funcs import select_item
+    from .pywinauto_funcs import check_control
+    from .pywinauto_funcs import uncheck_control
+    from .pywinauto_funcs import wait_control
+    from .pywinauto_funcs import control_exists
+    from .pywinauto_funcs import list_controls
+else:  # linux: real AT-SPI backend; macOS: importable, raises NotImplementedError when used
+    from .atspi_funcs import get_window
+    from .atspi_funcs import get_control
+    from .atspi_funcs import start_app
+    from .atspi_funcs import click_control
+    from .atspi_funcs import double_click_control
+    from .atspi_funcs import right_click_control
+    from .atspi_funcs import type_in_control
+    from .atspi_funcs import set_control_text
+    from .atspi_funcs import get_control_text
+    from .atspi_funcs import select_menu
+    from .atspi_funcs import select_item
+    from .atspi_funcs import check_control
+    from .atspi_funcs import uncheck_control
+    from .atspi_funcs import wait_control
+    from .atspi_funcs import control_exists
+    from .atspi_funcs import list_controls
 
 
 ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS + CONTROL_ACTIONS
@@ -260,7 +278,8 @@ def chain(*steps: dict, debug=False):
         5. When using startfile you are responsible for saving and closing the file.
         6. For the app functions (start, close, minimize, maximize, restore, focus) you need to provide the title of the window.add()
            You can also use regex to match the title.
-        7. The control actions (click_control, type_in_control, ...) use pywinauto (Windows only).
+        7. The control actions (click_control, type_in_control, ...) use pywinauto on Windows
+           and AT-SPI on Linux (see pywinauto_for_linux.md; macOS not implemented yet).
            The target is a tuple of arguments (window, control, ...) or a dict of keyword arguments:
                dict(click_control=("Notepad", "File")),
                dict(type_in_control=dict(window="Notepad", control={"control_type": "Document"}, text="hi")),

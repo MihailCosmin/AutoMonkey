@@ -1,5 +1,15 @@
 #!/usr/bin/env python
-"""The setup script."""
+"""The setup script.
+
+The control actions (click_control, type_in_control, ...) need pywinauto on Windows
+(listed in requirements.txt, sys_platform == 'win32' only) and AT-SPI on Linux. AT-SPI's
+Python bindings (PyGObject/gi) are not listed here or as a pip extra: they come from the
+distro, not PyPI, and installing them with pip needs system build dependencies (cairo,
+gobject-introspection headers, pkg-config) that aren't guaranteed to be present. Install
+instead: `sudo apt-get install python3-gi gir1.2-atspi-2.0 at-spi2-core` (Debian/Ubuntu/
+Raspberry Pi OS) and enable accessibility - see the README's Control actions section and
+pywinauto_for_linux.md for the rest (Qt/Chrome/Electron flags, Wayland limits, ...).
+"""
 from setuptools import setup, find_packages
 
 with open('README.md') as readme_file:
@@ -27,6 +37,8 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
     ],
     description="Python Automation using Mouse and Keyboard for the masses",
     entry_points={
@@ -47,6 +59,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/MihailCosmin/automonkey',
-    version="0.3.3",
+    version="0.4.0",
     zip_safe=False,
 )
