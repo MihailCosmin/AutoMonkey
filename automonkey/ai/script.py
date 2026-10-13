@@ -20,6 +20,7 @@ import time
 import pyautogui
 
 from . import ocr, screen, windows
+from ..key_funcs import hotkey, press, write
 
 pyautogui.PAUSE = 0.03  # default 0.1s per call adds up quickly
 
@@ -46,15 +47,6 @@ def _xy(args: list[str], i: int = 0) -> tuple[int, int]:
         return screen.view().to_input(float(args[i]), float(args[i + 1]))
     except (IndexError, ValueError):
         raise StepError("expected X Y coordinates")
-
-
-def _type(text: str):
-    if text.isascii():
-        pyautogui.write(text, interval=0.01)
-    else:  # pyautogui can't type non-ASCII (e.g. ă, ș); paste it instead
-        import pyperclip
-        pyperclip.copy(text)
-        pyautogui.hotkey("ctrl", "v")
 
 
 def _keys(spec: str) -> list[str]:
@@ -95,12 +87,11 @@ def run_step(line: str) -> str:
             pyautogui.moveTo(*_xy(args, 1))
         pyautogui.scroll(int(args[0]))
     elif cmd == "type":
-        _type(rest)
+        write(rest)
     elif cmd == "key":
-        for k in args:
-            pyautogui.press(k.lower())
+        press(args)
     elif cmd == "hotkey":
-        pyautogui.hotkey(*_keys(rest))
+        hotkey(*_keys(rest))
     elif cmd == "wait":
         time.sleep(float(args[0]) if args else 1.0)
     elif cmd == "stable":
@@ -110,12 +101,12 @@ def run_step(line: str) -> str:
         ok, t = screen.wait_change(timeout=float(args[0]) if args else 15)
         return f"changed after {t:.1f}s" if ok else f"no change within {t:.1f}s"
     elif cmd == "url":
-        pyautogui.hotkey("ctrl", "l")
+        hotkey("ctrl", "l")
         time.sleep(0.15)
-        _type(rest)
+        write(rest)
         time.sleep(0.3)  # let the address bar's suggestion list catch up before Enter
         before = screen.grab()  # after typing, so the typed text alone doesn't count as "loaded"
-        pyautogui.press("enter")
+        press("enter")
         changed, _ = screen.wait_change(before, timeout=30)
         if not changed:
             return "no visible change 30s after Enter (still loading, or not navigated)"

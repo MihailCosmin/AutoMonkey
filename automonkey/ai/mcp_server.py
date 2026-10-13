@@ -25,7 +25,7 @@ Tips: use `url` instead of clicking the address bar; `launch` an app rather than
 clicking desktop icons; `zoom` to read small text precisely; `grid=100` overlays
 labelled lines when you need exact coordinates; dismiss unexpected popups with
 `key escape`. OCR tools (find_text/read_text/click_text) are
-{'available' if ocr.available() else 'NOT available (tesseract not installed)'}.
+{'available' if ocr.available() else 'NOT available yet (tesseract not found); they start working without a restart once it is installed'}.
 
 Action script language:
 {SCRIPT_DOC}"""

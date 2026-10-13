@@ -31,7 +31,7 @@ if platform == "win32":
 
 from pyautogui import keyUp
 from pyautogui import keyDown
-from pyautogui import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
+from .key_funcs import hotkey as keys2  # keyboard-layout aware
 
 from .utils import copy
 

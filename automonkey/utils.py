@@ -11,7 +11,7 @@ from pyautogui import mouseUp
 from pyautogui import mouseDown
 from pyautogui import scroll as scrollup
 from pyautogui import hscroll as scrollright
-from pyautogui import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
+from .key_funcs import hotkey as keys2  # keyboard-layout aware
 
 from .img_funcs import is_on_screen
 

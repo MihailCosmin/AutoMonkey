@@ -1,28 +1,100 @@
 """Optional OCR: find text on screen so the AI can click by label instead of coordinates.
 
-Needs the tesseract binary (Linux: `sudo apt install tesseract-ocr`).
+Needs the tesseract binary. Installation differs per OS:
+  Linux   `sudo apt install tesseract-ocr` (add tesseract-ocr-ron for Romanian diacritics)
+  macOS   `brew install tesseract`
+  Windows `winget install UB-Mannheim.TesseractOCR`
+
+The binary is located via $TESSERACT_CMD, then PATH, then (Windows) the PATH saved
+in the registry, then the usual install directories -- so OCR works even when the
+PATH of the process that launched us predates the tesseract install (e.g. an
+already-running MCP server, or a macOS GUI app that never sees Homebrew's PATH).
 """
 from __future__ import annotations
 
+import os
 import shutil
+import sys
 
 from PIL import Image, ImageOps
 
 from .screen import grab, view
 
+def _candidates() -> list[str]:
+    if sys.platform == "win32":
+        env = os.environ.get
+        dirs = [env("ProgramFiles", r"C:\Program Files"), env("ProgramFiles(x86)", r"C:\Program Files (x86)"),
+                os.path.join(env("LOCALAPPDATA", ""), "Programs")]  # per-user installs
+        return ([os.path.join(d, "Tesseract-OCR", "tesseract.exe") for d in dirs]
+                + [os.path.join(env("USERPROFILE", ""), "scoop", "shims", "tesseract.exe"),
+                   os.path.join(env("ChocolateyInstall", r"C:\ProgramData\chocolatey"), "bin", "tesseract.exe")])
+    return ["/opt/homebrew/bin/tesseract", "/usr/local/bin/tesseract", "/opt/local/bin/tesseract",
+            "/usr/bin/tesseract", "/snap/bin/tesseract"]
+
+
+def _registry_path() -> str:
+    """PATH as currently saved in the registry: installers update it there, but a running
+    process keeps the PATH it started with."""
+    import winreg
+    parts = []
+    for hive, key in ((winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Control\Session Manager\Environment"),
+                      (winreg.HKEY_CURRENT_USER, "Environment")):
+        try:
+            with winreg.OpenKey(hive, key) as k:
+                parts.append(os.path.expandvars(winreg.QueryValueEx(k, "Path")[0]))
+        except OSError:
+            pass
+    return os.pathsep.join(parts)
+
+
+_found: str | None = None
+
+
+def tesseract_cmd() -> str | None:
+    """Locate the tesseract binary, or None if it isn't installed. $TESSERACT_CMD, when
+    set, is used exactly (a path or a command name); a wrong value is not silently
+    replaced by another tesseract."""
+    global _found
+    env = os.environ.get("TESSERACT_CMD")
+    if env:
+        return shutil.which(env)  # also accepts a full path, and adds .exe on Windows
+    if _found and os.path.isfile(_found):
+        return _found
+    _found = shutil.which("tesseract")
+    if not _found and sys.platform == "win32":
+        _found = shutil.which("tesseract", path=_registry_path())
+    if not _found:
+        _found = next((c for c in _candidates() if os.path.isfile(c)), None)
+    return _found
+
 
 def available() -> bool:
-    return shutil.which("tesseract") is not None
+    return tesseract_cmd() is not None
 
 
 def _require():
-    if not available():
-        raise RuntimeError("OCR needs tesseract: sudo apt install tesseract-ocr "
-                           "(add tesseract-ocr-ron for Romanian diacritics)")
+    if available():
+        return
+    env = os.environ.get("TESSERACT_CMD")
+    if env:
+        raise RuntimeError(f"OCR: TESSERACT_CMD={env!r} is not an executable tesseract")
+    if sys.platform == "win32":
+        hint = "winget install UB-Mannheim.TesseractOCR (or set TESSERACT_CMD)"
+    elif sys.platform == "darwin":
+        hint = "brew install tesseract"
+    else:
+        hint = "sudo apt install tesseract-ocr (add tesseract-ocr-ron for Romanian diacritics)"
+    raise RuntimeError(f"OCR needs tesseract: {hint}")
+
+
+def _pytesseract():
+    import pytesseract
+    pytesseract.pytesseract.tesseract_cmd = tesseract_cmd()
+    return pytesseract
 
 
 def _words(img: Image.Image, lang: str):
-    import pytesseract
+    pytesseract = _pytesseract()
     gray = ImageOps.grayscale(img)
     # Light-on-dark UIs (dark themes) OCR much better when inverted.
     if sum(gray.resize((64, 64)).getdata()) / 4096 < 110:
@@ -65,7 +137,7 @@ def read_text(x: int = 0, y: int = 0, w: int = 0, h: int = 0, lang: str = "eng")
     """OCR the whole screen, or an image-coordinate region. Much cheaper for the AI
     than reading text off a screenshot."""
     _require()
-    import pytesseract
+    pytesseract = _pytesseract()
     v = view()
     img = grab()
     if w and h:

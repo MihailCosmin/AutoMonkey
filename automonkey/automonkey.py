@@ -15,13 +15,10 @@ elif platform == "linux":
 from clipboard import paste
 
 from pyautogui import click  # It is used
-from pyautogui import write  # It is used
 from pyautogui import moveTo  # It is used
 from pyautogui import mouseUp  # It is used
 from pyautogui import confirm
 from pyautogui import mouseDown  # It is used
-from pyautogui import press as keys  # this normally is to be used for same key left, left, left
-from pyautogui import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
 from pyautogui import locateOnScreen
 from pyautogui import scroll as scrollup  # It is used
 from pyautogui import hscroll as scrollright  # It is used
@@ -47,6 +44,10 @@ from .exceptions import AutoMonkeyNoTarget
 
 from .mouse_tracker import track_mouse
 from .mouse_tracker import PositionTracker
+
+from .key_funcs import write  # keyboard-layout aware
+from .key_funcs import press as keys  # this normally is to be used for same key left, left, left
+from .key_funcs import hotkey as keys2  # this is best solution, pass list to be unpacked with *list
 
 if platform == "win32":
     from .app_funcs import open_app
@@ -224,7 +225,8 @@ def chain(*steps: dict, debug=False):
         Notes:
         1. To use the scroll functions you have to select the scrollable area first
         2. Horizontal scroll (left, right) is not supported on Windows
-        3. write function cannot write special characters like German or Chinese characters.
+        3. write, keys and keys2 work with any keyboard layout and PowerToys key remaps on Windows,
+           and write types any character there (German, Chinese, ...). keys3/keys4 are not layout aware.
         4. startfile keeps the file opened only until the end of the chain.
            If you want to keep the file opened you need to perform other operations on it.
         5. When using startfile you are responsible for saving and closing the file.
