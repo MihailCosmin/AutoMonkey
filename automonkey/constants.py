@@ -69,6 +69,23 @@ IMG_ACTIONS = (
     "get_text_from_region",
 )
 
+# pywinauto based actions. Target: window title, (window, control, ...) tuple or dict of arguments
+CONTROL_ACTIONS = (
+    "start_app",
+    "click_control",
+    "double_click_control",
+    "right_click_control",
+    "type_in_control",
+    "set_control_text",
+    "get_control_text",
+    "select_menu",
+    "select_item",
+    "check_control",
+    "uncheck_control",
+    "wait_control",
+    "list_controls",
+)
+
 COMMON_APPS = {
     "edge": "msedge",
     "msedge": "msedge",

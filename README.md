@@ -38,6 +38,7 @@ pip install git+https://github.com/MihailCosmin/AutoMonkey
 - opencv-python
 - numpy
 - pytesseract
+- <a href="https://github.com/pywinauto/pywinauto">pywinauto</a> (Windows only, for the control actions)
 
 # Usage
 Main function to be used is "chain"  
@@ -308,8 +309,55 @@ or
         )
     ```
 
-# Roadmap
-1. Check if possible to add <a href="https://github.com/pywinauto/pywinauto">pyautowin</a> functionality
+6. Control actions (Windows only, based on <a href="https://github.com/pywinauto/pywinauto">pywinauto</a>)
+
+    These find buttons, text boxes and menus through the Windows accessibility tree instead of
+    coordinates or images, so they keep working when the resolution, theme or window position changes.
+
+    Every function takes the window title (regex, matched anywhere in the title, like focus/close)
+    and a control:
+    * a pywinauto "best match" name: `"Save"`, `"SaveButton"`, `"Edit"`
+    * or a dict of search criteria: `{"title": "Save", "control_type": "Button"}`, `{"auto_id": "num7Button"}`
+
+    Optional for all: `backend="uia"` (default, modern apps) or `"win32"` (older apps), `timeout=10` seconds.
+
+    In chain the target is a tuple of arguments or a dict of keyword arguments:
+
+    ```python
+        from automonkey import chain, list_controls
+
+        list_controls("Calculator")  # prints the controls and the names you can use
+
+        chain(
+            dict(open_app="calc", wait=1),
+            dict(wait_control="Calculator"),
+            dict(click_control=("Calculator", {"auto_id": "num7Button"})),
+            dict(click_control=("Calculator", {"auto_id": "plusButton"})),
+            dict(click_control=("Calculator", {"auto_id": "num5Button"})),
+            dict(click_control=dict(window="Calculator", control={"auto_id": "equalButton"}, invoke=True)),
+            dict(get_control_text=("Calculator", {"auto_id": "CalculatorResults"})),  # copied to the clipboard
+        )
+
+        chain(
+            dict(open_app="notepad", wait=1),
+            dict(type_in_control=dict(window=" - Notepad$", control={"control_type": "Document"}, text="Hello (world)!")),
+            dict(select_menu=(" - Notepad$", "Edit->Select all")),
+        )
+    ```
+
+    Available functions:
+    * start_app - start an application with pywinauto
+    * click_control, double_click_control, right_click_control - `invoke=True` presses it without moving the mouse
+    * type_in_control - types the text as it is; `literal=False` for pywinauto key syntax (`{ENTER}`, `^a`);
+      `pause=0.05` if a slow app loses characters
+    * set_control_text, get_control_text
+    * select_menu - path separated by `->`, e.g. `"File->Save As..."`
+    * select_item - item of a combo box / list
+    * check_control, uncheck_control
+    * wait_control, control_exists
+    * list_controls
+    * get_window, get_control - return the pywinauto objects for anything else
+
 
 # Frequently Asked Questions:
 

@@ -37,6 +37,7 @@ from .constants import WAIT_ACTIONS
 from .constants import KEYBOARD_ACTIONS
 from .constants import APPS_ACTIONS
 from .constants import IMG_ACTIONS
+from .constants import CONTROL_ACTIONS
 from .constants import COMMON_APPS
 
 from .exceptions import AutoMonkeyNoAction
@@ -77,8 +78,25 @@ from .utils import scrolldown
 from .utils import scrollleft
 from .utils import copy_from_to
 
+from .pywinauto_funcs import get_window
+from .pywinauto_funcs import get_control
+from .pywinauto_funcs import start_app
+from .pywinauto_funcs import click_control
+from .pywinauto_funcs import double_click_control
+from .pywinauto_funcs import right_click_control
+from .pywinauto_funcs import type_in_control
+from .pywinauto_funcs import set_control_text
+from .pywinauto_funcs import get_control_text
+from .pywinauto_funcs import select_menu
+from .pywinauto_funcs import select_item
+from .pywinauto_funcs import check_control
+from .pywinauto_funcs import uncheck_control
+from .pywinauto_funcs import wait_control
+from .pywinauto_funcs import control_exists
+from .pywinauto_funcs import list_controls
 
-ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS
+
+ALL_ACTIONS = MOUSE_ACTIONS + KEYBOARD_ACTIONS + WAIT_ACTIONS + APPS_ACTIONS + IMG_ACTIONS + CONTROL_ACTIONS
 
 def _wait_for_target(target: any, skip: bool = False):
     """Wait for a target to be available"""
@@ -150,8 +168,18 @@ def __run_1(step: dict):
     else:
         globals()[step["action"]](bullseye)
 
+def __run_control(step: dict):
+    if isinstance(step["target"], dict):
+        globals()[step["action"]](**step["target"])
+    elif isinstance(step["target"], (tuple, list)):
+        globals()[step["action"]](*step["target"])
+    else:
+        globals()[step["action"]](step["target"])
+
 def __run_2(step: dict):
-    if step["action"] in ("keys2", "msoffice_replace"):
+    if step["action"] in CONTROL_ACTIONS:
+        __run_control(step)
+    elif step["action"] in ("keys2", "msoffice_replace"):
         globals()[step["action"]](*step["target"])
     elif step["action"] == "paste":
         pastetext(paste())
@@ -232,6 +260,10 @@ def chain(*steps: dict, debug=False):
         5. When using startfile you are responsible for saving and closing the file.
         6. For the app functions (start, close, minimize, maximize, restore, focus) you need to provide the title of the window.add()
            You can also use regex to match the title.
+        7. The control actions (click_control, type_in_control, ...) use pywinauto (Windows only).
+           The target is a tuple of arguments (window, control, ...) or a dict of keyword arguments:
+               dict(click_control=("Notepad", "File")),
+               dict(type_in_control=dict(window="Notepad", control={"control_type": "Document"}, text="hi")),
 
     """
     for _ in steps:
