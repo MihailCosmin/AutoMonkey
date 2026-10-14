@@ -1,0 +1,247 @@
+<!doctype html><html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pi Temperature</title>
+<style>
+.viz-root {
+  color-scheme: light;
+  --surface-1:      #fcfcfb; --page: #f9f9f7;
+  --text-primary:   #0b0b0b; --text-secondary: #52514e; --text-muted: #898781;
+  --series-1:       #2a78d6;
+  --grid:           #e1e0d9; --baseline: #c3c2b7; --border: rgba(11,11,11,0.10);
+  --good:   #0ca30c; --warning: #fab219; --critical: #d03b3b;
+  --good-bg: #e3f4e1; --warning-bg: #fbf0d6; --critical-bg: #f9e1e0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19; --page: #0d0d0d;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #898781;
+    --series-1: #3987e5;
+    --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+    --good: #3ccf3c; --warning: #fab219; --critical: #e66767;
+    --good-bg: #16301a; --warning-bg: #33290f; --critical-bg: #3a1a1a;
+  }
+}
+:root[data-theme="dark"] .viz-root {
+  color-scheme: dark;
+  --surface-1: #1a1a19; --page: #0d0d0d;
+  --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #898781;
+  --series-1: #3987e5;
+  --grid: #2c2c2a; --baseline: #383835; --border: rgba(255,255,255,0.10);
+  --good: #3ccf3c; --warning: #fab219; --critical: #e66767;
+  --good-bg: #16301a; --warning-bg: #33290f; --critical-bg: #3a1a1a;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 920px; margin: 0 auto; padding: 20px 20px 48px; }
+a.back { color: var(--text-secondary); font-size: .86rem; text-decoration: none; }
+a.back:hover { text-decoration: underline; }
+h1 { font-size: 1.6rem; margin: 10px 0 4px; }
+.sub { color: var(--text-secondary); margin: 0 0 20px; font-size: .9rem; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 6px;
+  padding: 18px 20px; margin-bottom: 16px; }
+.hero-row { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+.hero { font-size: 48px; font-weight: 600; font-variant-numeric: normal; line-height: 1; }
+.hero small { font-size: 20px; color: var(--text-secondary); font-weight: 400; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px;
+  font-weight: 600; font-size: .82rem; }
+.pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+.pill.good { color: var(--good); background: var(--good-bg); }
+.pill.warning { color: var(--warning); background: var(--warning-bg); }
+.pill.critical { color: var(--critical); background: var(--critical-bg); }
+.asof { color: var(--text-muted); font-size: .82rem; margin-top: 4px; }
+.filters { display: flex; gap: 6px; margin-bottom: 14px; }
+.filters button { font: 600 .82rem system-ui, sans-serif; color: var(--text-secondary);
+  background: var(--surface-1); border: 1px solid var(--border); border-radius: 5px;
+  padding: 6px 12px; cursor: pointer; }
+.filters button[aria-pressed="true"] { color: var(--text-primary); border-color: var(--series-1);
+  background: color-mix(in srgb, var(--series-1) 12%, var(--surface-1)); }
+svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+svg.chart text { fill: var(--text-muted); font: 11px system-ui, sans-serif; }
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.baseline { stroke: var(--baseline); stroke-width: 1; }
+.line { fill: none; stroke: var(--series-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.dot-throttle { fill: var(--critical); stroke: var(--surface-1); stroke-width: 2; }
+.crosshair { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; pointer-events: none; }
+.hit { fill: transparent; }
+.tip { position: fixed; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 5px; padding: 8px 10px; font-size: .82rem; box-shadow: 0 4px 16px rgb(0 0 0 / .18);
+  z-index: 5; min-width: 150px; }
+.tip .v { font-weight: 700; color: var(--text-primary); }
+.tip .warn { color: var(--critical); font-weight: 600; margin-top: 3px; }
+.legend-note { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: .8rem; margin-top: 10px; }
+.legend-note .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--critical); display: inline-block; }
+.empty { color: var(--text-muted); padding: 30px; text-align: center; }
+details.table-view { margin-top: 14px; }
+details.table-view summary { cursor: pointer; color: var(--text-secondary); font-size: .85rem; font-weight: 600; }
+.tablewrap { max-height: 320px; overflow-y: auto; margin-top: 10px; border: 1px solid var(--border); border-radius: 5px; }
+table.readings { width: 100%; border-collapse: collapse; font-size: .84rem; }
+table.readings th { position: sticky; top: 0; text-align: left; font-weight: 700; color: var(--text-muted);
+  background: var(--surface-1); padding: 7px 10px; border-bottom: 1px solid var(--border); }
+table.readings td { padding: 6px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+table.readings td.status-critical { color: var(--critical); font-weight: 600; }
+</style></head><body>
+<div class="viz-root"><div class="wrap">
+  <a class="back" href="./">&larr; Paper Bettors dashboard</a>
+  <h1>Raspberry Pi CPU temperature</h1>
+  <p class="sub">Logged every 5 minutes via cron. Red dots mark a reading where the SoC reported throttling.</p>
+
+  <div class="card" id="hero-card"></div>
+  <div class="filters" id="filters"></div>
+  <div class="card">
+    <svg class="chart" id="chart" viewBox="0 0 900 320" role="img" aria-label="CPU temperature over time"></svg>
+    <div class="legend-note"><span class="dot"></span><span>Throttling event (under-voltage, frequency cap, or temperature limit)</span></div>
+    <details class="table-view" id="table-view">
+      <summary>Show as table</summary>
+      <div class="tablewrap"><table class="readings"><thead>
+        <tr><th>Time</th><th>Temp (&deg;C)</th><th>Status</th></tr>
+      </thead><tbody id="table-body"></tbody></table></div>
+    </details>
+  </div>
+</div></div>
+<div class="tip" id="tip" hidden></div>
+<script id="payload" type="application/json">[{"ts": "2026-10-14T14:12:18.369057+03:00", "temp_c": 48.7, "throttled": false, "flags": []}, {"ts": "2026-10-14T14:18:31.433735+03:00", "temp_c": 50.6, "throttled": false, "flags": []}]</script>
+<script>
+(function () {
+  const readings = JSON.parse(document.getElementById('payload').textContent);
+  const heroCard = document.getElementById('hero-card');
+  const filtersEl = document.getElementById('filters');
+  const svg = document.getElementById('chart');
+  const tip = document.getElementById('tip');
+
+  if (!readings.length) {
+    heroCard.innerHTML = '<div class="empty">No readings logged yet.</div>';
+  } else {
+    renderHero(readings[readings.length - 1]);
+    const presets = [['24h', 24 * 3600e3], ['7d', 7 * 86400e3], ['30d', 30 * 86400e3], ['All', Infinity]];
+    let active = '7d';
+    presets.forEach(([label, ms]) => {
+      const b = document.createElement('button');
+      b.textContent = label;
+      b.setAttribute('aria-pressed', label === active);
+      b.addEventListener('click', () => {
+        active = label;
+        [...filtersEl.children].forEach(c => c.setAttribute('aria-pressed', c === b));
+        render(filterByWindow(ms));
+      });
+      filtersEl.appendChild(b);
+    });
+    render(filterByWindow(7 * 86400e3));
+  }
+
+  function filterByWindow(ms) {
+    if (ms === Infinity) return readings;
+    const cutoff = new Date(readings[readings.length - 1].ts).getTime() - ms;
+    return readings.filter(r => new Date(r.ts).getTime() >= cutoff);
+  }
+
+  function renderHero(latest) {
+    const t = latest.temp_c;
+    let status = 'good', label = 'Normal';
+    if (latest.throttled || t >= 80) { status = 'critical'; label = 'Critical'; }
+    else if (t >= 70) { status = 'warning'; label = 'Warning'; }
+    const asof = new Date(latest.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    heroCard.innerHTML =
+      '<div class="hero-row"><div class="hero">' + t.toFixed(1) + '<small>&deg;C</small></div>' +
+      '<span class="pill ' + status + '">' + label + '</span></div>' +
+      '<div class="asof">as of ' + asof + '</div>';
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('table-body');
+    tbody.innerHTML = '';
+    // newest first, capped so the table stays usable - full history is in temp_log.jsonl either way
+    const rows = data.slice().reverse().slice(0, 500);
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const tdTime = document.createElement('td');
+      tdTime.textContent = new Date(r.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+      const tdTemp = document.createElement('td');
+      tdTemp.textContent = r.temp_c.toFixed(1);
+      const tdStatus = document.createElement('td');
+      tdStatus.textContent = r.throttled ? r.flags.join(', ') : 'Normal';
+      if (r.throttled) tdStatus.className = 'status-critical';
+      tr.append(tdTime, tdTemp, tdStatus);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function render(data) {
+    renderTable(data);
+    svg.innerHTML = '';
+    if (!data.length) { svg.innerHTML = '<text x="450" y="160" text-anchor="middle">No readings in this range</text>'; return; }
+    const W = 900, H = 320, padL = 42, padR = 16, padT = 16, padB = 28;
+    const innerW = W - padL - padR, innerH = H - padT - padB;
+    const xs = data.map(r => new Date(r.ts).getTime());
+    const ys = data.map(r => r.temp_c);
+    const xMin = Math.min(...xs), xMax = Math.max(...xs);
+    const yMinRaw = Math.min(...ys), yMaxRaw = Math.max(...ys);
+    const yMin = Math.floor((yMinRaw - 3) / 5) * 5, yMax = Math.ceil((yMaxRaw + 3) / 5) * 5;
+    const xScale = x => padL + (xMax === xMin ? innerW / 2 : (x - xMin) / (xMax - xMin) * innerW);
+    const yScale = y => padT + innerH - (y - yMin) / (yMax - yMin) * innerH;
+
+    const ns = 'http://www.w3.org/2000/svg';
+    function el(tag, attrs) {
+      const e = document.createElementNS(ns, tag);
+      for (const k in attrs) e.setAttribute(k, attrs[k]);
+      return e;
+    }
+
+    // gridlines + y labels (every 5 degrees, thinned if too many)
+    const step = (yMax - yMin) > 40 ? 10 : 5;
+    for (let y = yMin; y <= yMax; y += step) {
+      const py = yScale(y);
+      svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: py, y2: py, class: 'gridline' }));
+      const t = el('text', { x: padL - 8, y: py + 3, 'text-anchor': 'end' });
+      t.textContent = y + '°';
+      svg.appendChild(t);
+    }
+    svg.appendChild(el('line', { x1: padL, x2: W - padR, y1: padT + innerH, y2: padT + innerH, class: 'baseline' }));
+
+    // x labels: first, middle, last
+    [0, Math.floor(data.length / 2), data.length - 1].forEach(i => {
+      const r = data[i];
+      const px = xScale(new Date(r.ts).getTime());
+      const t = el('text', { x: px, y: H - 6, 'text-anchor': i === 0 ? 'start' : i === data.length - 1 ? 'end' : 'middle' });
+      t.textContent = new Date(r.ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      svg.appendChild(t);
+    });
+
+    // line
+    const d = data.map((r, i) => (i === 0 ? 'M' : 'L') + xScale(xs[i]) + ',' + yScale(r.temp_c)).join(' ');
+    svg.appendChild(el('path', { d, class: 'line' }));
+
+    // throttle markers
+    data.forEach((r, i) => {
+      if (r.throttled) svg.appendChild(el('circle', { cx: xScale(xs[i]), cy: yScale(r.temp_c), r: 5, class: 'dot-throttle' }));
+    });
+
+    // crosshair + hover hit area
+    const crosshair = el('line', { x1: 0, x2: 0, y1: padT, y2: padT + innerH, class: 'crosshair' });
+    crosshair.style.display = 'none';
+    svg.appendChild(crosshair);
+    const hit = el('rect', { x: padL, y: padT, width: innerW, height: innerH, class: 'hit' });
+    svg.appendChild(hit);
+
+    hit.addEventListener('pointermove', (ev) => {
+      const rect = svg.getBoundingClientRect();
+      const relX = (ev.clientX - rect.left) / rect.width * W;
+      let idx = 0, best = Infinity;
+      data.forEach((r, i) => { const dx = Math.abs(xScale(xs[i]) - relX); if (dx < best) { best = dx; idx = i; } });
+      const r = data[idx];
+      const px = xScale(xs[idx]);
+      crosshair.setAttribute('x1', px); crosshair.setAttribute('x2', px);
+      crosshair.style.display = '';
+      const when = new Date(r.ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+      tip.innerHTML = '<div>' + when + '</div><div class="v">' + r.temp_c.toFixed(1) + '°C</div>' +
+        (r.throttled ? '<div class="warn">⚠ ' + r.flags.join(', ') + '</div>' : '');
+      tip.style.left = (ev.clientX + 14) + 'px';
+      tip.style.top = (ev.clientY + 14) + 'px';
+      tip.hidden = false;
+    });
+    hit.addEventListener('pointerleave', () => { tip.hidden = true; crosshair.style.display = 'none'; });
+  }
+})();
+</script>
+</body></html>
