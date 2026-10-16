@@ -32,12 +32,20 @@ pip install git+https://github.com/MihailCosmin/AutoMonkey
 - clipboard
 - keyboard
 - screeninfo
-- pywin32
+- pywin32 (Windows only)
 - pillow
 - opencv-python
 - numpy
 - pytesseract
 - <a href="https://github.com/pywinauto/pywinauto">pywinauto</a> (Windows only, for the control actions)
+
+The control actions (`get_window`, `click_control`, `type_in_control`, ...) are **not** Windows-only:
+on Linux the same functions run on AT-SPI, with identical names and arguments, so a `chain` script
+needs no changes between the two. Windows gets pywinauto from pip (above); Linux uses distro packages
+instead of pip - `python3-gi`, `gir1.2-atspi-2.0`, `at-spi2-core` on Debian/Ubuntu/Raspberry Pi OS -
+plus accessibility enabled (`gsettings set org.gnome.desktop.interface toolkit-accessibility true`).
+Setup, the `control_type` → AT-SPI role mapping and the known Wayland limits are in
+*Control actions* → *Linux (AT-SPI)* under Usage. macOS is not implemented yet.
 
 # Usage
 Main function to be used is "chain"  
