@@ -1,36 +1,64 @@
 [build-system]
-requires = [
-    "setuptools==68.2.2",
-    "pyautogui>=0.9.53",
-    "pytesseract>=0.3.9",
-    "numpy>=1.21.5",
-    "keyboard>=0.13.5",
-    "clipboard>=0.0.4",
-    "opencv-python==4.5.5.62",
-    "pillow>=9.0.1",
-    # "pywin32>=303",
-    # "pywin32-ctypes>=0.2.0",
-    "screeninfo>=0.8",
-    "pyperclip>=1.8.2",
-    "PyScreeze>=0.1.27",
-]
+# Only the build tools belong here. The runtime dependencies used to be listed here too,
+# which forced pip to install pyautogui/opencv/... into every isolated build environment;
+# they are declared once, below, as [project] dependencies (read from requirements.txt).
+requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "AutoMonkey"
-version = "0.3.4"
-authors = [
-  { name="Mihail-Cosmin Munteanu", email="munteanumihailcosmin@gmail.com" },
-]
+# SINGLE SOURCE OF TRUTH for the version - nothing else in the repo hardcodes it
+# (`automonkey.__version__` reads it back from the installed metadata).
+#
+# It is bumped automatically by the "publish" job in
+# .github/workflows/python-package.yml, right after a successful upload to PyPI, so the
+# tree always holds the *next* version to be released. Bump it by hand with
+# `python bump_version.py` (patch) / `python bump_version.py --part minor` / `--set 1.0.0`.
+version = "0.4.1"
 description = "Python Automation using Mouse and Keyboard, for the masses"
 readme = "README.md"
-requires-python = ">=3.7"
-classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+requires-python = ">=3.8"
+license = { text = "GNU General Public License v3 (GPLv3)" }
+authors = [
+  { name = "Mihail-Cosmin Munteanu", email = "munteanumihailcosmin@gmail.com" },
 ]
+keywords = ["automonkey"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+]
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+ai = ["mcp>=2.0"]
+
+[project.scripts]
+# The old `automonkey = automonkey.cli:main` entry point is gone: there is no
+# automonkey/cli.py (only a stale boilerplate cli.py at the repo root), so that script
+# raised ModuleNotFoundError for anyone who ran it.
+automonkey-ai = "automonkey.ai.__main__:main"
+automonkey-mcp = "automonkey.ai.mcp_server:main"
 
 [project.urls]
-"Homepage" = "https://github.com/MihailCosmin/AutoMonkey"
+Homepage = "https://github.com/MihailCosmin/AutoMonkey"
 "Bug Tracker" = "https://github.com/MihailCosmin/AutoMonkey/issues"
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["automonkey", "automonkey.*"]

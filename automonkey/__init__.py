@@ -2,7 +2,14 @@
 
 __author__ = """Mihail-Cosmin Munteanu"""
 __email__ = 'munteanumihailcosmin@gmail.com'
-__version__ = '0.4.1'
+# Read back from the installed distribution, so [project].version in pyproject.toml stays
+# the only place the version is written (see bump_version.py).
+try:
+    from importlib.metadata import version as _installed_version
+
+    __version__ = _installed_version("AutoMonkey")
+except Exception:  # plain source checkout, no installed distribution metadata to read
+    __version__ = "0.0.0+unknown"
 
 
 def _default_display_env():

@@ -67,3 +67,77 @@ jobs:
         import pytest
         sys.exit(pytest.main())
         "
+
+  # Publishes to PyPI on every push to main - but only once the test matrix above is
+  # green, so a red commit never becomes a release. Uploading uses PyPI's trusted
+  # publishing (OIDC): there is no API token stored in this repo or in GitHub secrets.
+  # The trusted publisher is configured once, by hand, at
+  #   https://pypi.org/manage/project/AutoMonkey/settings/publishing/
+  # with Owner=MihailCosmin, Repository=AutoMonkey,
+  # Workflow name=.github/workflows/python-package.yml, Environment name=pypi.
+  publish:
+    name: Publish to PyPI
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/AutoMonkey/
+    permissions:
+      contents: write   # to push the "bump the version" commit back to main
+      id-token: write   # the OIDC token PyPI's trusted publisher verifies
+    concurrency:
+      # Never let two runs race for the same version number.
+      group: publish-main
+      cancel-in-progress: false
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: main
+    - uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Read the version to release from pyproject.toml
+      id: version
+      run: |
+        VERSION=$(python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version'])")
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "Version in the tree: $VERSION"
+
+    - name: Check whether that version is already on PyPI
+      id: exists
+      env:
+        VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        if curl -fsS "https://pypi.org/pypi/AutoMonkey/$VERSION/json" >/dev/null; then
+          echo "on_pypi=true" >> "$GITHUB_OUTPUT"
+          echo "AutoMonkey $VERSION is already on PyPI - skipping the upload. Re-running an"
+          echo "already-published release is a no-op, not an error."
+        else
+          echo "on_pypi=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Build sdist and wheel
+      if: steps.exists.outputs.on_pypi == 'false'
+      run: |
+        python -m pip install --upgrade build
+        python -m build
+
+    - name: Publish to PyPI
+      if: steps.exists.outputs.on_pypi == 'false'
+      uses: pypa/gh-action-pypi-publish@release/v1
+
+    # Always runs, even when the upload above was skipped: if an earlier run published a
+    # version but died before committing the bump, this heals it instead of stalling on a
+    # version that is already on PyPI.
+    - name: Bump the version for the next release
+      run: |
+        python bump_version.py
+        NEXT=$(python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version'])")
+        git config --local user.name "github-actions[bot]"
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add pyproject.toml
+        git commit -m "Bump version to $NEXT [skip ci]"
+        git push origin HEAD:main
