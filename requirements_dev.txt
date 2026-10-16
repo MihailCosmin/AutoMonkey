@@ -10,3 +10,5 @@ twine
 Click
 pytest
 black
+requests>=2.32.4 # not directly required, pinned to avoid a vulnerability
+urllib3>=2.5.0 # not directly required, pinned to avoid a vulnerability

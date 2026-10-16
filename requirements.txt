@@ -4,7 +4,7 @@ numpy
 keyboard>=0.13.5
 clipboard>=0.0.4
 opencv-python
-pillow>=9.5.0
+pillow>=10.3.0
 screeninfo>=0.8
 pyperclip==1.8.2
 PyScreeze>=0.1.27
