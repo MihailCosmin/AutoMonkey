@@ -14,7 +14,7 @@ name = "AutoMonkey"
 # .github/workflows/python-package.yml, right after a successful upload to PyPI, so the
 # tree always holds the *next* version to be released. Bump it by hand with
 # `python bump_version.py` (patch) / `python bump_version.py --part minor` / `--set 1.0.0`.
-version = "0.4.2"
+version = "0.4.3"
 description = "Python Automation using Mouse and Keyboard, for the masses"
 readme = "README.md"
 requires-python = ">=3.8"
