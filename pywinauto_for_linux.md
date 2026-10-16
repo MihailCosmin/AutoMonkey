@@ -355,12 +355,25 @@ unrelated `test_pywinauto_funcs.py` failure.
       not for whichever interpreter `actions/setup-python` puts on `PATH` for a given
       matrix entry (the workflow's existing matrix is Python 3.8/3.9/3.10, set long
       before this AT-SPI work and not touched here - that's a separate, pre-existing
-      staleness issue, not something this phase should quietly take on). Wired via
-      `PYTHONPATH=/usr/lib/python3/dist-packages` (the exact trick used throughout this
-      whole implementation to let a different interpreter see system-installed `gi`) -
-      this only lines up cleanly when a matrix entry's Python version matches the
-      runner's system python3 ABI; a mismatch fails just the two opt-in integration
-      tests (a plain `ImportError` from `gi`), not the rest of the suite. Could not be
+      staleness issue, not something this phase should quietly take on). Wired by appending
+      `/usr/lib/python3/dist-packages` to `sys.path` in-process around `pytest.main()` -
+      the trick used throughout this implementation to let a different interpreter see
+      system-installed `gi`, but as a plain `PYTHONPATH` it pre-empted this job's own
+      installed packages and broke pytest's plugin loading, hence the in-process append
+      after pytest's own startup. This only lines up cleanly when a matrix entry's Python
+      version matches the runner's system python3 ABI - 3.8/3.9/3.10 against
+      ubuntu-latest's 3.12 system python does not, so on CI these two tests **skip**.
+      **Fixed 2026-10-16**: they used to *fail* there (a plain `ImportError` from `gi`),
+      which turned the matrix red on every version - and once the publish job was gated on
+      the matrix, that would have blocked every release over an environment quirk
+      unrelated to this repo's code. `tests/test_atspi_integration.py` now checks the
+      bindings itself (`_atspi_bindings_available()`, which catches the half-working
+      `import gi` -> `from . import _gi` failure) and skips, so the file keeps its "always
+      safe to collect/run" contract. Verified by reproducing that exact broken-`gi` shape
+      locally: a fake `gi` package that raises on `from . import _gi` -> binding check
+      False and the file collects and skips cleanly; a working fake -> binding check True.
+      The commands in section 5 still run these tests for real on a box whose python3 has
+      python3-gi. Could not be
       verified by actually running GitHub Actions from here - YAML syntax was validated
       with a local parse, and the underlying command pattern (`xvfb-run` / fakeroot X +
       `dbus-run-session` for a private AT-SPI bus) is the standard approach for headless

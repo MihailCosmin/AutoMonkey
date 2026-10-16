@@ -5,6 +5,8 @@ import shutil
 import subprocess
 import sys
 
+import pytest
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LAUNCHER = os.path.join(ROOT, "automonkey", "ai", "mcp_launch.py")
 
@@ -18,8 +20,18 @@ def test_mcp_json_has_no_os_specific_paths():
 
 
 def test_launcher_finds_the_venv_python(tmp_path):
-    out = subprocess.run([sys.executable, LAUNCHER, "--which"], capture_output=True, text=True, check=True)
-    assert os.path.isfile(out.stdout.strip())
+    """--which must name the interpreter the server would actually run on.
+
+    Skipped where there is nothing to find: no venv (CI installs the runtime requirements
+    into its own interpreter, and the [ai] extra can't go on every matrix entry - mcp
+    requires Python >= 3.10), and an interpreter that can't import the server's
+    dependencies. What the launcher does in exactly that environment is the next test's job.
+    """
+    out = subprocess.run([sys.executable, LAUNCHER, "--which"], capture_output=True, text=True)
+    if out.returncode != 0 and "no virtualenv found" in out.stderr:
+        pytest.skip("no venv and no [ai] extra here: " + out.stderr.splitlines()[0])
+    assert out.returncode == 0, out.stderr
+    assert os.path.isfile(out.stdout.strip()), out.stdout
 
 
 def test_launcher_explains_a_missing_venv(tmp_path):

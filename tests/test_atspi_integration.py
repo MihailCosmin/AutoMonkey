@@ -2,7 +2,9 @@
 
 Opt-in (needs a real desktop, GUI apps, and a few seconds per test): set
 AUTOMONKEY_ATSPI_INTEGRATION=1. Each test additionally skips if its target app isn't
-installed, so this file is always safe to collect/run anywhere.
+installed, and the whole file skips if this interpreter can't import the AT-SPI bindings
+(python3-gi is built for the distro's own python3, not for every interpreter), so this
+file is always safe to collect/run anywhere.
 
 CI: see .github/workflows/python-package.yml - installs python3-gi, gir1.2-atspi-2.0,
 at-spi2-core, xvfb, gnome-calculator, gnome-text-editor and runs under
@@ -17,11 +19,37 @@ import pytest
 
 import automonkey.atspi_funcs as af
 
+
+def _atspi_bindings_available():
+    """True when this interpreter can import the AT-SPI bindings.
+
+    The file's guarantee is that it is always safe to collect and run, and that has to
+    mean skipping - not failing - where the bindings are unusable. CI is exactly that
+    case: it runs under whichever interpreter actions/setup-python put on PATH, while
+    python3-gi installs PyGObject for Ubuntu's own system python3, so `import gi`
+    half-works (gi/__init__.py loads, then `from . import _gi` fails against an extension
+    built for a different ABI) - a mismatch that leaves the module importable but useless.
+    See pywinauto_for_linux.md section 6.
+    """
+    try:
+        import gi  # pylint: disable=import-outside-toplevel
+
+        gi.require_version("Atspi", "2.0")
+        from gi.repository import Atspi  # noqa: F401  # pylint: disable=import-outside-toplevel
+    except (ImportError, ValueError):
+        return False
+    return True
+
+
 pytestmark = [
     pytest.mark.skipif(sys.platform == "win32", reason="atspi_funcs is Linux-only"),
     pytest.mark.skipif(
         os.environ.get("AUTOMONKEY_ATSPI_INTEGRATION") != "1",
         reason="opt-in: set AUTOMONKEY_ATSPI_INTEGRATION=1 to run against a real desktop",
+    ),
+    pytest.mark.skipif(
+        not _atspi_bindings_available(),
+        reason="the AT-SPI bindings (python3-gi) are not importable by this interpreter",
     ),
 ]
 

@@ -57,10 +57,14 @@ jobs:
         # dist-packages (hit exactly this locally - it broke pytest's own plugin
         # loading - while preparing this workflow; appending after pytest's normal
         # startup avoids it). This only lines up cleanly when matrix.python-version
-        # matches the runner's system python3 ABI; a mismatch fails just the two
-        # opt-in AT-SPI integration tests (ImportError from gi), not the rest of the
-        # suite - see pywinauto_for_linux.md section 6 for why this tradeoff was made
-        # instead of pip-building PyGObject from source for every matrix entry.
+        # matches the runner's system python3 ABI (3.8/3.9/3.10 in this matrix against
+        # ubuntu-latest's own 3.12 - so: not today). On a mismatch the two opt-in AT-SPI
+        # integration tests SKIP, because tests/test_atspi_integration.py checks the
+        # bindings are importable before opting in; the rest of the suite runs normally.
+        # Skipping rather than failing is deliberate: this job gates the publish job
+        # below, so a failure here would block every release over an environment quirk
+        # that has nothing to do with this repo's code. The two tests still run for real
+        # on a box whose python3 has python3-gi (see pywinauto_for_linux.md sections 5-6).
         xvfb-run -a dbus-run-session -- python -c "
         import sys
         sys.path.append('/usr/lib/python3/dist-packages')
