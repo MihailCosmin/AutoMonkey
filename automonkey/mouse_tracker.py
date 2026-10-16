@@ -1,4 +1,5 @@
 from time import sleep
+from typing import Any
 
 from tkinter import Tk
 from tkinter import Canvas
@@ -24,38 +25,59 @@ def track_mouse():
         print("Tracking mouse position stopped")
 
 
-class PositionTracker:  # was Toplevel
-    """PositionTracker
+class PositionTracker:
+    """Full-screen overlay that shows the live cursor coordinates.
+
+    Constructing a tracker puts nothing on screen - the Tk window is built by
+    start(). (GitHub issue #3: the window used to be created in __init__, so
+    merely instantiating this class opened a stray empty window, and the
+    documented "tracker = PositionTracker(); tracker.start()" usage looked
+    broken. The coordinate display itself is unchanged and still drawn by the
+    overlay.)
     """
+
     def __init__(self, follow_mouse: bool = False):
         self.follow_mouse = follow_mouse
-        self.window = Tk()  # Was Tk()
-        self.window.canvas = None
+        # Deliberately not created here: the overlay is built by start(), so that
+        # constructing a tracker is side-effect free (issue #3). Annotated Any because
+        # Tk instances carry the ad-hoc .canvas attribute added in start().
+        self.window: Any = None
         self.coords = None
         self.get_coords = False
         self.after = None
 
     def start(self, get_coords: bool = False):
-        """Take the screenshot
+        """Show the overlay and display the live cursor coordinates.
+
+        get_coords=True lets the user pick a point with CTRL+Left Click; the
+        coordinates of that point are returned. Otherwise press ESC to end
+        tracking, and None is returned.
         """
-        if self.after:
+        if self.after is not None and self.window is not None:
             self.window.after_cancel(self.after)
+            self.after = None
+
+        self.get_coords = get_coords
+
+        if self.window is None:
+            self.window = Tk()
+            self.window.canvas = None
         if get_coords:
-            self.get_coords = True
             self.window.bind('<Control-Button-1>', lambda e: self.destroy_())
         else:
             self.window.bind('<Escape>', lambda e: self.destroy_())
         self.window.attributes('-fullscreen', True, '-alpha', 0.3)
         self.window.configure(bg='black')
 
-        self.window.canvas = Canvas(
-            self.window,
-            width=self.window.winfo_screenwidth(),
-            height=self.window.winfo_screenheight(),
-            cursor="crosshair"
-        )
-        self.window.canvas.configure(highlightthickness=0, bg='black')
-        self.window.canvas.pack()
+        if self.window.canvas is None:
+            self.window.canvas = Canvas(
+                self.window,
+                width=self.window.winfo_screenwidth(),
+                height=self.window.winfo_screenheight(),
+                cursor="crosshair"
+            )
+            self.window.canvas.configure(highlightthickness=0, bg='black')
+            self.window.canvas.pack()
 
         self.after = self.window.after(1, self._crosshair, None)
         self.window.mainloop()
@@ -129,5 +151,15 @@ class PositionTracker:  # was Toplevel
         return y_point - 100
 
     def destroy_(self):
-        self.window.after_cancel(self.after)
-        self.window.destroy()
+        """Close the overlay.
+
+        Safe on a tracker that was never started (it used to raise ValueError
+        from after_cancel(None)), and leaves the instance reusable: a later
+        start() builds a fresh window.
+        """
+        if self.after is not None and self.window is not None:
+            self.window.after_cancel(self.after)
+            self.after = None
+        if self.window is not None:
+            self.window.destroy()
+            self.window = None
