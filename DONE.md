@@ -1,4 +1,11 @@
-# Control actions on Linux (AT-SPI)
+# DONE
+
+Finished work for AutoMonkey, moved here from [TODO.md](TODO.md) with a dated note.
+Older history (before 22.10.2026) was collected from the earlier plan files listed under each section.
+
+## Control actions on Linux (AT-SPI)
+
+_Finished items from `pywinauto_for_linux.md` on 22.10.2026._
 
 Goal: the control actions from `automonkey/pywinauto_funcs.py` (`click_control`, `type_in_control`, ...)
 work on Linux with the same names and arguments, so a `chain` script runs on both systems.
@@ -12,7 +19,7 @@ Known limits:
 - Wayland: tree reading and AT-SPI actions work; screen coordinates, mouse clicks on controls and raising windows do not.
 - PyGObject usually comes from the distro (`python3-gi`, `gir1.2-atspi-2.0`), not from pip.
 
-## 1. Research and setup
+### 1. Research and setup
 
 - [x] Set up a Linux test machine/VM with GNOME on both X11 and Wayland sessions
       — no GNOME box available; used the real dev machine instead: Debian 13 (trixie) on
@@ -62,7 +69,7 @@ Known limits:
       Worth evaluating in phase 4 as a possible real fix for the "mouse clicks on controls don't
       work on Wayland" limitation, rather than treating it as a hard wall.
 
-### Findings (spiked 2026-10-13, Debian 13 trixie / labwc / PyGObject 3.50 / AT-SPI 2.56)
+#### Findings (spiked 2026-10-13, Debian 13 trixie / labwc / PyGObject 3.50 / AT-SPI 2.56)
 
 - **Role names** (`Accessible.get_role_name()`) differ from the doc's draft guess — confirmed
   empirically, not from spec: push button → `"button"` (not `"push button"`), check box →
@@ -92,7 +99,7 @@ Known limits:
 - Spike scripts used for all of the above are throwaway (not checked into the repo); the
   concrete findings above are what's load-bearing for section 2–4's implementation.
 
-## 2. Backend structure
+### 2. Backend structure
 
 - [x] Create `automonkey/atspi_funcs.py` with the same public functions and signatures as `pywinauto_funcs.py`
       — all 16 functions present (`get_window`, `get_control`, `start_app`,
@@ -128,7 +135,7 @@ suite unaffected (`tests/test_pywinauto_funcs.py`'s one pre-existing Linux failu
 `pywinauto` installed — reproduces identically on unmodified `main`; that's the section 6
 skip-on-Linux gap, not something this phase introduced).
 
-## 3. Finding windows and controls
+### 3. Finding windows and controls
 
 - [x] `get_window`: find the top-level window by title regex (`.*?{title}.*?`, same as Windows) across all applications
       — `_iter_top_level_windows()` walks the AT-SPI desktop's applications and yields their
@@ -184,7 +191,7 @@ functions (e.g. `click_control`) now resolve the real control via `get_control` 
 their `NotImplementedError` - i.e. phase 3 is already load-bearing for phase 4 without any changes
 to those stub bodies.
 
-## 4. Actions
+### 4. Actions
 
 - [x] `click_control(invoke=True)`: run the control's "click" / "press" / "activate" action
       — `_invoke()` picks the first action named click/press/activate/jump (case-insensitive),
@@ -269,7 +276,7 @@ crash an unrelated control-read/write action, on either platform.
 - Full test suite still shows only the pre-existing, unrelated `test_pywinauto_funcs.py` failure
   (no `pywinauto` on Linux - the section 6 skip-on-Linux gap).
 
-## 5. Environment handling
+### 5. Environment handling
 
 - [x] Detect a missing AT-SPI bus / disabled accessibility and print how to enable it
       — **important discovery while implementing this**: calling into `Atspi` (e.g.
@@ -312,7 +319,7 @@ children). `_default_display_env` confirmed to set the exact right value when
 `DBUS_SESSION_BUS_ADDRESS` is unset. Full test suite still shows only the pre-existing,
 unrelated `test_pywinauto_funcs.py` failure.
 
-## 6. Tests
+### 6. Tests
 
 - [x] Unit tests with fake accessibles for: criteria mapping, best match, menu walk, check toggle, text fallback, key syntax translation
       — `tests/test_atspi_funcs.py` (31 tests). A `FakeAtspi` namespace (`_Sentinel`-based
@@ -385,7 +392,7 @@ failed**. Confirmed the integration tests correctly skip by default and also cor
 skip (not error) with `AUTOMONKEY_ATSPI_INTEGRATION=1` set but the target apps absent.
 `.github/workflows/python-package.yml` parses as valid YAML with the expected step order.
 
-## 7. Packaging and docs
+### 7. Packaging and docs
 
 - [x] `setup.py`: add a `linux` extra (or document that PyGObject comes from the distro); keep `pywinauto` Windows-only
       — chose **document**, not a pip extra: PyGObject genuinely isn't a reliable pip
@@ -432,7 +439,7 @@ tool imports, registers, and returns a real control tree when called against a l
 window; full test suite unaffected (38 passed, 13 skipped, 0 failed, same as end of
 section 6).
 
-## Final review: running the integration tests for real
+### Final review: running the integration tests for real
 
 `gnome-calculator` and `gnome-text-editor` got installed on this box after section 6, so
 `tests/test_atspi_integration.py` could finally run for real instead of only by analogy

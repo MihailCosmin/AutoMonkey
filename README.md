@@ -465,7 +465,7 @@ or
     Linux, instead of `"uia"`/`"win32"`); `get_window`/`get_control` return `Atspi.Accessible`
     objects instead of pywinauto wrappers for anything not covered here.
 
-    See `pywinauto_for_linux.md` in the repo for the full implementation notes (role
+    See the "Control actions on Linux (AT-SPI)" section of `DONE.md` in the repo for the full implementation notes (role
     mapping, best-match lookup, the AT-SPI-bus-down detection, known gotchas found while
     building this) if you need to go beyond what's documented above.
 
