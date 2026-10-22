@@ -198,7 +198,7 @@ def test_matches_dict_auto_id_falls_back_to_name():
 def test_get_control_unknown_control_type_raises_value_error_not_lookup_error(fake_atspi, monkeypatch):
     """Regression test: an unknown control_type must surface as ValueError, not get
     silently swallowed by _find_all's per-node exception guard into a confusing
-    LookupError (the bug found and fixed while building this - see pywinauto_for_linux.md
+    LookupError (the bug found and fixed while building this - see DONE.md
     section 3)."""
     window = FakeAccessible(name="Win", children=[FakeAccessible(name="OK", role=FakeAtspi.Role.BUTTON)])
     monkeypatch.setattr(af, "get_window", lambda *a, **k: window)

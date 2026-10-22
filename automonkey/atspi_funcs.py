@@ -2,7 +2,7 @@
 
 Mirrors the public functions and signatures of pywinauto_funcs.py so a `chain` script
 using the control actions (click_control, type_in_control, ...) runs on both Windows
-and Linux unchanged. See pywinauto_for_linux.md for the implementation notes and the
+and Linux unchanged. See DONE.md for the implementation notes and the
 known limits (Qt/Chrome/Electron accessibility flags, Wayland mouse-click fallback, ...).
 
 Every function takes:
@@ -40,7 +40,7 @@ from .utils import copy
 _VALID_BACKENDS = ("atspi", None)
 
 # pywinauto control_type -> AT-SPI Role enum member names (not the display strings from
-# get_role_name(), which differ by toolkit/version - see pywinauto_for_linux.md findings).
+# get_role_name(), which differ by toolkit/version - see DONE.md findings).
 # Not exhaustive; extend as new control_type values are needed.
 _CONTROL_TYPE_TO_ROLES = {
     "Button": ("BUTTON", "PUSH_BUTTON", "TOGGLE_BUTTON"),
@@ -66,7 +66,7 @@ _CONTROL_TYPE_TO_ROLES = {
 }
 
 # Keep lookups fast on huge trees (e.g. a browser's page content): cap how deep and how
-# many nodes a single find walks, per pywinauto_for_linux.md section 3.
+# many nodes a single find walks, per DONE.md section 3.
 _MAX_SEARCH_DEPTH = 40
 _MAX_SEARCH_NODES = 6000
 
@@ -77,7 +77,7 @@ _QT_CHROME_ELECTRON_HINT = (
     "AT-SPI by default. Qt apps need QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1 in their environment "
     "before they start; Chrome/Electron apps need the --force-renderer-accessibility flag; "
     "self-drawn/custom-rendered UIs (e.g. some games, canvas-based apps) cannot expose a tree "
-    "at all. See pywinauto_for_linux.md known limits."
+    "at all. See DONE.md known limits."
 )
 
 # Set once _atspi() has confirmed the bus is reachable and warned (if needed) about
@@ -319,7 +319,7 @@ def _roles_for_control_type(Atspi, control_type: str):
 
 def _accessible_id(acc):
     """AT-SPI accessible-id (2.34+), else an "id" attribute, else None (caller falls
-    back to matching on the accessible name - see pywinauto_for_linux.md section 3)."""
+    back to matching on the accessible name - see DONE.md section 3)."""
     try:
         acc_id = acc.get_accessible_id()
         if acc_id:
@@ -735,7 +735,7 @@ def start_app(command: str, backend: str = "atspi", timeout: float = 10):
 
     raise LookupError(
         f"{command!r} (pid {proc.pid}) did not appear on the AT-SPI bus within {timeout}s. "
-        "The app may not expose accessibility - see pywinauto_for_linux.md known limits."
+        "The app may not expose accessibility - see DONE.md known limits."
     )
 
 
@@ -747,7 +747,7 @@ def click_control(window, control=None, button: str = "left", double: bool = Fal
         window (str): title of the window (regex) or an Atspi.Accessible.
         control (str | dict, optional): the control to click. None clicks the window.
         button (str, optional): "left", "right" or "middle". Defaults to "left".
-            Only meaningful when invoke=False (X11; see pywinauto_for_linux.md known limits).
+            Only meaningful when invoke=False (X11; see DONE.md known limits).
         double (bool, optional): double click. Defaults to False.
         invoke (bool, optional): run the control's AT-SPI "click"/"press"/"activate" action
             instead of a mouse click. Works on Wayland too. Defaults to False.
@@ -900,7 +900,7 @@ def select_item(window, control, item, backend: str = "atspi", timeout: float = 
 
     # A GTK combo box's selectable items live inside a nested popup with role "menu";
     # other Selection-capable widgets (list, tabs) expose them directly as children -
-    # see pywinauto_for_linux.md section 1 findings.
+    # see DONE.md section 1 findings.
     container = ctrl
     try:
         if ctrl.get_role() == Atspi.Role.COMBO_BOX and ctrl.get_child_count() == 1:

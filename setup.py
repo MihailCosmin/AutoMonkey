@@ -14,7 +14,7 @@ system build dependencies (cairo, gobject-introspection headers, pkg-config) tha
 guaranteed to be present. Install instead:
 `sudo apt-get install python3-gi gir1.2-atspi-2.0 at-spi2-core` (Debian/Ubuntu/Raspberry
 Pi OS) and enable accessibility - see README.md ("Control actions") and
-pywinauto_for_linux.md for the rest (Qt/Chrome/Electron flags, Wayland limits, ...).
+DONE.md for the rest (Qt/Chrome/Electron flags, Wayland limits, ...).
 """
 from setuptools import setup
 
