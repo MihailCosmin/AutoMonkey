@@ -470,6 +470,82 @@ or
     building this) if you need to go beyond what's documented above.
 
 
+# Visual testing with Claude
+
+AutoMonkey's AI layer (`automonkey/ai`) lets Claude test desktop apps the way a user does.
+The MCP server in `automonkey/ai/mcp_server.py` gives Claude these tools:
+
+- `act`: run many steps at once (clicks, keys, drags, text, checks) and get back a log, what changed, and a screenshot.
+- `screenshot` and `zoom`: look at the screen, or closer at a region.
+- `windows`: list open windows.
+- `controls`: list a window's controls with their click points (Windows, UI Automation).
+- `find_text` (active window) and `read_text` (screen or region): OCR.
+- `history`: the scripts Claude ran today; `replay`: run a saved `.amk` script.
+
+## The visual-testing skill
+
+The `visual-testing` skill in `skills/visual-testing/` tells Claude how to test an app completely.
+
+The user pass with AutoMonkey is the most important part: Claude goes through every menu,
+button, link, field, drag, key combo, dialog, tab order and clipped text in the running app.
+
+Headless framework tests are the second layer, for CI: egui_kittest, pytest-qt, Flutter
+goldens and `integration_test`. References for each framework are in
+`skills/visual-testing/references/`.
+
+## Install
+
+```
+python -m venv .venv
+.venv\Scripts\pip install -e .[ai]
+```
+
+On Linux use `.venv/bin/pip`. Install tesseract for OCR: `winget install UB-Mannheim.TesseractOCR`
+on Windows, `sudo apt install tesseract-ocr` on Linux. Then register the skill and the server:
+
+```
+.venv\Scripts\python -m automonkey.ai install-claude
+```
+
+This copies the skill into the Claude Code config folder (`$CLAUDE_CONFIG_DIR` or `~/.claude`)
+and registers the MCP server for all projects with `claude mcp add --scope user`.
+
+## Regression scripts
+
+Every script Claude runs is logged, and `history` returns them. Save the steps that
+reproduce a bug as `tests/ui/bugs/<name>.amk`, with `expect_*` checks for the correct
+behaviour and a `finally:` block that closes the app:
+
+```
+launch .venv\Scripts\pythonw.exe app.py
+click_control Edit
+click_control Preferences...
+key tab
+expect_focus Email
+finally:
+kill My App
+```
+
+Run them with `python -m automonkey.ai replay tests/ui/*.amk tests/ui/bugs/*.amk`. The exit
+code is 1 if any script fails, and a `<name>.failure.png` screenshot is saved next to a
+failing script.
+
+## What makes it reliable on Windows
+
+- Real input through SendInput: drags and strokes reach WinUI and canvas apps
+  (pyautogui's SetCursorPos moves never did).
+- Per-monitor DPI awareness; any monitor (`monitor N`).
+- Focus that is verified, with a clear message for elevated windows.
+- Text checks limited to the active window, retried for 3 s.
+- `launch` refuses to continue in an already-open window that may hold the user's documents.
+
+## Self-test apps
+
+- `tests/apps/qt_target.py`: PySide6, with three deliberate bugs.
+- `tests/apps/egui_target`: egui 0.37, with egui_kittest tests.
+
+`tests/ui/qt_target_smoke.amk` passes; `tests/ui/bugs/*.amk` fail until the deliberate bugs are fixed.
+
 # Frequently Asked Questions:
 
 1. I made an image but it doesn't click on it.

@@ -1,0 +1,8 @@
+# BUG: File > Export... does nothing (no dialog, no status message).
+# Expected: an export dialog opens. Fails until the bug is fixed.
+launch .venv\Scripts\pythonw.exe tests\apps\qt_target.py
+click_control File
+click_control Export...
+expect_window Export
+finally:
+kill AutoMonkey Qt target

@@ -1,0 +1,6 @@
+# BUG: the status bar label is 140 px wide and cuts off its text.
+# Expected: no clipped text in the main window. Fails until fixed.
+launch .venv\Scripts\pythonw.exe tests\apps\qt_target.py
+expect_no_clipped
+finally:
+kill AutoMonkey Qt target

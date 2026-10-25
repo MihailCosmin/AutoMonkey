@@ -6,10 +6,16 @@ Register it by hand with Claude Code (from the repo root):
 """
 from __future__ import annotations
 
+import contextlib
+import io
+import sys
+
 from mcp.server.mcpserver import Image, MCPServer
 
 from . import act as _act
+from . import history as _history
 from . import observe, ocr, screen, window_list
+from . import replay as _replay
 from .script import __doc__ as SCRIPT_DOC
 from .. import list_controls as _list_controls
 
@@ -22,6 +28,12 @@ when the next step depends on what appears.
 
 Coordinates are ALWAYS pixels of the latest screenshot image you were shown (the
 server converts to real screen pixels). The red ring marks the mouse pointer.
+
+For testing an app the way a user would: `controls(window, interactive_only=True)` lists
+every menu, button, link and field with its click point - go through ALL of them.
+`tab_order N` checks keyboard navigation, `expect_*` steps turn a script into a check, and
+every script you run is recorded: `history` returns them ready to save as a .amk
+regression script, `replay` runs a saved one.
 
 Tips: use `url` instead of clicking the address bar; `launch` an app rather than
 clicking desktop icons; `zoom` to read small text precisely; `grid=100` overlays
@@ -44,13 +56,21 @@ def act(script: str, screenshot: bool = True, grid: int = 0) -> list:
     """Run an action script (one command per line or ';'-separated), wait for the screen to
     settle, then return the step log, what changed, and a screenshot.
 
-    Commands: click X Y [button] [N] | dclick X Y | rclick X Y | move X Y | drag X1 Y1 X2 Y2 |
-    scroll N [X Y] | type TEXT | key K [K..] | hotkey ctrl+l | wait S | stable [T] | change [T] |
-    url ADDRESS | launch CMD | focus WINDOW | maximize [WINDOW] | close WINDOW |
-    click_text TEXT | wait_text TEXT | click_image PATH | press [BUTTON] | release [BUTTON] |
-    path X1 Y1 X2 Y2 .. (freehand: press, glide through the points, release)
+    Commands: click X Y [button] [N] | dclick X Y | rclick X Y | mclick X Y | move X Y |
+    drag X1 Y1 X2 Y2 [button] | path/stroke X1 Y1 X2 Y2 .. | press/release [BUTTON] |
+    scroll N [X Y] | hscroll N [X Y] | type TEXT | key K [K..] | hotkey ctrl+l | keydown K | keyup K |
+    wait S | stable [T] | change [T] | url ADDRESS | launch CMD | focus WINDOW | maximize [WINDOW] |
+    close WINDOW | kill WINDOW (only apps you launched) | monitor N | click_text TEXT |
+    wait_text TEXT | click_image PATH | click_control NAME [in WINDOW] |
+    drag_control NAME to NAME [in WINDOW] | focused | tab_order N [shift] | clipped [WINDOW] |
+    expect_text TEXT | expect_no_text TEXT | expect_window TITLE | expect_no_window TITLE |
+    expect_focus NAME | expect_control NAME [in WINDOW] | expect_order A, B, C [in WINDOW] |
+    expect_change [T] | expect_no_clipped [WINDOW] | save PATH
+    Text steps look in the active window only ("screen: TEXT" searches everywhere).
+    expect_* steps retry for 3 s and stop the script when they fail; steps after a line
+    `finally:` always run (close the app under test there).
 
-    Example: "launch firefox; maximize; url google.ro; click 640 290; type betano.ro"
+    Example: "launch notepad; type Hello; expect_text Hello; hotkey ctrl+a; key delete"
     Set screenshot=false when you don't need to look (saves tokens); grid=100 adds a grid."""
     text, img = _act(script, screenshot=screenshot, grid=grid)
     return [text, _img(img)] if img is not None else [text]
@@ -85,16 +105,55 @@ def list_controls(window: str, depth: int = None) -> str:
     --force-renderer-accessibility, canvas-drawn UIs don't expose one at all).
 
     window: title of the top-level window, regex matched anywhere in the title.
-    depth: how many levels deep to go (default: all)."""
-    return _list_controls(window, depth)
+    depth: how many levels deep to go (default: all).
+    On Windows prefer `controls`, which is shorter and gives click points."""
+    # pywinauto prints the tree; stdout is the MCP protocol stream, so capture it.
+    with contextlib.redirect_stdout(io.StringIO()):
+        return _list_controls(window, depth)
 
 
 @mcp.tool()
-def find_text(text: str) -> str:
-    """Locate text on screen via OCR. Returns boxes and click points in screenshot coordinates."""
-    hits = ocr.find_text(text)
+def controls(window: str, interactive_only: bool = True, depth: int = None, max_items: int = 400) -> str:
+    """Every control of a window from the accessibility tree, with the click point of each
+    in screenshot coordinates, DISABLED / toggle states, and automation ids (Windows).
+
+    Use it to test COMPLETELY: list the interactive controls (menus, buttons, links, fields,
+    tabs, list items), then exercise each one with `act` (click_control NAME, or click X Y).
+    Menus only show their items while open: open the menu, then call this again.
+    window: title substring, process name (e.g. "notepad.exe") or window id."""
+    from . import controls as _controls
+    if sys.platform != "win32":
+        with contextlib.redirect_stdout(io.StringIO()):
+            return _list_controls(window, depth)
+    return _controls.tree(window, depth=depth, interactive_only=interactive_only, max_items=max_items)
+
+
+@mcp.tool()
+def replay(path: str) -> list:
+    """Run a saved .amk regression script (action-script steps, '#' comments, expect_* checks).
+    Returns PASSED/FAILED with the step log; on failure also a screenshot, and the
+    full-resolution screen is saved next to the script as <name>.failure.png."""
+    ok, log, img = _replay(path)
+    return [log, _img(img)] if img is not None else [log]
+
+
+@mcp.tool()
+def history(n: int = 20) -> str:
+    """The last n action scripts run today (with ok/FAILED), as .amk text. Copy the steps
+    that reproduce a bug into a regression file (add expect_* checks), then `replay` it."""
+    return _history(n)
+
+
+@mcp.tool()
+def find_text(text: str, whole_screen: bool = False) -> str:
+    """Locate text via OCR in the active window (whole_screen=true: everywhere, which also
+    matches text in other windows, e.g. a terminal). Returns boxes and click points in
+    screenshot coordinates."""
+    from .script import _text_scope
+    query, region, where = _text_scope(("screen: " if whole_screen else "") + text)
+    hits = ocr.find_text(query, region=region)
     if not hits:
-        return f"{text!r} not found"
+        return f"{text!r} not found {where}"
     return "\n".join(f"{h['text']!r} click at {h['cx']},{h['cy']} (box x={h['x']} y={h['y']} w={h['w']} h={h['h']})"
                      for h in hits[:10])
 

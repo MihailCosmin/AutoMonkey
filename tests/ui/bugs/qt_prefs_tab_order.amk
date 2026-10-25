@@ -1,0 +1,11 @@
+# BUG: in Edit > Preferences, Tab goes from User to OK instead of Email.
+# Expected tab order: User, Email, Dark mode, OK, Cancel. Fails until fixed.
+launch .venv\Scripts\pythonw.exe tests\apps\qt_target.py
+click_control Edit
+click_control Preferences...
+expect_window Preferences
+click_control prefUser
+key tab
+expect_focus Email
+finally:
+kill AutoMonkey Qt target

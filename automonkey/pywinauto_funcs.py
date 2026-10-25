@@ -56,12 +56,28 @@ def get_window(window, backend: str = "uia", timeout: float = 10):
 
     Returns:
         pywinauto WindowSpecification, for anything not covered by these functions.
+
+    Raises:
+        pywinauto.timings.TimeoutError: no such window appeared in time. The message
+            names the open windows, since the usual cause is that the app isn't running
+            (start it first, e.g. with start_app) or its title is different.
     """
     _check_backend(backend)
     if not isinstance(window, str):
         return window
-    spec = _pywinauto().Desktop(backend=backend).window(title_re=f".*?{window}.*?", found_index=0)
-    spec.wait("exists visible", timeout=timeout)
+    pywinauto = _pywinauto()
+    desktop = pywinauto.Desktop(backend=backend)
+    spec = desktop.window(title_re=f".*?{window}.*?", found_index=0)
+    try:
+        spec.wait("exists visible", timeout=timeout)
+    except pywinauto.timings.TimeoutError as err:
+        try:
+            titles = [t for t in (w.window_text() for w in desktop.windows()) if t]
+        except Exception:  # listing is only a hint for the message
+            titles = []
+        raise pywinauto.timings.TimeoutError(
+            f"no visible window with a title matching {window!r} after {timeout}s - is the app "
+            f"running? Open windows: {'; '.join(titles[:25]) or 'none'}") from err
     return spec
 
 

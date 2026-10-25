@@ -30,36 +30,95 @@ def session_type() -> str:
     return sys.platform
 
 
+def monitors() -> list[tuple[int, int, int, int]]:
+    """(left, top, width, height) of every monitor in input pixels, primary first."""
+    if sys.platform == "win32":
+        import ctypes
+        from ctypes import wintypes
+        rects = []
+        proc = ctypes.WINFUNCTYPE(ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p,
+                                  ctypes.POINTER(wintypes.RECT), ctypes.c_double)
+
+        def cb(_h, _dc, r, _data):
+            r = r.contents
+            rects.append((r.left, r.top, r.right - r.left, r.bottom - r.top))
+            return 1
+
+        ctypes.windll.user32.EnumDisplayMonitors(None, None, proc(cb), 0)
+        rects.sort(key=lambda r: (r[0], r[1]) != (0, 0))  # the primary monitor has its origin at 0,0
+        return rects or [(0, 0, *pyautogui.size())]
+    return [(0, 0, *pyautogui.size())]
+
+
+# Which monitor the AI looks at and clicks on (index into monitors()).
+_monitor = int(os.environ.get("AUTOMONKEY_MONITOR", "0"))
+
+
+def set_monitor(index: int) -> tuple[int, int, int, int]:
+    """Look at (and click on) monitor `index` from now on. Returns its rectangle."""
+    global _monitor, _view
+    mons = monitors()
+    if not 0 <= index < len(mons):
+        raise ValueError(f"monitor {index} does not exist; monitors: "
+                         + ", ".join(f"{i}: {w}x{h} at {x},{y}" for i, (x, y, w, h) in enumerate(mons)))
+    _monitor, _view = index, None
+    return mons[index]
+
+
+def monitor_rect() -> tuple[int, int, int, int]:
+    mons = monitors()
+    return mons[_monitor] if _monitor < len(mons) else mons[0]
+
+
 def grab() -> Image.Image:
-    """Full-resolution RGB screenshot. Uses grim on Wayland, pyautogui elsewhere."""
+    """Full-resolution RGB screenshot of the current monitor. Uses grim on Wayland,
+    PIL (every monitor reachable) on Windows, pyautogui elsewhere."""
     if session_type() == "wayland" and shutil.which("grim"):
         # Capturing full size and resizing in PIL is ~3x faster than `grim -s`.
         out = subprocess.run(["grim", "-t", "ppm", "-"], capture_output=True, check=True).stdout
         return Image.open(io.BytesIO(out)).convert("RGB")
+    if sys.platform == "win32":
+        from PIL import ImageGrab
+        x, y, w, h = monitor_rect()
+        return ImageGrab.grab(bbox=(x, y, x + w, y + h), all_screens=True).convert("RGB")
     return pyautogui.screenshot().convert("RGB")
 
 
 class View:
-    """Maps between image pixels (what the AI sees) and input pixels (pyautogui)."""
+    """Maps between image pixels (what the AI sees) and input pixels (what the mouse uses).
 
-    def __init__(self, capture_size: tuple[int, int], max_side: int = DEFAULT_MAX_SIDE):
+    On Windows the process is DPI aware, so input pixels are physical pixels of the
+    virtual desktop and a monitor's capture has the same size as its input rectangle;
+    `origin` is that monitor's top-left corner. Elsewhere input size comes from pyautogui
+    (it can differ from the capture size on scaled Wayland/macOS displays)."""
+
+    def __init__(self, capture_size: tuple[int, int], max_side: int = DEFAULT_MAX_SIDE,
+                 origin: tuple[int, int] | None = None, input_size: tuple[int, int] | None = None):
         self.capture_w, self.capture_h = capture_size
-        self.input_w, self.input_h = pyautogui.size()
+        if sys.platform == "win32":
+            ox, oy, iw, ih = monitor_rect()
+            origin = origin if origin is not None else (ox, oy)
+            input_size = input_size or (iw, ih)
+        self.origin_x, self.origin_y = origin or (0, 0)
+        self.input_w, self.input_h = input_size or pyautogui.size()
         self.scale = min(1.0, max_side / max(self.capture_w, self.capture_h))
         self.image_w = round(self.capture_w * self.scale)
         self.image_h = round(self.capture_h * self.scale)
 
     def to_input(self, x: float, y: float) -> tuple[int, int]:
-        return (round(x * self.input_w / self.image_w), round(y * self.input_h / self.image_h))
+        return (self.origin_x + round(x * self.input_w / self.image_w),
+                self.origin_y + round(y * self.input_h / self.image_h))
 
     def to_image(self, x: float, y: float) -> tuple[int, int]:
-        return (round(x * self.image_w / self.input_w), round(y * self.image_h / self.input_h))
+        return (round((x - self.origin_x) * self.image_w / self.input_w),
+                round((y - self.origin_y) * self.image_h / self.input_h))
 
     def capture_to_image(self, x: float, y: float) -> tuple[int, int]:
         return (round(x * self.scale), round(y * self.scale))
 
     def describe(self) -> str:
-        return f"image {self.image_w}x{self.image_h} (screen {self.input_w}x{self.input_h})"
+        extra = f", monitor {_monitor} at {self.origin_x},{self.origin_y}" if len(monitors()) > 1 else ""
+        return f"image {self.image_w}x{self.image_h} (screen {self.input_w}x{self.input_h}{extra})"
 
 
 _view: View | None = None
@@ -117,7 +176,8 @@ def shot(grid: int = 0, max_side: int = DEFAULT_MAX_SIDE, show_mouse: bool = Tru
     _view = View(full.size, max_side)
     img = full.resize((_view.image_w, _view.image_h), Image.LANCZOS) if _view.scale < 1 else full
     if show_mouse:
-        img = draw_mouse(img, _view.to_image(*pyautogui.position()))
+        from .inject import position
+        img = draw_mouse(img, _view.to_image(*position()))
     if grid:
         img = draw_grid(img, grid)
     return img
@@ -199,4 +259,4 @@ def diff_summary(before: Image.Image, after: Image.Image) -> str:
     v = view()
     x0, y0 = v.capture_to_image(xs.min() * 8, ys.min() * 8)
     x1, y1 = v.capture_to_image((xs.max() + 1) * 8, (ys.max() + 1) * 8)
-    return f"screen changed: {frac:.0%} of pixels, region x={x0}..{x1} y={y0}..{y1}"
+    return f"screen changed: {frac:.1%} of pixels, region x={x0}..{x1} y={y0}..{y1}"

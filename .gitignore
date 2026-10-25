@@ -109,3 +109,9 @@ ENV/
 # AutoMonkey AI screenshots
 screenshots/
 browser_search.png
+
+# Visual-testing artefacts
+tests/apps/egui_target/target/
+*.failure.png
+# cheap-ai-swarm transcripts
+.cheap-ai-swarm/runs/

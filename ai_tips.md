@@ -467,18 +467,45 @@ Rules of thumb that transfer:
 
 ## 11. Known bugs / open work in AutoMonkey
 
-1. **`move` / `drag` / `path` use `SetCursorPos` and are therefore invisible to WinUI/UWP/
-   XAML apps** (and any app consuming pointer input). Fix: route them through
-   `SendInput`/`mouse_event` with ~1–3 px steps, keeping AutoMonkey's existing
-   screenshot→screen coordinate scaling. `click` already works because `pyautogui.click`
-   uses `mouse_event`. This is the single highest-value fix in the layer.
-2. **`focus` can report success while the foreground has already changed.** Return/verify
-   `GetForegroundWindow()` and expose the check to callers.
-3. **`get_window()` raises `TimeoutError` when the app simply isn't running** — a
-   launch-if-missing helper (or a clearer error) would save a debugging cycle.
-4. **The action-script layer has no documented verb for injecting a dense stroke.** A
-   `stroke X Y X Y ...` verb backed by `SendInput` (rather than `path`) would make all of
-   §1 available from a single script line.
+All four items found during the Paint work are fixed (2026-10-18), and verified on
+Windows 11 Paint, Notepad, a PySide6 app and an egui 0.37 app:
+
+1. ~~`move` / `drag` / `path` use `SetCursorPos`~~ **Fixed.** The AI layer's mouse verbs go
+   through `automonkey/ai/inject.py`: `SendInput` with absolute coordinates over the whole
+   virtual desktop, gliding through points ~2 px apart at ~125 events/s. A closed square
+   and a circle drawn in Windows 11 Paint now come out whole (they used to be one dot).
+   The screenshot→screen scaling is unchanged. The classic `automonkey.chain` functions
+   still use pyautogui.
+2. ~~`focus` can report success while the foreground has already changed~~ **Fixed.**
+   `focus` uses `AttachThreadInput` + an Alt tap when needed, then *verifies* that the
+   window (or a dialog it owns) is in the foreground, and fails loudly otherwise - naming
+   the real foreground window and pointing out elevated (administrator) targets.
+3. ~~`get_window()` raises a bare `TimeoutError` when the app isn't running~~ **Fixed.** The
+   error now says the app may not be running and lists the open windows; `launch` in
+   the AI layer starts apps and returns their window.
+4. ~~No verb for a dense stroke~~ **Fixed.** `stroke X Y X Y ...` (alias of `path`) and
+   `drag X1 Y1 X2 Y2 [button]` inject dense SendInput paths.
+
+Found and fixed while testing, for the record:
+
+- `launch` of a single-instance app (Windows 11 Notepad) could hand back the user's own,
+  previously hidden window with all their tabs, and the next `type` went into the user's
+  document. `launch` now stops with an error when the window it got existed before.
+- OCR searched the whole screen, so text in another window (a terminal showing the test
+  script!) made `expect_text` pass falsely. Text steps now read the active window only.
+- Ribbon captions and status-bar text (9-12 px) were invisible to tesseract at screen
+  resolution; OCR now enlarges 2x and re-reads short phrases as a single line.
+- `list_controls` printed to stdout, which is the MCP protocol stream.
+- Control names use typographic characters (`Don’t save`); matching now folds them,
+  accents and mnemonics.
+
+Still open:
+
+- The classic (non-AI) functions in `mouse_funcs.py` / `automonkey.py` still move with
+  pyautogui (SetCursorPos). Route them through `automonkey.ai.inject` if they ever need
+  to drag in WinUI apps.
+- `controls`, `focused`, `tab_order` and `clipped` are implemented for Windows (UI
+  Automation) only; Linux has the AT-SPI `list_controls`.
 
 ---
 

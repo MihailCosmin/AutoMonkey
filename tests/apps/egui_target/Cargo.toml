@@ -1,0 +1,20 @@
+[package]
+name = "egui_target"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+eframe = "0.37"
+
+[dev-dependencies]
+egui_kittest = "0.37"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "egui_target"
+path = "src/main.rs"

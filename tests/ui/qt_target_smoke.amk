@@ -1,0 +1,43 @@
+# Regression script for tests/apps/qt_target.py (AutoMonkey action script).
+# Replay:  python -m automonkey.ai replay tests/ui/qt_target_smoke.amk
+# Click points come from `controls` where possible, so the script survives layout changes;
+# the canvas has no accessible name and is driven by coordinates of a maximized window.
+
+launch .venv\Scripts\pythonw.exe tests\apps\qt_target.py
+maximize AutoMonkey Qt target
+
+# typing (with non-ASCII text) updates the greeting
+click_control nameEdit
+type Ana Pérez
+expect_text Hello, Ana Pérez
+
+# buttons and the counter
+click_control Increment
+click_control Increment
+expect_text Count: 2
+
+# keyboard shortcut resets the document
+hotkey ctrl+n
+expect_text New document
+expect_text Count: 0
+
+# menus: File > Open... opens a dialog, Escape closes it
+click_control File
+click_control Open...
+expect_window Open document
+key escape
+expect_no_window Open document
+
+# Help > About
+click_control Help
+click_control About
+expect_window About
+key enter
+expect_no_window About
+
+# drag-and-drop reorders the list: Alpha goes to the end
+drag_control Alpha to Delta
+expect_order Beta, Gamma, Delta, Alpha
+
+finally:
+kill AutoMonkey Qt target
