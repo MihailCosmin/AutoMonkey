@@ -494,13 +494,13 @@
     {
       "id": "AutoMonkey-N54",
       "section": "rework",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "sonnet",
       "effort": "medium",
       "short": "Fill depends_on in every open task that waits for another task",
       "details": "New optional field of tasklist.json: \"depends_on\": an array with the ids (with the repository prefix, e.g. \"AutoMonkey-N27\") of the tasks that must be done first. The Tasklist tab shows it in the details of a task. Go through every open (todo) task, read its details (e.g. \"waits for H2\", \"continues P2.3\", \"after N5\") and the order of the list, and set depends_on where a task really needs another one (including human tasks it waits for). Use `wb tasklist-edit <id> --depends_on <id1,id2> --repo AutoMonkey` or edit the file; keep the ids that exist in this list (the tasklist-check hook rejects unknown ones). Do not invent dependencies. Check with node ~/.claude/hooks/tasklist-check.js tasklist.json. Done 26.10.2026: checked all open tasks (N52, N53); none waits for another open task (N52 only cites N51, already done), so no depends_on was needed.",
-      "done": null
+      "done": "2026-10-26T21:20:49"
     }
   ]
 }
