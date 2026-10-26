@@ -9,7 +9,7 @@
   },
   "tasks": [
     {
-      "id": "N1",
+      "id": "AutoMonkey-N1",
       "section": "validation",
       "status": "done",
       "group": "Linux AT-SPI: Research and setup",
@@ -18,7 +18,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N2",
+      "id": "AutoMonkey-N2",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Research and setup",
@@ -27,7 +27,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N3",
+      "id": "AutoMonkey-N3",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Research and setup",
@@ -36,7 +36,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N4",
+      "id": "AutoMonkey-N4",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Research and setup",
@@ -45,7 +45,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N5",
+      "id": "AutoMonkey-N5",
       "section": "validation",
       "status": "done",
       "group": "Linux AT-SPI: Research and setup",
@@ -54,7 +54,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N6",
+      "id": "AutoMonkey-N6",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Research and setup",
@@ -63,7 +63,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N7",
+      "id": "AutoMonkey-N7",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Research and setup",
@@ -72,7 +72,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N8",
+      "id": "AutoMonkey-N8",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Backend structure",
@@ -81,7 +81,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N9",
+      "id": "AutoMonkey-N9",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Backend structure",
@@ -90,7 +90,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N10",
+      "id": "AutoMonkey-N10",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Backend structure",
@@ -99,7 +99,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N11",
+      "id": "AutoMonkey-N11",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Backend structure",
@@ -108,7 +108,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N12",
+      "id": "AutoMonkey-N12",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Backend structure",
@@ -117,7 +117,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N13",
+      "id": "AutoMonkey-N13",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -126,7 +126,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N14",
+      "id": "AutoMonkey-N14",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -135,7 +135,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N15",
+      "id": "AutoMonkey-N15",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -144,7 +144,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N16",
+      "id": "AutoMonkey-N16",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -153,7 +153,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N17",
+      "id": "AutoMonkey-N17",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -162,7 +162,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N18",
+      "id": "AutoMonkey-N18",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -171,7 +171,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N19",
+      "id": "AutoMonkey-N19",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -180,7 +180,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N20",
+      "id": "AutoMonkey-N20",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -189,7 +189,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N21",
+      "id": "AutoMonkey-N21",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -198,7 +198,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N22",
+      "id": "AutoMonkey-N22",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Finding windows and controls",
@@ -207,7 +207,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N23",
+      "id": "AutoMonkey-N23",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -216,7 +216,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N24",
+      "id": "AutoMonkey-N24",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -225,7 +225,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N25",
+      "id": "AutoMonkey-N25",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -234,7 +234,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N26",
+      "id": "AutoMonkey-N26",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -243,7 +243,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N27",
+      "id": "AutoMonkey-N27",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -252,7 +252,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N28",
+      "id": "AutoMonkey-N28",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -261,7 +261,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N29",
+      "id": "AutoMonkey-N29",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -270,7 +270,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N30",
+      "id": "AutoMonkey-N30",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -279,7 +279,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N31",
+      "id": "AutoMonkey-N31",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -288,7 +288,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N32",
+      "id": "AutoMonkey-N32",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -297,7 +297,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N33",
+      "id": "AutoMonkey-N33",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -306,7 +306,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N34",
+      "id": "AutoMonkey-N34",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -315,7 +315,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N35",
+      "id": "AutoMonkey-N35",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -324,7 +324,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N36",
+      "id": "AutoMonkey-N36",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Actions",
@@ -333,7 +333,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N37",
+      "id": "AutoMonkey-N37",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Environment handling",
@@ -342,7 +342,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N38",
+      "id": "AutoMonkey-N38",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Environment handling",
@@ -351,7 +351,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N39",
+      "id": "AutoMonkey-N39",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Environment handling",
@@ -360,7 +360,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N40",
+      "id": "AutoMonkey-N40",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Tests",
@@ -369,7 +369,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N41",
+      "id": "AutoMonkey-N41",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Tests",
@@ -378,7 +378,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N42",
+      "id": "AutoMonkey-N42",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Tests",
@@ -387,7 +387,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N43",
+      "id": "AutoMonkey-N43",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Tests",
@@ -396,7 +396,7 @@
       "done": "2026-10-16T12:00:00"
     },
     {
-      "id": "N44",
+      "id": "AutoMonkey-N44",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Tests",
@@ -405,7 +405,7 @@
       "done": "2026-10-16T12:00:00"
     },
     {
-      "id": "N45",
+      "id": "AutoMonkey-N45",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Packaging and docs",
@@ -414,7 +414,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N46",
+      "id": "AutoMonkey-N46",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Packaging and docs",
@@ -423,7 +423,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N47",
+      "id": "AutoMonkey-N47",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Packaging and docs",
@@ -432,7 +432,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N48",
+      "id": "AutoMonkey-N48",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Packaging and docs",
@@ -441,7 +441,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N49",
+      "id": "AutoMonkey-N49",
       "section": "main",
       "status": "done",
       "group": "Linux AT-SPI: Packaging and docs",
@@ -450,7 +450,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N50",
+      "id": "AutoMonkey-N50",
       "section": "validation",
       "status": "done",
       "group": "Linux AT-SPI: Final review",
