@@ -5,10 +5,10 @@ Testing through the tree is how an agent can be *complete*: list every menu item
 button and link of a window, then click each one with the real mouse. Coordinates
 are image pixels of the latest screenshot, like everywhere else in the AI layer.
 
-Windows only for now (UI Automation through pywinauto). Apps expose a tree when their
-toolkit supports it: Win32, WinForms, WPF, WinUI, Qt, Flutter, Electron/Chromium, and
-egui with AccessKit (eframe's default). DearPyGui and other canvas-drawn UIs expose
-nothing; use OCR (`find_text`) and screenshots for them.
+Windows uses UI Automation (through pywinauto), Linux AT-SPI (atspi_tree.py). Apps expose
+a tree when their toolkit supports it: Win32, WinForms, WPF, WinUI, Qt, GTK, Flutter,
+Electron/Chromium, and egui with AccessKit (eframe's default). DearPyGui and other
+canvas-drawn UIs expose nothing; use OCR (`find_text`) and screenshots for them.
 """
 from __future__ import annotations
 
@@ -38,13 +38,17 @@ def normalize(name: str) -> str:
     return " ".join(text.lower().split())
 
 
-def _require_windows():
-    if sys.platform != "win32":
-        raise RuntimeError("the accessibility helpers of the AI layer are implemented on Windows only; "
-                           "on Linux use automonkey.list_controls (AT-SPI)")
+def _require_supported():
+    if sys.platform not in ("win32", "linux"):
+        raise RuntimeError("the accessibility helpers of the AI layer are implemented on Windows "
+                           "(UI Automation) and Linux (AT-SPI) only")
 
 
 def _root(window: str | int):
+    if sys.platform != "win32":
+        from . import atspi_tree
+        w, top, _popups = atspi_tree.root(window)
+        return w, top
     from pywinauto.uia_element_info import UIAElementInfo
     w = windows.find_window(window)
     return w, UIAElementInfo(w["id"])
@@ -69,6 +73,9 @@ def _props(ei) -> dict:
 
 
 def _toggle(ei) -> str:
+    if sys.platform != "win32":
+        from . import atspi_tree
+        return atspi_tree.toggle(ei)
     try:
         from pywinauto.controls.uiawrapper import UIAWrapper
         state = UIAWrapper(ei).get_toggle_state()
@@ -122,7 +129,11 @@ def _popups(w: dict) -> list:
 def walk(window: str | int, depth: int | None = None, interactive_only: bool = False):
     """Yield (level, element_info, props) for every element of the window and of its open
     popups (menus, dropdowns), depth first."""
-    _require_windows()
+    _require_supported()
+    if sys.platform != "win32":
+        from . import atspi_tree
+        yield from atspi_tree.walk(window, depth, interactive_only, INTERACTIVE)
+        return
     w, root = _root(window)
     stack = [(0, root)] + [(1, p) for p in reversed(_popups(w))]
     while stack:
@@ -158,7 +169,7 @@ def tree(window: str | int, depth: int | None = None, interactive_only: bool = F
 def find(window: str | int, name: str, control_type: str | None = None) -> dict:
     """The control whose name matches `name` (exact, else case-insensitive substring),
     optionally of `control_type`. Visible, enabled matches win."""
-    _require_windows()
+    _require_supported()
     want = normalize(name)
     exact, partial = [], []
     for _level, ei, p in walk(window):
@@ -216,7 +227,10 @@ def clipped(window: str | int, max_items: int = 120) -> list[str]:
 
 def focused() -> dict:
     """The element that has the keyboard focus, anywhere on the desktop."""
-    _require_windows()
+    _require_supported()
+    if sys.platform != "win32":
+        from . import atspi_tree
+        return atspi_tree.focused()
     from pywinauto.uia_defines import IUIA
     from pywinauto.uia_element_info import UIAElementInfo
     return _props(UIAElementInfo(IUIA().iuia.GetFocusedElement()))

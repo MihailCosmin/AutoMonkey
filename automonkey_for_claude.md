@@ -31,7 +31,7 @@ runs `claude mcp add --scope user automonkey -- <venv python> <repo>/automonkey/
 | `screenshot(grid=0)` | Just looking |
 | `zoom(x, y, width, height, grid=0)` | Reading small text, aiming precisely |
 | `windows()` | Open windows: id, title, process, bounds |
-| `controls(window)` | Every interactive control with its click point, DISABLED/toggle state (Windows) |
+| `controls(window)` | Every interactive control with its click point, DISABLED/toggle state |
 | `find_text(text)`, `read_text(...)` | OCR in the active window (needs tesseract) |
 | `history(n)` | The scripts you ran today, as .amk text, to save a bug's steps |
 | `replay(path)` | Run a saved .amk regression script; PASSED/FAILED + failure screenshot |
@@ -112,7 +112,13 @@ steps after `finally:` still run.
   logins), so they don't merge into the user's native-Wayland browser.
 - Screenshots use `grim` on Wayland. Wayland-native windows (e.g. your terminal) don't
   appear in `windows()` and can't be focused.
-- Controls: `list_controls` (AT-SPI); `controls`/`tab_order`/`clipped` are Windows-only.
+- Controls: `controls`, `click_control`, `drag_control`, `expect_control`, `expect_order`,
+  `focused`, `expect_focus`, `tab_order` and `clipped` use AT-SPI. `launch` sets
+  `QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1` and drops `NO_AT_BRIDGE` so Qt and GTK apps expose
+  their tree; GTK also needs `gsettings set org.gnome.desktop.interface
+  toolkit-accessibility true`. Closed menus are not listed: open the menu first.
+- A script written on Windows runs unchanged: `launch .venv\Scripts\pythonw.exe tests\apps\x.py`
+  starts `.venv/bin/python tests/apps/x.py` on Linux.
 - OCR: `sudo apt install tesseract-ocr` (`tesseract-ocr-ron` for Romanian diacritics).
 
 ## Example: the whole task in 2 calls

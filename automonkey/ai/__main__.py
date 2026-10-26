@@ -50,7 +50,7 @@ def main(argv=None):
     f.add_argument("text")
     r = sub.add_parser("read", help="read text on screen (OCR)")
     r.add_argument("box", type=int, nargs="*", metavar="X Y W H")
-    c = sub.add_parser("controls", help="list a window's controls with click points (Windows)")
+    c = sub.add_parser("controls", help="list a window's controls with click points")
     c.add_argument("window")
     c.add_argument("--all", action="store_true", help="include non-interactive elements")
     c.add_argument("--depth", type=int, default=None)

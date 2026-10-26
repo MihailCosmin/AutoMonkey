@@ -191,3 +191,55 @@ Verified (2026-10-13, this box, real `gnome-calculator`/`gnome-text-editor`): bo
 integration tests pass (`GDK_BACKEND=x11`, matching what CI's `xvfb` provides
 automatically); full suite still 38 passed, 13 skipped, 0 failed; no leftover GUI
 processes after a run.
+
+## The AI layer's accessibility helpers on Linux (26.10.2026)
+
+`automonkey/ai/controls.py` (the `controls` tool and the script verbs `click_control`,
+`drag_control`, `expect_control`, `expect_order`, `focused`, `expect_focus`, `tab_order`,
+`clipped` / `expect_no_clipped`) used to be UI Automation only. On Linux they now go through
+`automonkey/ai/atspi_tree.py`:
+
+- **Window -> tree.** `windows.list_windows()` now carries the X11 window's `pid`
+  (`wmctrl -lGpx`). The AT-SPI top-level is the showing child of an application with that
+  pid whose name equals the window title (else contains it, else the one whose extents are
+  closest to the X11 geometry). Other showing top-levels of the same process with a popup
+  role (`window`, `popup-menu`, `menu`, `tool-tip`, `dialog`, ...) are walked too, like
+  owned popups on Windows: GTK menus and combo lists are separate top-levels; Qt puts open
+  menus inside the window's tree.
+- **Hidden subtrees are skipped.** An element without `SHOWING` is left out together with
+  everything under it. Qt keeps closed menus (`popup-menu` with extents at 0,0), the list of
+  a closed combo box (whose items even claim `SHOWING`) and so on in the tree; skipping them
+  gives the Windows behaviour: a menu's items are listed while it is open.
+- **Boxes.** `Component.get_extents(SCREEN)` is in input pixels on X11 and Xwayland and is
+  mapped to screenshot pixels with `screen.view().to_image`, like the UIA rectangles.
+  Native Wayland windows report window-relative extents; they cannot be driven anyway.
+- **Types.** AT-SPI role nicks map to the UIA control type names (`push-button` ->
+  `Button`, `label` -> `Text`, `text` -> `Edit` when `EDITABLE`, a named GTK `menu` ->
+  `MenuItem`, ...), so `INTERACTIVE`, `TEXTUAL` and scripts are the same on both systems.
+  Qt's accessible id is the objectName path (`QApplication.TargetWindow.splitter.QWidget.nameEdit`),
+  as in UIA; `find` and now also `expect_focus` accept its last part.
+- **Focus.** AT-SPI has no "focused element" call. `focused()` takes the active X11
+  window's pid (`xdotool getactivewindow getwindowpid`), walks that application's showing
+  top-levels (the `ACTIVE` one first) and returns the `FOCUSED` element. Two Qt quirks: the
+  widget behind an open menu stays `FOCUSED` (a focused menu item wins), and a list's
+  current item stays `FOCUSED` after Tab left the list (an item only counts when its
+  list/tree/table is focused too).
+- **`launch`** sets `QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1` and removes `NO_AT_BRIDGE`, and
+  runs a Windows venv command line (`.venv\Scripts\pythonw.exe tests\apps\qt_target.py`)
+  as `.venv/bin/python tests/apps/qt_target.py`, so the `.amk` scripts in `tests/ui/` run
+  unchanged on both systems.
+- **Gotcha: registry daemon not running.** On cosmin-314 (Ubuntu GNOME, X11 on `:1`)
+  `at-spi-dbus-bus.service` had been started with `DISPLAY=:0` (the GDM login screen), so
+  every activation of `at-spi2-registryd` died with "Could not open X display" and the
+  desktop listed no applications ("Couldn't get application list"). Fix:
+  `systemctl --user restart at-spi-dbus-bus.service` (the user manager's environment has the
+  right `DISPLAY`), then restart the apps. `atspi_tree.root` names this fix when the
+  desktop is empty.
+
+Verified (26.10.2026, cosmin-314, Ubuntu 24.04 GNOME on X11, AT-SPI 2.52, PySide6 6.12):
+`tests/ui/qt_target_smoke.amk` passes (24 steps: click_control, menus, dialogs,
+drag_control, expect_order); the three `tests/ui/bugs/*.amk` fail on exactly their bug
+(Export opens nothing; Tab goes from User to OK; the status label shows only
+"ready - all systems o..."); `tab_order` forwards and with shift; `controls` on the window
+in 0.35 s. Opt-in test: `AUTOMONKEY_ATSPI_INTEGRATION=1 pytest tests/test_atspi_integration.py -k qt_target`.
+Not tried yet: GTK apps (toolkit-accessibility is off on this machine) and Chromium/Electron.

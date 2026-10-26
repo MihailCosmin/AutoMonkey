@@ -43,7 +43,8 @@ List open windows ('*' = active) with ids, titles and their screenshot-coordinat
 ### `controls(window: str, interactive_only: bool = True, depth: int = None, max_items: int = 400)`
 
 Every control of a window from the accessibility tree, with the click point of each
-in screenshot coordinates, DISABLED / toggle states, and automation ids (Windows).
+in screenshot coordinates, DISABLED / toggle states, and automation ids (UI Automation on
+Windows, AT-SPI on Linux).
 
 Use it to test COMPLETELY: list the interactive controls (menus, buttons, links, fields,
 tabs, list items), then exercise each one with `act` (click_control NAME, or click X Y).

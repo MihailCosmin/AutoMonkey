@@ -100,3 +100,27 @@ def test_gnome_text_editor_type_and_read_back():
         assert "hello from the AT-SPI integration test" in text
     finally:
         _stop(app)
+
+
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+@pytest.mark.skipif(not os.path.exists(os.path.join(_REPO, ".venv", "bin", "python")), reason="no .venv in the repo")
+@pytest.mark.parametrize("name, expected_failure", [
+    ("qt_target_smoke.amk", None),
+    ("bugs/qt_export_does_nothing.amk", "expect_window Export -> FAILED"),
+    ("bugs/qt_prefs_tab_order.amk", "expect_focus Email -> FAILED: focus is on Button 'OK'"),
+    ("bugs/qt_status_clipped.amk", "statusLabel"),
+])
+def test_qt_target_scripts_replay_on_linux(monkeypatch, name, expected_failure):
+    """The .amk scripts written on Windows (launch .venv\\Scripts\\pythonw.exe ...) replay on
+    Linux through the AT-SPI versions of click_control, expect_focus, clipped, ...; the bug
+    scripts fail on exactly their bug. Drives the real mouse and keyboard."""
+    pytest.importorskip("PySide6")
+    from automonkey.ai import replay  # pylint: disable=import-outside-toplevel
+    monkeypatch.chdir(_REPO)
+    ok, log, _image = replay(os.path.join("tests", "ui", name), screenshot_on_failure=False)
+    if expected_failure is None:
+        assert ok, log
+    else:
+        assert not ok and expected_failure in log, log

@@ -457,6 +457,39 @@
       "short": "Run the AT-SPI integration tests for real on gnome-calculator and gnome-text-editor",
       "details": "Final review: running the integration tests for real. gnome-calculator and gnome-text-editor were installed after the Tests section, so tests/test_atspi_integration.py ran for real. Both tests first failed and exposed three real issues, all fixed: start_app kept the caller's stdout open (now DEVNULL + start_new_session=True); rapid do_action calls outrun the app (the test sleeps between clicks, the library does not); Component.grab_focus() fails app-wide on gnome-text-editor (GTK4), so _grab_focus falls back to a mouse click on the control's extents. Also confirmed again the Wayland keyboard-injection limit, and _stop() got a SIGKILL fallback. Verified 2026-10-13 on real gnome-calculator/gnome-text-editor (GDK_BACKEND=x11): both integration tests pass, full suite 38 passed, 13 skipped, 0 failed, no leftover GUI processes. Full write-up in docs/linux_atspi.md, section Final review. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
       "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N51",
+      "section": "main",
+      "status": "done",
+      "group": "",
+      "model": "opus",
+      "effort": "high",
+      "short": "AI layer on Linux: AT-SPI controls, click_control, focus, tab_order, clipped",
+      "details": "Port the accessibility helpers of the AI layer (automonkey/ai/controls.py: controls, click_control, drag_control, expect_control, expect_order, focused, expect_focus, tab_order, clipped) from UI Automation only to AT-SPI on Linux, so the tests/ui .amk scripts run on both systems (micomuXML task AM2). Done 26.10.2026: new automonkey/ai/atspi_tree.py (window -> AT-SPI top-level by pid and title, snapshot with UIA type names and boxes from get_extents(SCREEN) mapped with screen.view(), hidden subtrees skipped so open menus are listed while open, popups of the same process, focused() from the FOCUSED state of the active app with the Qt menu and list-item quirks handled); controls.py dispatches to it on Linux; list_windows has the pid; launch sets QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1, drops NO_AT_BRIDGE and runs Windows venv command lines (.venv\\\\Scripts\\\\pythonw.exe) as .venv/bin/python; expect_focus accepts the last part of a Qt id; the OCR fallback to control names works on Linux too. Verified on cosmin-314 (Ubuntu GNOME X11): tests/ui/qt_target_smoke.amk passes, the three tests/ui/bugs scripts fail on exactly their bug, tab_order forwards and backwards; tests/test_ai_controls_linux.py (13 unit tests) and the opt-in test_qt_target_scripts_replay_on_linux pass; full suite 102 passed, 17 skipped. Notes in docs/linux_atspi.md. Left: GTK and Chromium checks in N52.",
+      "done": "2026-10-26T12:33:31"
+    },
+    {
+      "id": "N52",
+      "section": "validation",
+      "status": "todo",
+      "group": "",
+      "model": "sonnet",
+      "effort": "medium",
+      "short": "Validate the AI-layer AT-SPI helpers on a GTK app and on a Chromium/Electron app",
+      "details": "N51 was verified only with the Qt target (tests/apps/qt_target.py). Try controls, click_control, focused, tab_order and clipped on a GTK3/GTK4 app (needs gsettings set org.gnome.desktop.interface toolkit-accessibility true and an app restart; GTK menus and combo lists are separate top-level windows, which atspi_tree.root walks as popups) and on Chromium or an Electron app started with --force-renderer-accessibility. Fix what differs (role mapping in atspi_tree.ROLE_TYPES, popup roles, focus quirks) and note it in docs/linux_atspi.md.",
+      "done": null
+    },
+    {
+      "id": "N53",
+      "section": "rework",
+      "status": "todo",
+      "group": "",
+      "model": "haiku",
+      "effort": "low",
+      "short": "ocr._prepare uses Image.getdata, deprecated in Pillow 12 and removed in Pillow 14",
+      "details": "automonkey/ai/ocr.py line ~102 calls gray.resize((64, 64)).getdata() to measure brightness; Pillow warns it is removed in Pillow 14 (2027-10-15). Use get_flattened_data() when present (keep a fallback for older Pillow), and run tests/test_ai.py.",
+      "done": null
     }
   ]
 }

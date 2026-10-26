@@ -45,7 +45,6 @@ from __future__ import annotations
 
 import os
 import re
-import sys
 import time
 
 import pyautogui
@@ -130,12 +129,12 @@ def _text_scope(rest: str) -> tuple[str, tuple[int, int, int, int] | None, str]:
 
 
 def _find_text(rest: str) -> tuple[list[dict], str, str]:
-    """OCR first; on Windows, text OCR can't read (tiny or low-contrast fonts) is then
-    looked up among the names of the active window's visible controls, which are the
-    texts the app draws."""
+    """OCR first; text OCR can't read (tiny or low-contrast fonts) is then looked up
+    among the names of the active window's visible controls, which are the texts the
+    app draws."""
     text, region, where = _text_scope(rest)
     hits = ocr.find_text(text, region=region)
-    if hits or region is None or sys.platform != "win32":
+    if hits or region is None:
         return hits, text, where
     from . import controls
     want = controls.normalize(text)
@@ -386,7 +385,10 @@ def _run_step(line: str) -> str:
         from . import controls
         f = controls.focused()
         want = controls.normalize(rest)
-        if want not in controls.normalize(f["name"]) and rest.strip().lower() != f["auto_id"].lower():
+        # Qt ids are objectName paths ("...splitter.QWidget.nameEdit"): the last part matches too.
+        wanted_id, auto_id = rest.strip().lower(), f["auto_id"].lower()
+        if want not in controls.normalize(f["name"]) and wanted_id != auto_id \
+                and not auto_id.endswith("." + wanted_id):
             raise StepError(f"focus is on {controls.describe(f)}, expected {rest!r}")
         return f"focus on {f['name']!r}"
     elif cmd == "expect_control":

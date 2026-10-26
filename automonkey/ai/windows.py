@@ -6,6 +6,7 @@ Linux uses xdotool + wmctrl. On Wayland, pyautogui input only reaches X11
 from __future__ import annotations
 
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -22,6 +23,9 @@ X11_ENV = {
     "SDL_VIDEODRIVER": "x11",            # SDL
     "ELECTRON_OZONE_PLATFORM_HINT": "x11",
 }
+# Make apps expose their accessibility tree (AT-SPI) to `controls`: Qt only does it on
+# request; NO_AT_BRIDGE=1 (removed in `launch`) silently disables it for GTK.
+ACCESSIBILITY_ENV = {"QT_LINUX_ACCESSIBILITY_ALWAYS_ON": "1"}
 FIREFOX_LIKE = ("firefox", "firefox-esr", "thunderbird")
 CHROMIUM_LIKE = ("chromium", "chromium-browser", "google-chrome", "chrome", "code", "brave-browser")
 
@@ -202,13 +206,13 @@ def list_windows() -> list[dict]:
     _require_linux_tools()
     active = _run("xdotool", "getactivewindow").strip()
     wins = []
-    for line in _run("wmctrl", "-lGx").splitlines():
-        parts = line.split(None, 8)
-        if len(parts) < 8:
+    for line in _run("wmctrl", "-lGpx").splitlines():
+        parts = line.split(None, 9)
+        if len(parts) < 9:
             continue
-        wid, _desk, x, y, w, h, wm_class = parts[:7]
-        title = parts[8] if len(parts) > 8 else ""
-        wins.append(dict(id=int(wid, 16), title=title, wm_class=wm_class, x=int(x), y=int(y),
+        wid, _desk, pid, x, y, w, h, wm_class = parts[:8]
+        title = parts[9] if len(parts) > 9 else ""
+        wins.append(dict(id=int(wid, 16), title=title, wm_class=wm_class, pid=int(pid), x=int(x), y=int(y),
                          w=int(w), h=int(h), active=active.isdigit() and int(active) == int(wid, 16)))
     return wins
 
@@ -360,8 +364,10 @@ def launch(command: str, timeout: float = 60.0) -> dict:
     before = {w["id"] for w in list_windows()}
     if sys.platform == "win32":
         return _win32_launch(command, before, timeout)
-    args = shlex.split(command)
+    args = shlex.split(_posix_command(command))
     env = dict(os.environ)
+    env.update(ACCESSIBILITY_ENV)
+    env.pop("NO_AT_BRIDGE", None)
     if session_type() == "wayland":
         env.update(X11_ENV)
         args = _separate_browser_instance(args)
@@ -379,6 +385,21 @@ def launch(command: str, timeout: float = 60.0) -> dict:
         time.sleep(0.3)
     raise TimeoutError(f"no new window appeared within {timeout:.0f}s after launching {command!r} "
                        f"(on Wayland the app may have opened as a native window that can't be controlled)")
+
+
+_WIN_VENV_PYTHON = re.compile(r"^(?P<venv>[^\s\"]*?)[\\/]Scripts[\\/]pythonw?(?:\.exe)?(?=\s|$)", re.I)
+
+
+def _posix_command(command: str) -> str:
+    """Lets a script written on Windows launch the same program on Linux: a venv's
+    `X\\Scripts\\python(w).exe` becomes `X/bin/python`, and backslashes in relative paths
+    (`tests\\apps\\qt_target.py`) become slashes. Only commands that start with such a
+    venv interpreter are touched, so shell escapes in other commands keep working."""
+    m = _WIN_VENV_PYTHON.match(command.strip())
+    if not m:
+        return command
+    rest = command.strip()[m.end():]
+    return m.group("venv").replace("\\", "/") + "/bin/python" + rest.replace("\\", "/")
 
 
 def _win32_launch(command: str, before: set, timeout: float) -> dict:

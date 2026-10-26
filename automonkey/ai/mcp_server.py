@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import contextlib
 import io
-import sys
 
 from mcp.server.mcpserver import Image, MCPServer
 
@@ -115,16 +114,14 @@ def list_controls(window: str, depth: int = None) -> str:
 @mcp.tool()
 def controls(window: str, interactive_only: bool = True, depth: int = None, max_items: int = 400) -> str:
     """Every control of a window from the accessibility tree, with the click point of each
-    in screenshot coordinates, DISABLED / toggle states, and automation ids (Windows).
+    in screenshot coordinates, DISABLED / toggle states, and automation ids (UI Automation on
+    Windows, AT-SPI on Linux).
 
     Use it to test COMPLETELY: list the interactive controls (menus, buttons, links, fields,
     tabs, list items), then exercise each one with `act` (click_control NAME, or click X Y).
     Menus only show their items while open: open the menu, then call this again.
     window: title substring, process name (e.g. "notepad.exe") or window id."""
     from . import controls as _controls
-    if sys.platform != "win32":
-        with contextlib.redirect_stdout(io.StringIO()):
-            return _list_controls(window, depth)
     return _controls.tree(window, depth=depth, interactive_only=interactive_only, max_items=max_items)
 
 
