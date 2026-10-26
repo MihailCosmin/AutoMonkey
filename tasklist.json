@@ -459,7 +459,7 @@
       "done": "2026-10-13T12:00:00"
     },
     {
-      "id": "N51",
+      "id": "AutoMonkey-N51",
       "section": "main",
       "status": "done",
       "group": "",
@@ -470,7 +470,7 @@
       "done": "2026-10-26T12:33:31"
     },
     {
-      "id": "N52",
+      "id": "AutoMonkey-N52",
       "section": "validation",
       "status": "todo",
       "group": "",
@@ -481,7 +481,7 @@
       "done": null
     },
     {
-      "id": "N53",
+      "id": "AutoMonkey-N53",
       "section": "rework",
       "status": "todo",
       "group": "",
@@ -489,6 +489,17 @@
       "effort": "low",
       "short": "ocr._prepare uses Image.getdata, deprecated in Pillow 12 and removed in Pillow 14",
       "details": "automonkey/ai/ocr.py line ~102 calls gray.resize((64, 64)).getdata() to measure brightness; Pillow warns it is removed in Pillow 14 (2027-10-15). Use get_flattened_data() when present (keep a fallback for older Pillow), and run tests/test_ai.py.",
+      "done": null
+    },
+    {
+      "id": "AutoMonkey-N54",
+      "section": "rework",
+      "status": "todo",
+      "group": "",
+      "model": "sonnet",
+      "effort": "medium",
+      "short": "Fill depends_on in every open task that waits for another task",
+      "details": "New optional field of tasklist.json: \"depends_on\": an array with the ids (with the repository prefix, e.g. \"AutoMonkey-N27\") of the tasks that must be done first. The Tasklist tab shows it in the details of a task. Go through every open (todo) task, read its details (e.g. \"waits for H2\", \"continues P2.3\", \"after N5\") and the order of the list, and set depends_on where a task really needs another one (including human tasks it waits for). Use `wb tasklist-edit <id> --depends_on <id1,id2> --repo AutoMonkey` or edit the file; keep the ids that exist in this list (the tasklist-check hook rejects unknown ones). Do not invent dependencies. Check with node ~/.claude/hooks/tasklist-check.js tasklist.json.",
       "done": null
     }
   ]
