@@ -279,7 +279,7 @@ def chain(*steps: dict, debug=False):
         6. For the app functions (start, close, minimize, maximize, restore, focus) you need to provide the title of the window.add()
            You can also use regex to match the title.
         7. The control actions (click_control, type_in_control, ...) use pywinauto on Windows
-           and AT-SPI on Linux (see DONE.md; macOS not implemented yet).
+           and AT-SPI on Linux (see docs/linux_atspi.md; macOS not implemented yet).
            The target is a tuple of arguments (window, control, ...) or a dict of keyword arguments:
                dict(click_control=("Notepad", "File")),
                dict(type_in_control=dict(window="Notepad", control={"control_type": "Document"}, text="hi")),

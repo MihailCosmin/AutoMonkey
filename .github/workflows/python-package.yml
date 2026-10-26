@@ -64,7 +64,7 @@ jobs:
         # Skipping rather than failing is deliberate: this job gates the publish job
         # below, so a failure here would block every release over an environment quirk
         # that has nothing to do with this repo's code. The two tests still run for real
-        # on a box whose python3 has python3-gi (see DONE.md sections 5-6).
+        # on a box whose python3 has python3-gi (see docs/linux_atspi.md sections 5-6).
         xvfb-run -a dbus-run-session -- python -c "
         import sys
         sys.path.append('/usr/lib/python3/dist-packages')

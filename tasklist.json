@@ -1,0 +1,462 @@
+{
+  "version": 1,
+  "repo": "AutoMonkey",
+  "sections": {
+    "main": "Main Work",
+    "rework": "Rework",
+    "validation": "Validation",
+    "human": "Human"
+  },
+  "tasks": [
+    {
+      "id": "N1",
+      "section": "validation",
+      "status": "done",
+      "group": "Linux AT-SPI: Research and setup",
+      "short": "Set up a Linux test machine/VM with GNOME on both X11 and Wayland sessions",
+      "details": "Set up a Linux test machine/VM with GNOME on both X11 and Wayland sessions. no GNOME box available; used the real dev machine instead: Debian 13 (trixie) on Raspberry Pi, desktop is labwc (wlroots/Wayland), with Xwayland running rootless for X11 app compat. Gives both a native-Wayland surface and an X11 (Xwayland) surface on one machine, which covers what the spike actually needed. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N2",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Research and setup",
+      "short": "Install python3-gi, gir1.2-atspi-2.0, at-spi2-core; check toolkit-accessibility gsetting",
+      "details": "Install python3-gi, gir1.2-atspi-2.0, at-spi2-core; check gsettings get org.gnome.desktop.interface toolkit-accessibility. python3-gi was already present; gir1.2-atspi-2.0 and at-spi2-core were missing (both needed sudo). toolkit-accessibility was false; set to true via gsettings set org.gnome.desktop.interface toolkit-accessibility true (per-user dconf, no root needed, but requires restarting apps to take effect). The AT-SPI D-Bus service is activated on demand (org.a11y.Bus → /usr/libexec/at-spi-bus-launcher via at-spi-dbus-bus.service) — nothing to start manually once at-spi2-core is installed. Gotcha: NO_AT_BRIDGE=1 was set in this machine's session environment, which silently disables the GTK ATK→AT-SPI bridge — a plain GTK3 app launched with that var set registers zero AT-SPI children even though accessibility is otherwise on. automonkey must make sure this var is unset (or 0) in the environment it launches/controls apps in. (zenity was unaffected by it in this test, for unclear reasons — don't assume other apps are equally immune.) (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N3",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Research and setup",
+      "short": "Spike: list top-level windows and dump the trees of test apps and Firefox",
+      "details": "Spike: list top-level windows and dump the tree of gnome-text-editor, gnome-calculator, LibreOffice Writer, Firefox. neither gnome-text-editor nor gnome-calculator is installed on this box; substituted zenity and a small hand-written GTK3 test app (button, entry, check box, combo box, menu bar) for controlled testing, plus Firefox for a real Xwayland app. Tree dump worked cleanly on all three. Browser trees are large as the doc warned — kept dump depth shallow (3) for Firefox; a real implementation needs the depth-limiting from section 3. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N4",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Research and setup",
+      "short": "Spike: press, set/read text, toggle, select combo item and open a menu via AT-SPI",
+      "details": "Spike: press a button, set text, read text, toggle a check box, select a combo item, open a menu via AT-SPI. all done against the hand-written GTK3 app; see Findings below for the exact API calls and the one real gotcha (combo box selection). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N5",
+      "section": "validation",
+      "status": "done",
+      "group": "Linux AT-SPI: Research and setup",
+      "short": "Note which of these work on Wayland vs X11",
+      "details": "Note which of these work on Wayland vs X11. tree reading and all of the above actions worked identically on the native-Wayland GTK app and on Firefox (Xwayland). No backend-specific code was needed for any of this; the Wayland/X11 split only matters for screen-coordinate mouse actions (phase 4), as the doc already predicted. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N6",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Research and setup",
+      "short": "Decide the minimum supported distros / PyGObject version",
+      "details": "Decide the minimum supported distros / PyGObject version. floor from this box: Debian 13 (trixie)-equivalent, PyGObject 3.50+, AT-SPI2 2.56+ (at-spi2-core, gir1.2-atspi-2.0). This is one data point, not a distro survey — revisit if we need to support something materially older (e.g. Debian 12/Ubuntu 22.04 ship AT-SPI 2.44-ish and older PyGObject). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N7",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Research and setup",
+      "short": "Look at pywinauto's unreleased atspi backend and dogtail for edge cases",
+      "details": "Look at pywinauto's unreleased atspi backend and dogtail for edge cases (do not depend on them). pywinauto's AT-SPI work lives only on an unreleased atspi docs/git branch (pywinauto.linux.application, atspi_element_info, atspi_controls/atspiwrapper); tracked by pywinauto#328 (https://github.com/pywinauto/pywinauto/issues/328), open since 2017, never shipped to PyPI — confirms we're on our own, it's only useful as an API-shape reference. dogtail (gitlab.com/dogtail/dogtail) is the more relevant prior art: still pyatspi/gi-based, and notably depends on a separate privileged helper, gnome-ponytail-daemon, specifically to synthesize pointer/mouse input under Wayland. Worth evaluating in phase 4 as a possible real fix for the \"mouse clicks on controls don't work on Wayland\" limitation, rather than treating it as a hard wall. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N8",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Backend structure",
+      "short": "Create atspi_funcs.py with the same public functions and signatures as pywinauto_funcs",
+      "details": "Create automonkey/atspi_funcs.py with the same public functions and signatures as pywinauto_funcs.py. all 16 functions present (get_window, get_control, start_app, click_control, double_click_control, right_click_control, type_in_control, set_control_text, get_control_text, select_menu, select_item, check_control, uncheck_control, wait_control, control_exists, list_controls), same names/args as pywinauto_funcs.py (only backend defaults to \"atspi\" instead of \"uia\"). Bodies are stubs (raise NotImplementedError(...) pointing back here) — sections 3/4 fill them in. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N9",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Backend structure",
+      "short": "Lazy import of gi / Atspi with an error that names the distro packages to install",
+      "details": "Lazy import of gi / Atspi with an error that names the distro packages to install. _atspi() does gi.require_version(\"Atspi\", \"2.0\"); from gi.repository import Atspi inside a try/except, raising ImportError with the exact apt command (python3-gi gir1.2-atspi-2.0 at-spi2-core) and the gsettings accessibility command. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N10",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Backend structure",
+      "short": "Choose the backend by platform in automonkey.py (win32 pywinauto, linux atspi)",
+      "details": "Choose the backend by platform in automonkey/automonkey.py (win32 -> pywinauto_funcs, linux -> atspi_funcs);. keep the import lines and CONTROL_ACTIONS unchanged so chain needs no changes — mirrors the existing if platform == \"win32\": gating already used for app_funcs in that file; same 16 from .X import name lines, just duplicated under each branch with X swapped. CONTROL_ACTIONS in constants.py untouched (verified: same tuple object, chain's __run_control still just does globals()[step[\"action\"]](...)). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N11",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Backend structure",
+      "short": "Accept backend=\"atspi\" on Linux; clear error for uia/win32 on Linux and vice versa",
+      "details": "Accept backend=\"atspi\" (default on Linux); raise a clear error for \"uia\" / \"win32\" on Linux and vice versa. atspi_funcs._check_backend() rejects anything but \"atspi\"/None with a ValueError naming the Windows backend file; added the symmetric pywinauto_funcs._check_backend() (rejects \"atspi\") so a copy-pasted script gives a clear error on either platform instead of a confusing one from pywinauto/Atspi itself. Verified both directions at the REPL. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N12",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Backend structure",
+      "short": "macOS: keep the functions importable and raise NotImplementedError when used",
+      "details": "macOS: keep the functions importable and raise NotImplementedError when used. _atspi() checks sys.platform == \"darwin\" first and raises NotImplementedError before even attempting the gi import, so the module stays importable on macOS and the error is immediate and explicit rather than an ImportError about a missing Linux package. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N13",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "get_window: find the top-level window by title regex across all applications",
+      "details": "get_window: find the top-level window by title regex (.*?{title}.*?, same as Windows) across all applications. _iter_top_level_windows() walks the AT-SPI desktop's applications and yields their direct children (that's where frames/dialogs live); get_window regex-matches each candidate's accessible name with the same f\".*?{window}.*?\" pattern pywinauto uses. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N14",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "Wait with timeout until the window is SHOWING/VISIBLE; return the first match",
+      "details": "Wait with timeout until the window exists and is SHOWING / VISIBLE; return the first match. polling loop (0.2s) until deadline; _is_showing checks Atspi.StateType.SHOWING or VISIBLE; returns the first match found during a pass, same as pywinauto's found_index=0. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N15",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "get_control with dict criteria (key mapping)",
+      "details": "get_control with dict criteria; map keys: Sub-items: N16 (title/title_re), N17 (control_type), N18 (auto_id), N19 (found_index). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N16",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "get_control dict: title -> accessible name, title_re -> name regex",
+      "details": "title -> accessible name, title_re -> name regex (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N17",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "get_control dict: control_type -> Atspi.Role mapping",
+      "details": "control_type -> role (map pywinauto names: Button -> push button, Edit -> text/entry, Document -> document text,. CheckBox -> check box, ComboBox -> combo box, MenuItem -> menu item, List -> list, ...) — the actual mapping differs from this draft list (see phase 1 findings: get_role_name() strings aren't stable across AT-SPI versions/toolkits). Mapped instead onto the Atspi.Role *enum* (_CONTROL_TYPE_TO_ROLES in atspi_funcs.py), which is the stable identifier - confirmed empirically a GTK push button is Atspi.Role.BUTTON, not PUSH_BUTTON (which exists as a separate enum member, kept in the tuple for other toolkits). Each pywinauto type maps to a tuple of acceptable roles, e.g. \"Edit\": (\"TEXT\", \"ENTRY\", \"PASSWORD_TEXT\"). Resolved once per get_control call (not per node) so an unknown control_type raises ValueError immediately instead of silently vanishing into a \"not found\" result. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N18",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "get_control dict: auto_id -> accessible id or id attribute, fall back to name",
+      "details": "auto_id -> accessible id (AT-SPI 2.34+) or id attribute; fall back to name. _accessible_id() tries get_accessible_id() then an \"id\" key from get_attributes(); if both are empty (the common case - GTK apps don't set these by default, confirmed on the phase-1 test app) falls back to comparing against the accessible name, exactly as specced. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N19",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "get_control dict: found_index for several matches",
+      "details": "found_index for several matches (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N20",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "get_control with a string (best match): exact name, name + role suffix, substring",
+      "details": "get_control with a string (\"best match\"): exact name, then name + role suffix (\"SaveButton\"), then case-insensitive substring. _best_match(): (1) exact accessible-name match; (2) if the string ends with a known control-type suffix (checked longest-first against _CONTROL_TYPE_TO_ROLES' keys), split off the name part and require both a name match and a role match; (3) case-insensitive substring on the name. Returns the first match at each stage, same precedence as pywinauto. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N21",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "Limit tree search depth / skip huge subtrees (browsers) to keep lookups fast",
+      "details": "Limit tree search depth / skip huge subtrees (browsers) to keep lookups fast. _walk() takes a node budget (_MAX_SEARCH_NODES=6000) and a depth cap (_MAX_SEARCH_DEPTH=40); every lookup (_find_all, _collect_names) goes through it. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N22",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Finding windows and controls",
+      "short": "Clear error when nothing matches: list the closest names found",
+      "details": "Clear error when nothing matches: list the closest names found. get_window lists the titles of every window actually seen; get_control lists \"name\" (role) for every named node under the window (via _collect_names, same depth/node budget, deduplicated, capped at 20) so a typo'd target is easy to spot from the error alone. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N23",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "click_control(invoke=True): run the control's click/press/activate action",
+      "details": "click_control(invoke=True): run the control's \"click\" / \"press\" / \"activate\" action. _invoke() picks the first action named click/press/activate/jump (case-insensitive), else action index 0 if any action exists at all; raises ValueError if the control has no AT-SPI actions. _action_names() wraps the deprecated Atspi.Action.get_action_name call in a DeprecationWarning filter so normal use doesn't spam stderr. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N24",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "click_control(invoke=False): mouse click at extents (X11); action + warning on Wayland",
+      "details": "click_control(invoke=False): mouse click at the control's screen extents (X11); on Wayland fall back to the action and warn. _click_at_extents() reads Component.get_extents(Atspi.CoordType.SCREEN) and pyautogui.click()s its center. _is_wayland_session() is a coarse, session-wide check (WAYLAND_DISPLAY set and XDG_SESSION_TYPE != x11) gating a warnings.warn() + fallback to _invoke() - not per-window, matching the doc's own session-wide framing of the limitation. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N25",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "double_click_control, right_click_control (mouse based; Wayland limits documented)",
+      "details": "double_click_control, right_click_control (mouse based; document Wayland limits). unchanged thin wrappers around click_control (same as pywinauto_funcs.py; neither takes an invoke kwarg in either backend, so on Wayland they go through the same fallback-and-warn path with a single click, not a true double-click equivalent). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N26",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "type_in_control: grab focus, type with write; translate pywinauto key syntax",
+      "details": "type_in_control: grab focus (Component.grab_focus), then type with the existing layout-aware write; literal=False -> translate pywinauto key syntax ({ENTER}, ^a, %f, +x) to keys2 — _send_key_syntax() is a small tokenizer: {NAME} -> press(), a leading run of ^/%/+ + one char or {NAME}/(...) group -> keys2(*mods, key), ~ -> Enter, everything else -> write(). Not a full pywinauto-grammar implementation (no repeat counts like {TAB 3}, no nested groups) - covers the four documented cases plus ~ and parens groups as a reasonable extension. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N27",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "type_in_control(pause=...): delay between key presses",
+      "details": "type_in_control(pause=...): delay between key presses — passed through to write's interval (literal) or slept between tokens (key-syntax mode). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N28",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "set_control_text: EditableText.set_text_contents; fall back to select all + type",
+      "details": "set_control_text: EditableText.set_text_contents; fall back to select all + type (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N29",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "get_control_text: Text interface, else accessible name; copy to clipboard",
+      "details": "get_control_text: Text interface for editable text, else accessible name; copy to clipboard like on Windows. uses is_text() to decide (not \"character count > 0\", which would wrongly treat a legitimately empty text field as \"no Text interface\" and fall back to the accessible name). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N30",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "select_menu(\"File->Save As...\"): walk menu items by name, activate the last one",
+      "details": "select_menu(\"File->Save As...\"): walk menu items by name, expand each level, activate the last one. walks level by level via _find_menu_item (role in menu/menu item/... + name match, \"&\" mnemonics stripped like pywinauto's own _find_menu_item); _expand_menu is called on intermediate levels but is genuinely best-effort (see note below - GTK doesn't need it). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N31",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "select_item: Selection interface by text or index (combo box, list, tabs)",
+      "details": "select_item: Selection interface by text or index (combo box, list, tabs). implemented as click-the-item, not the Selection interface, per the section 1 finding: Atspi.Selection.select_child() on a GTK combo's popup doesn't commit the real selection, but invoking click directly on the target item does. Selection.select_child is kept as a fallback for widgets where clicking isn't available. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N32",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "check_control / uncheck_control: read CHECKED state, run the toggle action only if needed",
+      "details": "check_control / uncheck_control: read CHECKED state, run the toggle action only if needed (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N33",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "wait_control(state=...): map exists, visible, enabled, ready, active to AT-SPI states",
+      "details": "wait_control(state=...): map exists, visible (SHOWING), enabled (ENABLED/SENSITIVE), ready, active (ACTIVE/FOCUSED). \"ready\" is expanded to \"visible enabled\" before checking; \"exists\" needs no explicit AT-SPI check since get_control already failing means it doesn't. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N34",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "control_exists: get_control + catch LookupError",
+      "details": "control_exists — get_control + catch LookupError. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N35",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "list_controls(depth=...): print role, name, id and the control dict; return the text",
+      "details": "list_controls(depth=...): print role, name, id and the dict to use as control; return the text. prints role 'name' control={...} per line, where the dict is literally what you'd pass back into get_control/click_control etc. (title, control_type via the reverse of _CONTROL_TYPE_TO_ROLES, auto_id when an accessible-id/id attribute exists). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N36",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Actions",
+      "short": "start_app: start the process and wait until it appears on the AT-SPI bus",
+      "details": "start_app: start the process and wait until its application appears on the AT-SPI bus. subprocess.Popen + poll the desktop's applications for one whose get_process_id() matches proc.pid. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N37",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Environment handling",
+      "short": "Detect a missing AT-SPI bus / disabled accessibility and say how to enable it",
+      "details": "Detect a missing AT-SPI bus / disabled accessibility and print how to enable it. important discovery while implementing this: calling into Atspi (e.g. Atspi.get_desktop(0).get_name()) against a genuinely unreachable bus does not raise a Python exception at all - libatspi's C layer (dbind) prints a fatal dbind-ERROR to stderr and aborts the entire process, confirmed by directly reproducing it (DBUS_SESSION_BUS_ADDRESS pointed at a nonexistent socket -> the subprocess just died, no traceback, no catchable error). So detection cannot happen by wrapping an Atspi call in try/except - it has to happen *before* anything ever calls into Atspi. Fixed with _atspi_bus_reachable(): a separate dbus-send process (confirmed safe: plain nonzero exit + stderr message, no abort) queries org.a11y.Bus.GetAddress with a 3s timeout; _atspi() runs this once per process (cached in _env_checked, re-tried if it previously failed) before ever handing out the Atspi module, raising a clear ConnectionError if the bus is down. Confirmed: merely from gi.repository import Atspi (without calling anything) is safe even with a dead bus - only the bus check's placement, not the import itself, mattered. Also added _check_accessibility_enabled(): a gsettings get org.gnome.desktop.interface toolkit-accessibility check (warn-only, same one-time cache) that tells the user to enable it and restart apps if it's false. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N38",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Environment handling",
+      "short": "Extend _default_display_env with DBUS_SESSION_BUS_ADDRESS for services / MCP clients",
+      "details": "Extend _default_display_env in automonkey/__init__.py with DBUS_SESSION_BUS_ADDRESS when started from a service / MCP client. same pattern as the existing WAYLAND_DISPLAY/DISPLAY fallback: only sets it when missing AND $XDG_RUNTIME_DIR/bus actually exists, defaulting to unix:path=$XDG_RUNTIME_DIR/bus (the standard per-user systemd D-Bus socket - confirmed to match this box's real, working value exactly). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N39",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Environment handling",
+      "short": "Name the Qt / Chrome / Electron flags in the error when an app shows an empty tree",
+      "details": "Document the Qt / Chrome / Electron flags in the error message when an app shows an empty tree. _QT_CHROME_ELECTRON_HINT is appended to get_control's and select_menu's LookupError, and to list_controls's printed output, whenever the resolved window itself has zero AT-SPI children (_has_no_children) - i.e. exactly the \"whole app exposes nothing\" case these flags are for, not a normal \"typo'd one control\" miss. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N40",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Tests",
+      "short": "Unit tests with fake accessibles (criteria, best match, menu walk, toggle, text, keys)",
+      "details": "Unit tests with fake accessibles for: criteria mapping, best match, menu walk, check toggle, text fallback, key syntax translation. tests/test_atspi_funcs.py (31 tests). A FakeAtspi namespace (_Sentinel-based Role/StateType members, static Action/Text/Selection) plus a FakeAccessible stand in for gi.repository.Atspi entirely, so these need no python3-gi/AT-SPI bus and run anywhere. Public functions under test are reached by monkeypatching _prepare (-> FakeAtspi) and/or get_window/get_control directly, the same seam test_pywinauto_funcs.py already uses for the Windows backend. Includes two regression tests for the real bugs found while building sections 3-4: the unknown-control_type exception-swallowing bug, and (implicitly, via the toggle test's action-count assertions) that check_control only acts when needed. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N41",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Tests",
+      "short": "Skip test_pywinauto_funcs.py on Linux and the new AT-SPI tests on Windows",
+      "details": "Make the existing tests/test_pywinauto_funcs.py skip on Linux and the new tests skip on Windows. pytestmark = pytest.mark.skipif(sys.platform != \"win32\", ...) added to test_pywinauto_funcs.py (this also resolves the one pre-existing Linux failure noted in every earlier phase of this doc - test_walk_menu_expands_then_invokes needed real pywinauto); test_atspi_funcs.py and test_atspi_integration.py both carry the opposite skipif(sys.platform == \"win32\", ...). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N42",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Tests",
+      "short": "Opt-in integration tests against gnome-calculator and gnome-text-editor",
+      "details": "Integration tests (opt-in via env var) against gnome-calculator and gnome-text-editor. tests/test_atspi_integration.py, gated by AUTOMONKEY_ATSPI_INTEGRATION=1 *and* a per-test shutil.which() check, so the file is always safe to collect/run anywhere. Neither app is installed on this box, so they're unverified here as written - but the exact pattern (start_app -> type_in_control -> get_control_text, and separately start_app -> click_control(invoke=True) on a dict-matched control) was validated end-to-end against mousepad (also GtkSourceView-based, close enough to stand in for gnome-text-editor) before being written into the real test. That validation caught a real mistake: the draft used control_type: \"Document\" for the main text area, but GtkSourceView exposes it as AT-SPI role \"text\" (control_type \"Edit\") - Document* roles are for LibreOffice/WebKit-style content, not plain GTK text editors. Fixed before committing the test. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N43",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Tests",
+      "short": "CI: install AT-SPI packages, run integration tests under Xvfb + dbus-run-session",
+      "details": "CI: install python3-gi gir1.2-atspi-2.0 at-spi2-core xvfb, run the integration tests under Xvfb + dbus-run-session. Done together with N44; the shared note is in N44. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-16T12:00:00"
+    },
+    {
+      "id": "N44",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Tests",
+      "short": "Enable the commented-out pytest step in python-package.yml",
+      "details": "Enable the commented-out pytest step in .github/workflows/python-package.yml. both done together: added an apt-get step (python3-gi gir1.2-atspi-2.0 at-spi2-core xvfb dbus-daemon gnome-calculator gnome-text-editor - dbus-daemon provides dbus-run-session on this box, confirmed via dpkg -S), uncommented the pytest step and wrapped it in xvfb-run -a dbus-run-session -- pytest, and set AUTOMONKEY_ATSPI_INTEGRATION=1 so CI actually exercises the integration tests rather than just skipping them. Known, documented tradeoff, not silently glossed over: python3-gi installs PyGObject for Ubuntu's own system python3, not for whichever interpreter actions/setup-python puts on PATH for a given matrix entry (the workflow's existing matrix is Python 3.8/3.9/3.10, set long before this AT-SPI work and not touched here - that's a separate, pre-existing staleness issue, not something this phase should quietly take on). Wired by appending /usr/lib/python3/dist-packages to sys.path in-process around pytest.main() - the trick used throughout this implementation to let a different interpreter see system-installed gi, but as a plain PYTHONPATH it pre-empted this job's own installed packages and broke pytest's plugin loading, hence the in-process append after pytest's own startup. This only lines up cleanly when a matrix entry's Python version matches the runner's system python3 ABI - 3.8/3.9/3.10 against ubuntu-latest's 3.12 system python does not, so on CI these two tests skip. Fixed 2026-10-16: they used to *fail* there (a plain ImportError from gi), which turned the matrix red on every version - and once the publish job was gated on the matrix, that would have blocked every release over an environment quirk unrelated to this repo's code. tests/test_atspi_integration.py now checks the bindings itself (_atspi_bindings_available(), which catches the half-working import gi -> from . import _gi failure) and skips, so the file keeps its \"always safe to collect/run\" contract. Verified by reproducing that exact broken-gi shape locally: a fake gi package that raises on from . import _gi -> binding check False and the file collects and skips cleanly; a working fake -> binding check True. The commands in section 5 still run these tests for real on a box whose python3 has python3-gi. Could not be verified by actually running GitHub Actions from here - YAML syntax was validated with a local parse, and the underlying command pattern (xvfb-run / fakeroot X + dbus-run-session for a private AT-SPI bus) is the standard approach for headless accessibility testing, but the workflow itself is unverified end-to-end. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-16T12:00:00"
+    },
+    {
+      "id": "N45",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Packaging and docs",
+      "short": "setup.py: document that PyGObject comes from the distro; pywinauto stays Windows-only",
+      "details": "setup.py: add a linux extra (or document that PyGObject comes from the distro); keep pywinauto Windows-only. chose document, not a pip extra: PyGObject genuinely isn't a reliable pip install (needs system build deps - cairo, gobject-introspection headers, pkg-config - that aren't guaranteed present, confirmed in this very project by how we actually got it working: apt-get install python3-gi ..., never pip). A fake extras_require={'linux': [...]} would either be empty (useless) or silently fail to build for most users, worse than no extra at all. Documented instead via a module docstring in setup.py plus Operating System :: Microsoft :: Windows / :: POSIX :: Linux classifiers. pywinauto was already Windows-only (requirements.txt's sys_platform == 'win32' marker, pre-existing, untouched). (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N46",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Packaging and docs",
+      "short": "README section 6: Linux setup, criteria mapping table and Wayland limits",
+      "details": "README section 6: add Linux setup, the criteria mapping table and the Wayland limits. Done together with N47; the shared note is in N47. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N47",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Packaging and docs",
+      "short": "Add the Linux Calculator / text editor examples to the README",
+      "details": "Add the Linux version of the Calculator / text editor examples to the README. both done together: restructured README's \"6. Control actions\" into \"6.1 Windows (pywinauto)\" (unchanged content) and \"6.2 Linux (AT-SPI)\" (new), with the apt/ gsettings setup, the control_type -> AT-SPI role table (from _CONTROL_TYPE_TO_ROLES, confirmed against real widgets per section 3's findings, not the spec), the Wayland limits written precisely from what was actually confirmed in sections 4/6 (not the vaguer \"Known limits\" bullet at the top of this file), and gnome-calculator/gnome-text-editor chain examples mirroring the Windows Calculator/Notepad ones - using the real control_type: \"Edit\" finding from section 6, with a comment explaining why (not \"Document\"), so a reader doesn't have to rediscover that the hard way. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N48",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Packaging and docs",
+      "short": "Expose the control tree to the MCP server on both systems (list_controls tool)",
+      "details": "Optional: expose the control tree to the MCP server (automonkey/ai/mcp_server.py) on both systems. added a list_controls(window, depth=None) MCP tool, a thin wrapper around the top-level automonkey.list_controls (already cross-platform via the section 2 backend selection, so no new platform logic needed here). Verified: imports cleanly, registers as a tool, and returns the real control tree against a live window through the MCP wrapper. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N49",
+      "section": "main",
+      "status": "done",
+      "group": "Linux AT-SPI: Packaging and docs",
+      "short": "Update HISTORY.rst and bump the version",
+      "details": "Update HISTORY.rst and bump the version. 0.3.3 -> 0.4.0 (new feature, not a patch) in automonkey/__init__.py, setup.py, and setup.cfg's current_version. Added a HISTORY.rst entry summarizing the Linux backend, the Wayland limits, and the copy() resilience fix. Not run through the project's own bumpversion tool - noticed its config (setup.cfg) searches for version='{current_version}' (single quotes) but setup.py actually has version=\"0.4.0\" (double quotes), a pre-existing mismatch that would make the configured search-and-replace silently not match. Didn't fix this - it's a separate, orthogonal tooling issue, not part of this phase's scope - but updated all three files by hand to the same end state the tool would produce if that were fixed. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    },
+    {
+      "id": "N50",
+      "section": "validation",
+      "status": "done",
+      "group": "Linux AT-SPI: Final review",
+      "short": "Run the AT-SPI integration tests for real on gnome-calculator and gnome-text-editor",
+      "details": "Final review: running the integration tests for real. gnome-calculator and gnome-text-editor were installed after the Tests section, so tests/test_atspi_integration.py ran for real. Both tests first failed and exposed three real issues, all fixed: start_app kept the caller's stdout open (now DEVNULL + start_new_session=True); rapid do_action calls outrun the app (the test sleeps between clicks, the library does not); Component.grab_focus() fails app-wide on gnome-text-editor (GTK4), so _grab_focus falls back to a mouse click on the control's extents. Also confirmed again the Wayland keyboard-injection limit, and _stop() got a SIGKILL fallback. Verified 2026-10-13 on real gnome-calculator/gnome-text-editor (GDK_BACKEND=x11): both integration tests pass, full suite 38 passed, 13 skipped, 0 failed, no leftover GUI processes. Full write-up in docs/linux_atspi.md, section Final review. (From DONE.md, Control actions on Linux (AT-SPI), moved from pywinauto_for_linux.md on 22.10.2026; background notes in docs/linux_atspi.md.)",
+      "done": "2026-10-13T12:00:00"
+    }
+  ]
+}

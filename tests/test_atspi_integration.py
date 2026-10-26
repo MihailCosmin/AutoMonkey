@@ -29,7 +29,7 @@ def _atspi_bindings_available():
     python3-gi installs PyGObject for Ubuntu's own system python3, so `import gi`
     half-works (gi/__init__.py loads, then `from . import _gi` fails against an extension
     built for a different ABI) - a mismatch that leaves the module importable but useless.
-    See DONE.md section 6.
+    See docs/linux_atspi.md section 6.
     """
     try:
         import gi  # pylint: disable=import-outside-toplevel
