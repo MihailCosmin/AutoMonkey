@@ -23,6 +23,8 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
+import subprocess
 import sys
 import time
 
@@ -264,7 +266,10 @@ if sys.platform == "win32":
 else:
     def write(text: str, interval: float = 0.01, mode: str | None = None):
         """Type `text`; pyautogui can't type non-ASCII (e.g. ă, ș), so that is pasted."""
-        if text.isascii():
+        if shutil.which("xdotool") and os.environ.get("DISPLAY"):
+            # pyautogui sends US-layout key codes: '/' comes out as '7' on a German layout; xdotool follows the layout
+            subprocess.run(["xdotool", "type", "--delay", str(max(int(interval * 1000), 1)), "--", text], check=True)
+        elif text.isascii():
             pyautogui.write(text, interval=interval)
         else:
             import pyperclip
