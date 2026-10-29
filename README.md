@@ -479,7 +479,7 @@ The MCP server in `automonkey/ai/mcp_server.py` gives Claude these tools:
 - `screenshot` and `zoom`: look at the screen, or closer at a region.
 - `windows`: list open windows.
 - `controls`: list a window's controls with their click points (Windows, UI Automation).
-- `find_text` (active window) and `read_text` (screen or region): OCR.
+- `find_text` (active window) and `read_text` (screen or region): first the Text interface of the window's text controls (AT-SPI on Linux, UI Automation TextPattern on Windows, `automonkey/ai/texttree.py`), OCR when no control has the text. `wait_text`, `click_text` and `expect_text` do the same.
 - `history`: the scripts Claude ran today; `replay`: run a saved `.amk` script.
 
 ## The visual-testing skill

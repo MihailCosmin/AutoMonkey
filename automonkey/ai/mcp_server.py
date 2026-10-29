@@ -143,12 +143,16 @@ def history(n: int = 20) -> str:
 
 @mcp.tool()
 def find_text(text: str, whole_screen: bool = False) -> str:
-    """Locate text via OCR in the active window (whole_screen=true: everywhere, which also
+    """Locate text in the active window (the Text interface of its text controls, else OCR) (whole_screen=true: everywhere, which also
     matches text in other windows, e.g. a terminal). Returns boxes and click points in
     screenshot coordinates."""
     from .script import _text_scope
     query, region, where = _text_scope(("screen: " if whole_screen else "") + text)
-    hits = ocr.find_text(query, region=region)
+    hits = None
+    if region is not None:
+        from . import texttree, windows
+        hits = texttree.find(windows.active_window()["id"], query, region)
+    hits = hits or ocr.find_text(query, region=region)
     if not hits:
         return f"{text!r} not found {where}"
     return "\n".join(f"{h['text']!r} click at {h['cx']},{h['cy']} (box x={h['x']} y={h['y']} w={h['w']} h={h['h']})"
@@ -157,9 +161,23 @@ def find_text(text: str, whole_screen: bool = False) -> str:
 
 @mcp.tool()
 def read_text(x: int = 0, y: int = 0, width: int = 0, height: int = 0) -> str:
-    """OCR the screen (or a region in screenshot coordinates) and return the text. Cheaper than
-    a screenshot when you only need to read."""
-    return ocr.read_text(x, y, width, height) or "(no text found)"
+    """Read the text of the active window (or of a region in screenshot coordinates): from the
+    Text interface of its text controls when they have one, else by OCR of the screen. Cheaper
+    than a screenshot when you only need to read."""
+    from . import texttree, windows
+    try:
+        region = (x, y, width, height) if width and height else None
+        if region is None:
+            w = windows.active_window()
+            if not w.get("minimized"):
+                v = screen.view()
+                x0, y0 = v.to_image(w["x"], w["y"])
+                x1, y1 = v.to_image(w["x"] + w["w"], w["y"] + w["h"])
+                region = (x0, y0, x1 - x0, y1 - y0)
+        text = texttree.read(windows.active_window()["id"], region)
+    except LookupError:
+        text = None
+    return text or ocr.read_text(x, y, width, height) or "(no text found)"
 
 
 def main():

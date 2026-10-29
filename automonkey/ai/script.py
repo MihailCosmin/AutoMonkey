@@ -49,7 +49,7 @@ import time
 
 import pyautogui
 
-from . import inject, ocr, screen, windows
+from . import inject, ocr, screen, texttree, windows
 from ..key_funcs import hotkey, press, write
 
 pyautogui.PAUSE = 0.03  # default 0.1s per call adds up quickly
@@ -129,10 +129,18 @@ def _text_scope(rest: str) -> tuple[str, tuple[int, int, int, int] | None, str]:
 
 
 def _find_text(rest: str) -> tuple[list[dict], str, str]:
-    """OCR first; text OCR can't read (tiny or low-contrast fonts) is then looked up
+    """The Text interface of the active window's text controls first (exact boxes, no
+    OCR), then OCR; text OCR can't read (tiny or low-contrast fonts) is finally looked up
     among the names of the active window's visible controls, which are the texts the
     app draws."""
     text, region, where = _text_scope(rest)
+    if region is not None:
+        try:
+            hits = texttree.find(windows.active_window()["id"], text, region)
+        except LookupError:
+            hits = None
+        if hits:
+            return hits, text, where + " (accessibility text)"
     hits = ocr.find_text(text, region=region)
     if hits or region is None:
         return hits, text, where
