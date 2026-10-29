@@ -501,6 +501,17 @@
       "short": "Fill depends_on in every open task that waits for another task",
       "details": "New optional field of tasklist.json: \"depends_on\": an array with the ids (with the repository prefix, e.g. \"AutoMonkey-N27\") of the tasks that must be done first. The Tasklist tab shows it in the details of a task. Go through every open (todo) task, read its details (e.g. \"waits for H2\", \"continues P2.3\", \"after N5\") and the order of the list, and set depends_on where a task really needs another one (including human tasks it waits for). Use `wb tasklist-edit <id> --depends_on <id1,id2> --repo AutoMonkey` or edit the file; keep the ids that exist in this list (the tasklist-check hook rejects unknown ones). Do not invent dependencies. Check with node ~/.claude/hooks/tasklist-check.js tasklist.json. Done 26.10.2026: checked all open tasks (N52, N53); none waits for another open task (N52 only cites N51, already done), so no depends_on was needed.",
       "done": "2026-10-26T21:20:49"
+    },
+    {
+      "id": "AutoMonkey-N55",
+      "section": "validation",
+      "status": "todo",
+      "group": "",
+      "model": "sonnet",
+      "effort": "medium",
+      "short": "Verify texttree (AT-SPI/UIA text before OCR) on the micomuXML WYSIWYG view and on Windows",
+      "details": "From micomuXML-AM13. automonkey/ai/texttree.py is tested on Linux with a fake Text interface and the live Qt target line edit (QLabel has no Text interface, so labels still go to OCR/names). Not yet verified: (1) replaying micomuXML tests/ui/smoke_open_dm.amk with the WYSIWYG view (expect_text of the DM title should pass without OCR); (2) the Windows UIA TextPattern path, written but never run.",
+      "done": null
     }
   ]
 }
