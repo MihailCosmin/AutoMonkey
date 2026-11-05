@@ -512,6 +512,17 @@
       "short": "Verify texttree (AT-SPI/UIA text before OCR) on the micomuXML WYSIWYG view and on Windows",
       "details": "From micomuXML-AM13. automonkey/ai/texttree.py is tested on Linux with a fake Text interface and the live Qt target line edit (QLabel has no Text interface, so labels still go to OCR/names). Not yet verified: (1) replaying micomuXML tests/ui/smoke_open_dm.amk with the WYSIWYG view (expect_text of the DM title should pass without OCR); (2) the Windows UIA TextPattern path, written but never run.",
       "done": null
+    },
+    {
+      "id": "AutoMonkey-N56",
+      "section": "rework",
+      "status": "todo",
+      "group": "",
+      "model": "haiku",
+      "effort": "low",
+      "short": "Script parser: a ';' inside a '#' comment line splits it into commands",
+      "details": "Found by micomuXML-N964 (05.11.2026): automonkey/ai/script.py split_script splits each raw line at ';' before checking for '#', so a comment like '# Bug: X only selects it; it does not follow' runs 'it does not follow' as a command (unknown command 'it'). Fix: skip a raw line whose stripped text starts with '#' before splitting; add a test. micomuXML's scripts/run_ui_regressions.py escapes ';' in comment lines as a workaround and can drop that once this is fixed.",
+      "done": null
     }
   ]
 }
