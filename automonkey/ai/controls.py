@@ -168,7 +168,9 @@ def tree(window: str | int, depth: int | None = None, interactive_only: bool = F
 
 def find(window: str | int, name: str, control_type: str | None = None) -> dict:
     """The control whose name matches `name` (exact, else case-insensitive substring),
-    optionally of `control_type`. Visible, enabled matches win."""
+    optionally of `control_type`. Visible, interactive, enabled matches win: a web form's
+    <label for=...> has the same name as its field, and clicking the label does not open a
+    <select>."""
     _require_supported()
     want = normalize(name)
     exact, partial = [], []
@@ -185,7 +187,7 @@ def find(window: str | int, name: str, control_type: str | None = None) -> dict:
         elif want and want in nm:
             partial.append(p)
     for group in (exact, partial):
-        group.sort(key=lambda p: (p["rect"] is None, not p["enabled"]))
+        group.sort(key=lambda p: (p["rect"] is None, p["type"] not in INTERACTIVE, not p["enabled"]))
         if group:
             return group[0]
     kind = f" {control_type}" if control_type else ""

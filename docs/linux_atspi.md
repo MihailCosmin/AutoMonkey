@@ -242,4 +242,34 @@ drag_control, expect_order); the three `tests/ui/bugs/*.amk` fail on exactly the
 (Export opens nothing; Tab goes from User to OK; the status label shows only
 "ready - all systems o..."); `tab_order` forwards and with shift; `controls` on the window
 in 0.35 s. Opt-in test: `AUTOMONKEY_ATSPI_INTEGRATION=1 pytest tests/test_atspi_integration.py -k qt_target`.
-Not tried yet: GTK apps (toolkit-accessibility is off on this machine) and Chromium/Electron.
+
+### GTK 3, GTK 4 and Electron (14.11.2026, rpi4-sd, Ubuntu aarch64, Xvfb + openbox, AT-SPI 2)
+
+Targets: `tests/apps/gtk_target.py` (GTK 3.24; `--gtk4` for GTK 4.22) and `tests/apps/web_target.html`
+in Electron 37 with `--no-sandbox --force-renderer-accessibility`. No unmapped role nicks occurred in
+any of them. GTK 3 and 4 exposed their trees without `toolkit-accessibility`.
+
+Fixed in `automonkey/ai/atspi_tree.py` / `controls.py`:
+- **GTK 4 boxes:** `get_extents(SCREEN)` is 0,0 for every element on X11; `screen_extents()` uses the
+  WINDOW extents plus the top-level's X11 client origin (Xlib `translate_coords`; `wmctrl`/`xdotool`
+  are 1,22 off under openbox).
+- **`root()`** waits up to 3 s for the tree (GTK 4 registers it after the window maps) and walks an
+  unnamed showing top-level `frame` of the same process as a popup (Chromium's open menu).
+- **`walk()`** skips a `label` child named like its parent (GTK 4 puts one in each button, check box
+  and menu item; it made `clipped` OCR the wrong area).
+- **`controls.find()`** prefers interactive types among equal matches (`click_control Colour` hits the
+  `<select>`, not its `<label for>`). Also affects Windows.
+
+Works unchanged: GTK 3 menus and combo popups (separate top-levels walked as popups), dialogs,
+`focused`/`tab_order`, `clipped`; Electron menus, `<select>` lists, dialogs, focus, Tab order.
+
+Not fixed (toolkit limits; see task "GTK 4 / GTK 3 AT-SPI gaps"):
+- GTK 3 focused combo box: no element has FOCUSED, so `focused`/`tab_order` report the window.
+- GTK 3 entry has no accessible name (needs a label with `mnemonic_widget`).
+- GTK 4: FOCUSED stays on the startup entry in the main window; PopoverMenu items have no names and
+  boxes ~10-15 px off, combo popover items are unnamed panels, the combo shows no value. Use `click_text`.
+- Electron: the page tree fills lazily, `controls`/`clipped` right after `launch` may see it incomplete
+  (`wait 2` first); menu-bar `Help` and a page link `Help` collide in `click_control`; menu item names
+  carry the shortcut (`Zoom In Ctrl++`), only substring match finds them; needs `--no-sandbox`
+  without a setuid chrome-sandbox.
+

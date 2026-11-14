@@ -472,12 +472,23 @@
     {
       "id": "AutoMonkey-N52",
       "section": "validation",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "sonnet",
       "effort": "medium",
       "short": "Validate the AI-layer AT-SPI helpers on a GTK app and on a Chromium/Electron app",
-      "details": "N51 was verified only with the Qt target (tests/apps/qt_target.py). Try controls, click_control, focused, tab_order and clipped on a GTK3/GTK4 app (needs gsettings set org.gnome.desktop.interface toolkit-accessibility true and an app restart; GTK menus and combo lists are separate top-level windows, which atspi_tree.root walks as popups) and on Chromium or an Electron app started with --force-renderer-accessibility. Fix what differs (role mapping in atspi_tree.ROLE_TYPES, popup roles, focus quirks) and note it in docs/linux_atspi.md.",
+      "details": "N51 was verified only with the Qt target (tests/apps/qt_target.py). Try controls, click_control, focused, tab_order and clipped on a GTK3/GTK4 app (needs gsettings set org.gnome.desktop.interface toolkit-accessibility true and an app restart; GTK menus and combo lists are separate top-level windows, which atspi_tree.root walks as popups) and on Chromium or an Electron app started with --force-renderer-accessibility. Fix what differs (role mapping in atspi_tree.ROLE_TYPES, popup roles, focus quirks) and note it in docs/linux_atspi.md. Done 14.11.2026: validated on rpi4-sd (Xvfb+openbox) with new tests/apps/gtk_target.py (GTK3, --gtk4) and web_target.html (Electron 37). Fixed GTK4 0,0 extents, tree-ready retry, Chromium menu frames, duplicate GTK4 labels, field-over-label in controls.find; 43 tests passed on Linux; findings in docs/linux_atspi.md. Left: see AutoMonkey-N57.",
+      "done": "2026-11-14T15:26:39"
+    },
+    {
+      "id": "AutoMonkey-N57",
+      "section": "rework",
+      "status": "todo",
+      "group": "",
+      "model": "sonnet",
+      "effort": "high",
+      "short": "GTK 4 / GTK 3 AT-SPI gaps: focus, popovers, combo; Electron launch wait",
+      "details": "Continues AutoMonkey-N52. Not fixed: GTK3 focused combo box reports the window; GTK3 entry has no name; GTK4 FOCUSED not updated in main window, popover/combo items unnamed and ~10-15px off, combo value missing; Electron tree fills lazily after launch (launch could wait for a document-web with children); menu-bar Help vs page Help collision; menu item names carry shortcut. See docs/linux_atspi.md.",
       "done": null
     },
     {

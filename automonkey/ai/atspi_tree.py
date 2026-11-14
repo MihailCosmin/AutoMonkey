@@ -14,6 +14,7 @@ an open menu is listed while it is open. Qt apps need QT_LINUX_ACCESSIBILITY_ALW
 from __future__ import annotations
 
 import subprocess
+import time
 
 from . import screen, windows
 
@@ -119,6 +120,71 @@ def control_type(acc, role: str | None = None, states=None) -> str:
     return ROLE_TYPES.get(role) or "".join(p.capitalize() for p in role.split("-")) or "?"
 
 
+def _window_relative(acc) -> bool:
+    """GTK 4 does not know where its windows are on the screen: Component.get_extents(SCREEN)
+    gives 0,0 for every element (seen with GTK 4.22 on X11); its WINDOW extents are right."""
+    try:
+        app = acc.get_application()
+        key = getattr(app, "path", None) or id(app)
+        if key not in _RELATIVE:
+            _RELATIVE[key] = (app.get_toolkit_name() or "").upper() == "GTK" \
+                and (app.get_toolkit_version() or "").startswith("4.")
+        return _RELATIVE[key]
+    except Exception:
+        return False
+
+
+_RELATIVE: dict = {}
+
+
+def _top_of(acc):
+    """The top-level (child of the application) that holds acc."""
+    node, budget = acc, 200
+    while budget:
+        budget -= 1
+        try:
+            parent = node.get_parent()
+        except Exception:
+            return node
+        if parent is None or _role(parent) == "application":
+            return node
+        node = parent
+    return node
+
+
+def _client_origin(top) -> tuple[int, int]:
+    """Screen position of the X11 client area of an AT-SPI top-level (its window's 0,0):
+    the X11 window of the same process with the same title, through Xlib, because wmctrl
+    and xdotool report the frame-adjusted position under some window managers (openbox)."""
+    title, pid = _name(top), _pid(top)
+    wins = [w for w in windows.list_windows() if not pid or w.get("pid") == pid]
+    match = next((w for w in wins if w["title"].strip() == title), None) or (wins[0] if len(wins) == 1 else None)
+    if match is None:
+        return 0, 0
+    try:
+        from Xlib import display as xdisplay
+        d = xdisplay.Display()
+        try:
+            win = d.create_resource_object("window", match["id"])
+            pos = win.translate_coords(d.screen().root, 0, 0)
+            return -pos.x, -pos.y
+        finally:
+            d.close()
+    except Exception:
+        return match["x"], match["y"]
+
+
+def screen_extents(acc) -> tuple[int, int, int, int]:
+    """x, y, width, height of acc in screen (input) pixels."""
+    Atspi = _atspi()
+    e = acc.get_extents(Atspi.CoordType.SCREEN)
+    if e.x == 0 and e.y == 0 and _window_relative(acc):
+        w = acc.get_extents(Atspi.CoordType.WINDOW)
+        ox, oy = _client_origin(_top_of(acc))
+        return w.x + ox, w.y + oy, w.width, w.height
+    return e.x, e.y, e.width, e.height
+
+
 def props(acc) -> dict:
     """The same snapshot controls._props makes from a UI Automation element."""
     Atspi = _atspi()
@@ -127,11 +193,11 @@ def props(acc) -> dict:
     rect = None
     if _has(states, Atspi, "SHOWING"):
         try:
-            e = acc.get_extents(Atspi.CoordType.SCREEN)
-            if e.width > 0 and e.height > 0:
+            ex, ey, ew, eh = screen_extents(acc)
+            if ew > 0 and eh > 0:
                 v = screen.view()
-                x0, y0 = v.to_image(e.x, e.y)
-                x1, y1 = v.to_image(e.x + e.width, e.y + e.height)
+                x0, y0 = v.to_image(ex, ey)
+                x1, y1 = v.to_image(ex + ew, ey + eh)
                 rect = (x0, y0, x1 - x0, y1 - y0)
         except Exception:
             pass
@@ -179,6 +245,11 @@ def root(window: str | int):
                           "screen); restart it with `systemctl --user restart at-spi-dbus-bus.service`, "
                           "then restart the app under test")
     tops = [t for t in _top_levels(w.get("pid")) if _showing(t)]
+    deadline = time.monotonic() + 3
+    while not tops and w.get("pid") and time.monotonic() < deadline:
+        # A GTK 4 app registers its tree a moment after its window maps: give it a few seconds.
+        time.sleep(0.25)
+        tops = [t for t in _top_levels(w.get("pid")) if _showing(t)]
     if not tops and w.get("pid"):
         tops = [t for t in _top_levels() if _showing(t)]
     title = w["title"].strip()
@@ -201,7 +272,9 @@ def root(window: str | int):
                           "QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1 before they start (`launch` sets it), GTK apps "
                           "`gsettings set org.gnome.desktop.interface toolkit-accessibility true`, Chromium/"
                           "Electron --force-renderer-accessibility; self-drawn UIs have none: use OCR")
-    popups = [t for t in tops if t is not best and _role(t) in _POPUP_ROLES and _key(t) != _key(best)]
+    # Chromium/Electron open their menus in an unnamed top-level "frame".
+    popups = [t for t in tops if t is not best and _key(t) != _key(best)
+              and (_role(t) in _POPUP_ROLES or (_role(t) == "frame" and not _name(t)))]
     return w, best, popups
 
 
@@ -214,10 +287,10 @@ def walk(window: str | int, depth: int | None = None, interactive_only: bool = F
     """Yield (level, accessible, props) like controls.walk; hidden subtrees are skipped."""
     Atspi = _atspi()
     _w, top, popups = root(window)
-    stack = [(0, top)] + [(1, p) for p in reversed(popups)]
+    stack = [(0, top, "")] + [(1, p, "") for p in reversed(popups)]
     seen, budget = set(), MAX_NODES
     while stack and budget > 0:
-        level, acc = stack.pop()
+        level, acc, parent_name = stack.pop()
         key = _key(acc)
         if key in seen:
             continue
@@ -225,12 +298,17 @@ def walk(window: str | int, depth: int | None = None, interactive_only: bool = F
         budget -= 1
         if level and not _has(_states(acc), Atspi, "SHOWING"):
             continue
+        name = _name(acc)
+        # GTK 4 exposes the label inside a button, check box or menu item as a child with the
+        # same name (and a box at the parent's corner, not where the text is): it is the parent.
+        if level and name and name == parent_name and _role(acc) == "label":
+            continue
         if level:
             p = props(acc)
             if not interactive_only or p["type"] in (interactive or ()):
                 yield level, acc, p
         if depth is None or level < depth:
-            stack.extend((level + 1, k) for k in reversed(_children(acc)))
+            stack.extend((level + 1, k, name) for k in reversed(_children(acc)))
 
 
 def _active_pid() -> int:

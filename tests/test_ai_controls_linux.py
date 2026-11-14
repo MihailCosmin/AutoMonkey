@@ -203,3 +203,70 @@ def test_root_with_an_empty_desktop_names_the_registry_fix(desktop):
     desktop()
     with pytest.raises(LookupError, match="at-spi-dbus-bus"):
         atspi_tree.root("Main")
+
+
+class _Gtk4Node(Node):
+    """A GTK 4 element: SCREEN extents are always 0,0; WINDOW extents are right."""
+
+    def __init__(self, *a, win=(0, 0, 10, 10), app=None, parent=None, **k):
+        super().__init__(*a, **k)
+        self.win, self.app, self.parent = win, app, parent
+
+    def get_extents(self, coord):
+        if coord == "window":
+            x, y, w, h = self.win
+            return SimpleNamespace(x=x, y=y, width=w, height=h)
+        return SimpleNamespace(x=0, y=0, width=self.win[2], height=self.win[3])
+
+    def get_application(self):
+        return self.app
+
+    def get_parent(self):
+        return self.parent
+
+
+def test_gtk4_boxes_are_window_extents_plus_the_window_origin(desktop, monkeypatch):
+    FakeAtspi.CoordType = SimpleNamespace(SCREEN="screen", WINDOW="window")
+    monkeypatch.setattr(atspi_tree, "_RELATIVE", {})
+    app = Node("application", "gtk4app")
+    app.get_toolkit_name = lambda: "GTK"
+    app.get_toolkit_version = lambda: "4.22.4"
+    frame = _Gtk4Node("frame", "Main", win=(0, 0, 420, 320), app=app, parent=app)
+    button = _Gtk4Node("push-button", "OK", win=(12, 158, 100, 40), app=app, parent=frame)
+    desktop(app)
+    monkeypatch.setattr(atspi_tree, "_client_origin", lambda top: (430, 248) if top is frame else (0, 0))
+    assert atspi_tree.screen_extents(button) == (442, 406, 100, 40)
+    # screenshot pixels are half of input pixels in the fake view
+    assert atspi_tree.props(button)["rect"] == (221, 203, 50, 20)
+    app.get_toolkit_version = lambda: "3.24.52"
+    monkeypatch.setattr(atspi_tree, "_RELATIVE", {})
+    assert atspi_tree.screen_extents(button) == (0, 0, 100, 40)
+    FakeAtspi.CoordType = SimpleNamespace(SCREEN=0)
+
+
+def test_walk_adds_the_unnamed_frame_of_a_chromium_menu(desktop):
+    frame = Node("frame", "Main", kids=[Node("push-button", "View")])
+    menu = Node("frame", "", kids=[Node("menu", kids=[Node("menu-item", "Zoom In Ctrl++")])])
+    second = Node("frame", "Second window", kids=[Node("push-button", "Elsewhere")])
+    desktop(Node("application", "electron", kids=[frame, menu, second]))
+    names = [p["name"] for _l, _a, p in atspi_tree.walk("Main")]
+    assert "Zoom In Ctrl++" in names and "View" in names and "Elsewhere" not in names
+
+
+def test_walk_skips_a_label_that_repeats_its_parent(desktop):
+    # GTK 4 buttons hold a label with the same name (and a box at the button's corner).
+    button = Node("push-button", "Increment", kids=[Node("label", "Increment")])
+    check = Node("check-box", "Notify", kids=[Node("label", "Notify")])
+    frame = Node("frame", "Main", kids=[button, check, Node("label", "Count: 1")])
+    desktop(Node("application", "app", kids=[frame]))
+    names = [p["name"] for _l, _a, p in atspi_tree.walk("Main")]
+    assert names == ["Increment", "Notify", "Count: 1"]
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="controls uses UI Automation on Windows")
+def test_find_prefers_the_field_over_its_label(desktop):
+    # A web form: <label for=colour>Colour</label> comes before the <select> of the same name.
+    frame = Node("frame", "Main", kids=[Node("label", "Colour"), Node("combo-box", "Colour")])
+    desktop(Node("application", "app", kids=[frame]))
+    assert controls.find("Main", "Colour")["type"] == "ComboBox"
+    assert controls.find("Main", "Colour", "Text")["type"] == "Text"

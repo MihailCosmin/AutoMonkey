@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<!-- Web target for the AT-SPI side of the AI layer: open it in Chromium or Electron started with
+     --force-renderer-accessibility, e.g.
+       chromium --force-renderer-accessibility --new-window tests/apps/web_target.html
+       electron --force-renderer-accessibility main.js   (main.js loads this file)
+     Title: "AutoMonkey web target". Tab order: name -> colour -> notifications -> Increment ->
+     Open dialog -> Help link. The status line is cut off with an ellipsis (for `clipped`). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AutoMonkey web target</title>
+<style>
+  body { font: 15px sans-serif; margin: 16px; }
+  label, input, select, button { margin: 4px 0; }
+  #status { width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  dialog { padding: 16px; }
+</style>
+</head>
+<body>
+<h1>AutoMonkey web target</h1>
+<form onsubmit="return false">
+  <h2>Form</h2>
+  <p><label for="name">Your name</label> <input id="name" placeholder="Your name"></p>
+  <p><label for="colour">Colour</label>
+    <select id="colour"><option>Red</option><option>Green</option><option>Blue</option></select></p>
+  <p><input type="checkbox" id="notify"> <label for="notify">Enable notifications</label></p>
+  <p><button id="inc" type="button">Increment</button>
+     <button id="open" type="button">Open dialog</button>
+     <a href="#help" id="help">Help</a></p>
+</form>
+<p id="status">ready - all systems operational, waiting for the next command</p>
+<dialog id="settings" aria-label="Settings">
+  <p>Apply the settings?</p>
+  <button id="ok" type="button">OK</button> <button id="cancel" type="button">Cancel</button>
+</dialog>
+<script>
+  let count = 0;
+  const status = document.getElementById("status");
+  const say = (t) => { status.textContent = t; };
+  document.getElementById("name").addEventListener("input", (e) => say("Hello, " + e.target.value));
+  document.getElementById("colour").addEventListener("change", (e) => say("Colour: " + e.target.value));
+  document.getElementById("notify").addEventListener("change", (e) => say("Notifications " + (e.target.checked ? "on" : "off")));
+  document.getElementById("inc").addEventListener("click", () => say("Count: " + (++count)));
+  const dlg = document.getElementById("settings");
+  document.getElementById("open").addEventListener("click", () => dlg.showModal());
+  document.getElementById("ok").addEventListener("click", () => { say("Settings applied"); dlg.close(); });
+  document.getElementById("cancel").addEventListener("click", () => dlg.close());
+  document.getElementById("help").addEventListener("click", () => say("Help opened"));
+</script>
+</body>
+</html>
