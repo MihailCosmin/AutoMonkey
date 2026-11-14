@@ -99,7 +99,10 @@ def _prepare(img: Image.Image) -> tuple[Image.Image, int]:
     captions, status bars) at their real size. Returns (image, enlargement factor)."""
     gray = ImageOps.grayscale(img)
     # Light-on-dark UIs (dark themes) OCR much better when inverted.
-    if sum(gray.resize((64, 64)).getdata()) / 4096 < 110:
+    # Pillow 12 deprecates getdata() (removed in Pillow 14); get_flattened_data() replaces it.
+    small = gray.resize((64, 64))
+    pixels = small.get_flattened_data() if hasattr(small, "get_flattened_data") else small.getdata()
+    if sum(pixels) / 4096 < 110:
         gray = ImageOps.invert(gray)
     factor = 2 if max(gray.size) <= 2600 else 1
     if factor > 1:

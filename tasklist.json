@@ -494,13 +494,13 @@
     {
       "id": "AutoMonkey-N53",
       "section": "rework",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "haiku",
       "effort": "low",
       "short": "ocr._prepare uses Image.getdata, deprecated in Pillow 12 and removed in Pillow 14",
-      "details": "automonkey/ai/ocr.py line ~102 calls gray.resize((64, 64)).getdata() to measure brightness; Pillow warns it is removed in Pillow 14 (2027-10-15). Use get_flattened_data() when present (keep a fallback for older Pillow), and run tests/test_ai.py.",
-      "done": null
+      "details": "automonkey/ai/ocr.py line ~102 calls gray.resize((64, 64)).getdata() to measure brightness; Pillow warns it is removed in Pillow 14 (2027-10-15). Use get_flattened_data() when present (keep a fallback for older Pillow), and run tests/test_ai.py. Done 14.11.2026: _prepare now uses get_flattened_data() (getdata fallback for older Pillow); tests/test_ai.py run with DeprecationWarning as error.",
+      "done": "2026-11-14T15:51:20"
     },
     {
       "id": "AutoMonkey-N54",
