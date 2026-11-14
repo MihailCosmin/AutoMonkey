@@ -41,7 +41,7 @@ test, every control in the app.
   front (`focus`). `screen:` searches everything - including your own terminal showing
   the test script, which gives false passes.
 - `kill` only processes you launched. Close the app under test in a `finally:` block.
-- Don't send screenshots of the whole desktop to other services (the swarm, web): they
+- Don't send screenshots of the whole desktop to other services (web): they
   show the user's other windows. Crop to the app (`zoom`, or `save` + crop) first.
 - Destructive actions inside the app (delete, overwrite, send, publish) only on test data.
 
@@ -191,10 +191,3 @@ Full reference: [references/automonkey.md](references/automonkey.md). Essentials
   accessibility tree automatically; otherwise `zoom` and read it yourself.
 - Several monitors: `act("monitor 1")` switches the screenshots and clicks to monitor 1.
 - Linux: the same tools work on X11/XWayland through AT-SPI; start apps with `launch`.
-
-## 6. Using the swarm (cheap-ai-swarm)
-
-Good swarm tasks around this skill: writing layer-1 tests from the coverage list (with
-the framework's test command as `check`), turning bug notes into `.amk` scripts, and
-second-opinion visual reviews of **cropped** app screenshots (`images`, `vision`-tagged
-providers). Keep the user pass itself, the judgment and the final report for yourself.
