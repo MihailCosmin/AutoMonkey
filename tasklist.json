@@ -483,13 +483,13 @@
     {
       "id": "AutoMonkey-N57",
       "section": "rework",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "sonnet",
       "effort": "high",
       "short": "GTK 4 / GTK 3 AT-SPI gaps: focus, popovers, combo; Electron launch wait",
       "details": "Continues AutoMonkey-N52. Not fixed: GTK3 focused combo box reports the window; GTK3 entry has no name; GTK4 FOCUSED not updated in main window, popover/combo items unnamed and ~10-15px off, combo value missing; Electron tree fills lazily after launch (launch could wait for a document-web with children); menu-bar Help vs page Help collision; menu item names carry shortcut. See docs/linux_atspi.md.",
-      "done": null
+      "done": "2026-11-14T21:43:48"
     },
     {
       "id": "AutoMonkey-N53",
@@ -516,13 +516,13 @@
     {
       "id": "AutoMonkey-N55",
       "section": "validation",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "sonnet",
       "effort": "medium",
       "short": "Verify texttree (AT-SPI/UIA text before OCR) on the micomuXML WYSIWYG view and on Windows",
-      "details": "From micomuXML-AM13. automonkey/ai/texttree.py is tested on Linux with a fake Text interface and the live Qt target line edit (QLabel has no Text interface, so labels still go to OCR/names). Not yet verified: (1) replaying micomuXML tests/ui/smoke_open_dm.amk with the WYSIWYG view (expect_text of the DM title should pass without OCR); (2) the Windows UIA TextPattern path, written but never run.",
-      "done": null
+      "details": "From micomuXML-AM13. automonkey/ai/texttree.py is tested on Linux with a fake Text interface and the live Qt target line edit (QLabel has no Text interface, so labels still go to OCR/names). Not yet verified: (1) replaying micomuXML tests/ui/smoke_open_dm.amk with the WYSIWYG view (expect_text of the DM title should pass without OCR); (2) the Windows UIA TextPattern path, written but never run. Done 14.11.2026: Windows UIA verified on a live PySide6 QPlainTextEdit: read_text works (GetVisibleRanges/GetText); find_text did not (Qt's TextPattern.FindText returns NULL, the old code treated NULL as a hit-less result and also never matched) - _uia_find now locates matches by offset in the visible text and builds a sub-range (Clone/MoveEndpointByRange/Move/MoveEndpointByUnit); unit test with a fake range added (tests/test_ai_texttree.py). Qt's GetBoundingRectangles returns the first line's y/x for text on later lines of a multi-line edit, so the click point is wrong there (single-line edits fine). micomuXML WYSIWYG view (src/rendering/s1000d/view.py) is custom painted (paintEvent), exposes no Text interface, so expect_text there stays on OCR - not replayed: tests/ui/smoke_open_dm.amk does not exist in this checkout and micomuXML's venv lacks lxml. Left: see AutoMonkey-N58.",
+      "done": "2026-11-14T22:17:19"
     },
     {
       "id": "AutoMonkey-N56",
@@ -533,6 +533,17 @@
       "effort": "low",
       "short": "Script parser: a ';' inside a '#' comment line splits it into commands",
       "details": "Found by micomuXML-N964 (05.11.2026): automonkey/ai/script.py split_script splits each raw line at ';' before checking for '#', so a comment like '# Bug: X only selects it; it does not follow' runs 'it does not follow' as a command (unknown command 'it'). Fix: skip a raw line whose stripped text starts with '#' before splitting; add a test. micomuXML's scripts/run_ui_regressions.py escapes ';' in comment lines as a workaround and can drop that once this is fixed.",
+      "done": null
+    },
+    {
+      "id": "AutoMonkey-N58",
+      "section": "rework",
+      "status": "todo",
+      "group": "",
+      "model": "sonnet",
+      "effort": "medium",
+      "short": "texttree/UIA: wrong box for text on later lines of multi-line Qt edits; WYSIWYG view has no text API",
+      "details": "Continues AutoMonkey-N55. (1) Qt's UIA TextRange.GetBoundingRectangles reports the first line's y/x for text on lines 2+ of a QPlainTextEdit; in _uia_find detect it (second match of a multi-line text with identical box as line 1) and fall back to OCR for that hit, or compute the box from the line's range via ExpandToEnclosingUnit(Line). (2) micomuXML's WYSIWYG view is custom painted and exposes no text: either ask micomuXML to add QAccessible text for DM title/headings (micomuXML task) or accept OCR; then replay a smoke_open_dm.amk once it exists.",
       "done": null
     }
   ]

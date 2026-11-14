@@ -216,22 +216,48 @@ def _uia_rects(rng):
     return out
 
 
+def _uia_subrange(visible, s, e):
+    """Sub-range [s, e) of the characters of `visible` (a clone, so the pattern is untouched)."""
+    r = visible.Clone()
+    r.MoveEndpointByRange(1, visible, 0)           # End := Start
+    if s:
+        r.Move(0, s)                                # TextUnit_Character
+    r.MoveEndpointByUnit(1, 0, e - s)               # End += (e - s) characters
+    return r
+
+
 def _uia_find(window, query, region):
+    """Occurrences found by offset in the visible text (FindText is missing in Qt and others)."""
     hits = []
     for pattern, rect in _uia_patterns(window, region):
         try:
             visible = pattern.GetVisibleRanges()
-            for i in range(visible.Length):
-                found = visible.GetElement(i).FindText(query, False, True)
-                if found is None:
-                    continue
-                boxes = _uia_rects(found)
-                if boxes:
-                    h = _hit(found.GetText(-1), *boxes[0], False)
-                    if _in(rect, (h["x"], h["y"], h["w"], h["h"])):
-                        hits.append(h)
+            ranges = [visible.GetElement(i) for i in range(visible.Length)]
         except Exception:
             continue
+        for vr in ranges:
+            try:
+                text = vr.GetText(MAX_CHARS)
+            except Exception:
+                continue
+            for s, e, whole in _match_offsets(text, query):
+                try:
+                    found = _uia_subrange(vr, s, e)
+                    boxes = _uia_rects(found)
+                    if not boxes:
+                        continue
+                    x0 = min(b[0] for b in boxes)
+                    y0 = min(b[1] for b in boxes)
+                    x1 = max(b[2] for b in boxes)
+                    y1 = max(b[3] for b in boxes)
+                    if len(boxes) > 1:      # wrapped over lines: the first line's box is the click target
+                        x0, y0, x1, y1 = boxes[0]
+                    h = _hit(text[s:e], x0, y0, x1, y1, whole)
+                except Exception:
+                    continue
+                b = (h["x"], h["y"], h["w"], h["h"])
+                if _in(rect, b) and (not region or _in(region, b)):
+                    hits.append(h)
     return hits
 
 
