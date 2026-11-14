@@ -554,7 +554,7 @@
       "model": "sonnet",
       "effort": "high",
       "short": "Support force manual screenshots: window capture to PNG, control bounds, window video",
-      "details": "Standard: force-libs docs/user-manuals.md (commit 7466b21, 15.11.2026). For the docs-kit automonkey driver (force-libs-N288) and video builder (N289): capture ONE window or region to a PNG at native resolution, export the bounds of named controls (UIA/AT-SPI) as JSON for callouts, record one window to video (ffmpeg gdigrab/x11grab), and a CLI that replays a .amk script headlessly with exit codes. Windows and Linux (X11).",
+      "details": "Standard: force-libs docs/user-manuals.md (commit 7466b21, 15.11.2026). For the docs-kit automonkey driver (force-libs-N288) and video builder (N289): capture ONE window or region to a PNG at native resolution, export the bounds of named controls (UIA/AT-SPI) as JSON for callouts, record one window to video (ffmpeg gdigrab/x11grab), and a CLI that replays a .amk script headlessly with exit codes. Windows and Linux (X11). AutoMonkey's own survey estimate (15.11.2026): window/region capture 1-2 days, control bounds 1 day, shot step saving to a named file 1 day, screen recording 2-3 days, YAML wrapper over .amk 2 days; about 1-2 weeks. Linux on X11/Xvfb only.",
       "done": null
     }
   ]
