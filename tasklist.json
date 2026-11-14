@@ -545,6 +545,17 @@
       "short": "texttree/UIA: wrong box for text on later lines of multi-line Qt edits; WYSIWYG view has no text API",
       "details": "Continues AutoMonkey-N55. (1) Qt's UIA TextRange.GetBoundingRectangles reports the first line's y/x for text on lines 2+ of a QPlainTextEdit; in _uia_find detect it (second match of a multi-line text with identical box as line 1) and fall back to OCR for that hit, or compute the box from the line's range via ExpandToEnclosingUnit(Line). (2) micomuXML's WYSIWYG view is custom painted and exposes no text: either ask micomuXML to add QAccessible text for DM title/headings (micomuXML task) or accept OCR; then replay a smoke_open_dm.amk once it exists.",
       "done": null
+    },
+    {
+      "id": "AutoMonkey-N59",
+      "section": "main",
+      "status": "todo",
+      "group": "User manuals",
+      "model": "sonnet",
+      "effort": "high",
+      "short": "Support force manual screenshots: window capture to PNG, control bounds, window video",
+      "details": "Standard: force-libs docs/user-manuals.md (commit 7466b21, 15.11.2026). For the docs-kit automonkey driver (force-libs-N288) and video builder (N289): capture ONE window or region to a PNG at native resolution, export the bounds of named controls (UIA/AT-SPI) as JSON for callouts, record one window to video (ffmpeg gdigrab/x11grab), and a CLI that replays a .amk script headlessly with exit codes. Windows and Linux (X11).",
+      "done": null
     }
   ]
 }
