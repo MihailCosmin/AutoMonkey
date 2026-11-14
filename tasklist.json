@@ -527,13 +527,13 @@
     {
       "id": "AutoMonkey-N56",
       "section": "rework",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "haiku",
       "effort": "low",
       "short": "Script parser: a ';' inside a '#' comment line splits it into commands",
-      "details": "Found by micomuXML-N964 (05.11.2026): automonkey/ai/script.py split_script splits each raw line at ';' before checking for '#', so a comment like '# Bug: X only selects it; it does not follow' runs 'it does not follow' as a command (unknown command 'it'). Fix: skip a raw line whose stripped text starts with '#' before splitting; add a test. micomuXML's scripts/run_ui_regressions.py escapes ';' in comment lines as a workaround and can drop that once this is fixed.",
-      "done": null
+      "details": "Found by micomuXML-N964 (05.11.2026): automonkey/ai/script.py split_script splits each raw line at ';' before checking for '#', so a comment like '# Bug: X only selects it; it does not follow' runs 'it does not follow' as a command (unknown command 'it'). Fix: skip a raw line whose stripped text starts with '#' before splitting; add a test. micomuXML's scripts/run_ui_regressions.py escapes ';' in comment lines as a workaround and can drop that once this is fixed. Done 14.11.2026: split_script (automonkey/ai/script.py) skips a raw line whose stripped text starts with '#' before splitting at ';'; tests added in tests/test_ai.py (test_split_script_semicolon_inside_comment_line_is_not_a_command). test_ai.py passes. micomuXML escape workaround can be dropped.",
+      "done": "2026-11-14T22:46:12"
     },
     {
       "id": "AutoMonkey-N58",

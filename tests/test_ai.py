@@ -11,6 +11,12 @@ def test_split_script_semicolons_newlines_comments():
     assert split_script("click 1 2; type a\\;b\n# note\n key enter ") == ["click 1 2", "type a;b", "key enter"]
 
 
+def test_split_script_semicolon_inside_comment_line_is_not_a_command():
+    script = "# Bug: X only selects it; it does not follow\nclick 1 2"
+    assert split_script(script) == ["click 1 2"]
+    assert split_script("  # a; b; c\nkey enter") == ["key enter"]
+
+
 def test_view_round_trip(monkeypatch):
     v = screen.View((1920, 1200), max_side=960, origin=(0, 0), input_size=(1920, 1200))
     assert (v.image_w, v.image_h) == (960, 600)

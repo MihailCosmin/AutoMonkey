@@ -79,6 +79,8 @@ _state = _State()
 def split_script(script: str) -> list[str]:
     lines = []
     for raw in script.splitlines():
+        if raw.strip().startswith("#"):  # a comment line: its ';' are not separators
+            continue
         for part in re.split(r"(?<!\\);", raw):
             part = part.replace("\\;", ";").strip()
             if part and not part.startswith("#"):
