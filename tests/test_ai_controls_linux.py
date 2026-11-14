@@ -270,3 +270,26 @@ def test_find_prefers_the_field_over_its_label(desktop):
     desktop(Node("application", "app", kids=[frame]))
     assert controls.find("Main", "Colour")["type"] == "ComboBox"
     assert controls.find("Main", "Colour", "Text")["type"] == "Text"
+
+
+def test_strip_shortcut_and_type_prefix():
+    assert controls.strip_shortcut("Zoom In Ctrl++") == "Zoom In"
+    assert controls.strip_shortcut("Reload Ctrl+Shift+R") == "Reload"
+    assert controls.strip_shortcut("Select All\tCtrl+A") == "Select All"
+    assert controls.strip_shortcut("Close Alt + F4") == "Close"
+    assert controls.strip_shortcut("Control panel") == "Control panel"  # no '+': not a shortcut
+    assert controls.split_type("MenuItem:Help") == ("Help", "MenuItem")
+    assert controls.split_type("hyperlink: Help") == ("Help", "Hyperlink")
+    assert controls.split_type("Note: Help") == ("Note: Help", None)
+    assert controls.split_type("Edit:") == ("Edit:", None)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="controls uses UI Automation on Windows")
+def test_find_matches_a_menu_item_without_its_shortcut_and_by_type_prefix(desktop):
+    bar = Node("menu-bar", kids=[Node("menu-item", "Help", ext=(0, 0, 40, 20))])
+    doc = Node("document-web", "Page", kids=[Node("link", "Help", ext=(0, 100, 40, 20)),
+                                              Node("menu-item", "Zoom In Ctrl++", ext=(0, 200, 90, 20))])
+    desktop(Node("application", "app", kids=[Node("frame", "Main", kids=[bar, doc])]))
+    assert controls.find("Main", "Zoom In")["name"] == "Zoom In Ctrl++"
+    assert controls.find("Main", "MenuItem:Help")["type"] == "MenuItem"
+    assert controls.find("Main", "Hyperlink:Help")["type"] == "Hyperlink"

@@ -13,6 +13,7 @@ canvas-drawn UIs expose nothing; use OCR (`find_text`) and screenshots for them.
 from __future__ import annotations
 
 import ctypes
+import re
 import sys
 import unicodedata
 
@@ -36,6 +37,30 @@ def normalize(name: str) -> str:
     text = unicodedata.normalize("NFKD", name.translate(_PLAIN))
     text = "".join(c for c in text if not unicodedata.combining(c))
     return " ".join(text.lower().split())
+
+
+# A shortcut some toolkits append to a menu item's name: "Zoom In Ctrl++", "Quit Ctrl+Q", "Close Alt+F4".
+_SHORTCUT = re.compile(r"\s+(?:(?:ctrl|control|alt|shift|meta|super|cmd|command|opt|option)\s*\+\s*)+\S+$",
+                       re.I)
+
+# Control type names (as `controls` prints them) accepted as "Type:Name" in find().
+CONTROL_TYPES = {t.lower(): t for t in INTERACTIVE | {
+    "Text", "Window", "Pane", "Group", "List", "Tab", "Tree", "Table", "ToolBar", "StatusBar", "Image",
+    "ToolTip", "Separator", "Custom", "Menu", "Document"}}
+
+
+def strip_shortcut(name: str) -> str:
+    """The visible label of a menu item: the text before a tab, without a trailing shortcut."""
+    return _SHORTCUT.sub("", name.split("\t")[0].strip())
+
+
+def split_type(name: str) -> tuple[str, str | None]:
+    """"MenuItem:Help" -> ("Help", "MenuItem"); a name whose prefix is no control type is unchanged."""
+    head, sep, tail = name.partition(":")
+    kind = CONTROL_TYPES.get(head.strip().lower())
+    if sep and kind and tail.strip():
+        return tail.strip(), kind
+    return name, None
 
 
 def _require_supported():
@@ -170,8 +195,11 @@ def find(window: str | int, name: str, control_type: str | None = None) -> dict:
     """The control whose name matches `name` (exact, else case-insensitive substring),
     optionally of `control_type`. Visible, interactive, enabled matches win: a web form's
     <label for=...> has the same name as its field, and clicking the label does not open a
-    <select>."""
+    <select>. `name` may start with a control type to tell apart controls that share a name
+    (the menu bar's Help and a page's Help link): "MenuItem:Help", "Hyperlink:Help"."""
     _require_supported()
+    if control_type is None:
+        name, control_type = split_type(name)
     want = normalize(name)
     exact, partial = [], []
     for _level, ei, p in walk(window):
@@ -179,7 +207,7 @@ def find(window: str | int, name: str, control_type: str | None = None) -> dict:
             continue
         nm = normalize(p["name"])
         # The visible text before a tab is the label; after it comes the shortcut ("Select All\tCtrl+A").
-        label = normalize(p["name"].split("\t")[0])
+        label = normalize(strip_shortcut(p["name"]))
         auto_id = p["auto_id"].lower()
         # Qt reports objectName paths ("...splitter.QWidget.nameEdit"): match the last part too.
         if want in (nm, label) or auto_id == name.strip().lower() or auto_id.endswith("." + name.strip().lower()):
