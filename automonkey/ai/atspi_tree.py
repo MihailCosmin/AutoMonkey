@@ -190,11 +190,12 @@ def props(acc) -> dict:
     Atspi = _atspi()
     states = _states(acc)
     role = _role(acc)
-    rect = None
+    rect = screen_rect = None
     if _has(states, Atspi, "SHOWING"):
         try:
             ex, ey, ew, eh = screen_extents(acc)
             if ew > 0 and eh > 0:
+                screen_rect = (ex, ey, ew, eh)
                 v = screen.view()
                 x0, y0 = v.to_image(ex, ey)
                 x1, y1 = v.to_image(ex + ew, ey + eh)
@@ -207,7 +208,7 @@ def props(acc) -> dict:
         auto_id = ""
     enabled = states is None or _has(states, Atspi, "ENABLED") or _has(states, Atspi, "SENSITIVE")
     return dict(type=control_type(acc, role, states), name=_name(acc), auto_id=auto_id, enabled=enabled,
-                rect=rect)
+                rect=rect, screen_rect=screen_rect)
 
 
 def toggle(acc) -> str:

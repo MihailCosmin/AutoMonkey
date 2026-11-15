@@ -530,6 +530,35 @@ Run them with `python -m automonkey.ai replay tests/ui/*.amk tests/ui/bugs/*.amk
 code is 1 if any script fails, and a `<name>.failure.png` screenshot is saved next to a
 failing script.
 
+## Screenshots, control boxes and video for user manuals
+
+The force apps generate their manual pictures (force-libs `docs/user-manuals.md`); the
+`automonkey` driver of the shot runner uses these tools. They work at native resolution (the
+pictures Claude looks at are downscaled) on Windows and on Linux X11/Xvfb.
+
+| Step (in an `.amk` script) | CLI | Result |
+|---|---|---|
+| `resize 1280 800 in My App` | `resize 1280 800 --window "My App"` | the visible frame is exactly that size (error if the app's minimum size is bigger) |
+| `shot out/a.png in My App [pad=8]` | `capture out/a.png --window "My App" [--pad 8]` | PNG of ONE window, no shadow, no other windows (it is raised first) |
+| `shot_region out/b.png X Y W H` | `capture out/b.png --region X Y W H` | PNG of a region (script: image pixels of the last screenshot; CLI: screen pixels) |
+| `bounds out/a.json only Save, File in My App` | `bounds out/a.json --window "My App" --only Save File` | JSON boxes of the named controls, relative to the `shot` PNG |
+| `record_start out/t.mp4 in My App [fps=15]` ... `record_stop` | `record out/t.mp4 --window "My App" --seconds 10` | video of the window's area: `.mp4` (H.264), `.webm` (VP9), `.gif` |
+
+`bounds` JSON: `{"window": {...}, "size": {"w","h"}, "controls": [{"name","type","id","enabled","x","y","w","h"}]}`
+with pixel boxes ready for numbered callouts; a name that is not found stops the script (so a
+renamed button breaks the build, not the manual). Without `only` every named control is listed.
+Names are the same as `click_control` (`MenuItem:Help`, automation ids and Qt object names work).
+
+Recording uses ffmpeg (`winget install Gyan.FFmpeg`, `sudo apt install ffmpeg`, or
+`AUTOMONKEY_FFMPEG=<path>`): gdigrab on Windows, x11grab on Linux (X11 only). The rectangle is the
+window's position when recording starts, so do not move the window. A script that forgets
+`record_stop` gets it at its end.
+
+Replay for a runner: `python -m automonkey.ai replay shots/*.amk --var OUT=docs/manual/shots --json report.json --no-failure-shot`.
+`${OUT}` in the scripts is replaced; the exit code is 0 all passed, 1 a script failed, 2 a script
+could not be read (or a capture command could not run); `report.json` lists every script with its log.
+Linux X11 needs `xdotool`, `wmctrl` and, for AT-SPI control boxes, the packages of `docs/linux_atspi.md`.
+
 ## What makes it reliable on Windows
 
 - Real input through SendInput: drags and strokes reach WinUI and canvas apps

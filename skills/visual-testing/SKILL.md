@@ -178,6 +178,8 @@ Full reference: [references/automonkey.md](references/automonkey.md). Essentials
   WinUI and canvas widgets. `keydown ctrl; click ..; keyup ctrl` for modifier clicks.
 - `tab_order N` reports the focused control after each Tab; `focused` the current one.
 - A failed step stops the script and says which step and why; `finally:` steps still run.
+- Manual pictures (native resolution, not for judging): `shot PATH in WINDOW`, `bounds PATH only A, B in WINDOW`
+  (control boxes as JSON), `record_start PATH in WINDOW` / `record_stop`, `resize W H`; see the README.
 
 ## 5. When things don't work
 

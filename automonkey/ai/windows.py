@@ -267,6 +267,31 @@ def maximize(query: str | int | None = None) -> dict:
     return find_window(w["id"])
 
 
+def set_size(wid: int, w: int, h: int) -> None:
+    """Resize a window so that the frame list_windows() reports (the visible one) is w x h
+    physical pixels; un-maximizes it first. The corner stays where it is."""
+    if sys.platform == "win32":
+        SWP_NOMOVE, SWP_NOZORDER, SWP_NOACTIVATE = 0x0002, 0x0004, 0x0010
+        _u32.ShowWindow(wid, SW_RESTORE)
+        time.sleep(0.2)
+        for _ in range(2):  # the invisible resize border makes the outer rectangle bigger: correct once
+            _x, _y, vw, vh = _rect(wid)
+            r = wintypes.RECT()
+            _u32.GetWindowRect(wid, ctypes.byref(r))
+            _u32.SetWindowPos(wid, 0, 0, 0, r.right - r.left + (w - vw), r.bottom - r.top + (h - vh),
+                              SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE)
+            time.sleep(0.2)
+        return
+    subprocess.run(["wmctrl", "-i", "-r", hex(wid), "-b", "remove,maximized_vert,maximized_horz"],
+                   capture_output=True)
+    ask_w, ask_h = w, h
+    for _ in range(2):  # wmctrl may size the client area while the frame is reported: correct once
+        subprocess.run(["wmctrl", "-i", "-r", hex(wid), "-e", f"0,-1,-1,{ask_w},{ask_h}"], capture_output=True)
+        time.sleep(0.3)
+        cur = find_window(wid)
+        ask_w, ask_h = ask_w + (w - cur["w"]), ask_h + (h - cur["h"])
+
+
 def close(query: str | int) -> dict:
     w = find_window(query)
     if sys.platform == "win32":

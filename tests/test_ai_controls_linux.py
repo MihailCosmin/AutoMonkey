@@ -95,7 +95,8 @@ def test_control_type_maps_roles_to_ui_automation_names(desktop):
 def test_props_box_in_screenshot_pixels(desktop):
     desktop()
     p = atspi_tree.props(Node("push-button", " OK ", ext=(100, 200, 80, 40), aid="dlg.ok"))
-    assert p == dict(type="Button", name="OK", auto_id="dlg.ok", enabled=True, rect=(50, 100, 40, 20))
+    assert p == dict(type="Button", name="OK", auto_id="dlg.ok", enabled=True, rect=(50, 100, 40, 20),
+                 screen_rect=(100, 200, 80, 40))
     hidden = atspi_tree.props(Node("push-button", "OK", states=("enabled",)))
     assert hidden["rect"] is None
     assert atspi_tree.props(Node("push-button", "OK", states=("showing",)))["enabled"] is False

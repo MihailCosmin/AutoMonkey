@@ -1,0 +1,17 @@
+# Documentation capture smoke test for tests/apps/qt_target.py: window PNG, control boxes JSON, video.
+# Not part of tests/ui/*.amk (it needs an output folder):
+#   python -m automonkey.ai replay tests/ui/docs/capture_smoke.amk --var OUT=<folder>
+# Afterwards ${OUT} holds window.png, bounds.json and demo.mp4 (needs ffmpeg).
+
+launch .venv\Scripts\pythonw.exe tests\apps\qt_target.py
+maximize AutoMonkey Qt target
+resize 1000 700 in AutoMonkey Qt target
+record_start ${OUT}/demo.mp4 in AutoMonkey Qt target fps=10
+click_control Increment
+click_control Increment
+expect_text Count: 2
+shot ${OUT}/window.png in AutoMonkey Qt target
+bounds ${OUT}/bounds.json only Increment, File, nameEdit in AutoMonkey Qt target
+record_stop
+finally:
+kill AutoMonkey Qt target

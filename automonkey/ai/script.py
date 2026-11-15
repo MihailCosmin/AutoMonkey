@@ -40,6 +40,17 @@ Checks (a failed check stops the script - use them in saved regression scripts):
     expect_order NAME, NAME, ... [in WINDOW]   (controls appear top-to-bottom in this order)
 Evidence:
     save PATH                 (save a full-resolution screenshot, e.g. for a bug report)
+Documentation shots (native resolution, not the downscaled picture you look at; a path with
+spaces goes in "quotes"; ${NAME} is replaced by `replay --var NAME=VALUE`):
+    resize W H [in WINDOW]              (visible frame exactly W x H physical pixels, keeps the corner)
+    shot PATH [in WINDOW] [pad=N]       (PNG of one window, the active one without `in`)
+    shot_region PATH X Y W H            (PNG of a region; X Y W H are image pixels of the latest screenshot)
+    bounds PATH [only A, B] [in WINDOW] [pad=N]
+                                        (JSON with the boxes of the named controls, relative to the
+                                         `shot` PNG of the same window, for callouts; all named
+                                         controls without `only`)
+    record_start PATH [in WINDOW] [fps=N] [pad=N]   (video of one window: .mp4, .webm or .gif, ffmpeg)
+    record_stop                         (finish the video; a script that forgets it stops it at its end)
 """
 from __future__ import annotations
 
@@ -49,14 +60,14 @@ import time
 
 import pyautogui
 
-from . import inject, ocr, screen, texttree, windows
+from . import capture, inject, ocr, screen, texttree, windows
 from ..key_funcs import hotkey, press, write
 
 pyautogui.PAUSE = 0.03  # default 0.1s per call adds up quickly
 
 INPUT_COMMANDS = {"click", "dclick", "rclick", "mclick", "move", "drag", "scroll", "hscroll", "type", "key",
                   "hotkey", "url", "click_text", "click_image", "click_control", "press", "release", "path",
-                  "stroke", "keydown", "keyup", "tab_order", "drag_control"}
+                  "stroke", "keydown", "keyup", "tab_order", "drag_control", "resize"}
 
 
 class StepError(Exception):
@@ -69,6 +80,7 @@ class _State:
 
     def __init__(self):
         self.keys_held: list[str] = []
+        self.recording_started_here = False
         self.track_input = False
         self.before_input = None
 
@@ -171,6 +183,83 @@ def _click_text(rest: str):
 def _focus_text() -> str:
     from . import controls
     return controls.describe(controls.focused())
+
+
+def _options(rest: str, *names: str) -> tuple[str, dict[str, int]]:
+    """('Notepad pad=8') -> ('Notepad', {'pad': 8}): trailing NAME=N options of a step."""
+    found = {}
+    for name in names:
+        m = re.search(rf"(?:^|\s){name}=(\d+)\s*$", rest)
+        if m:
+            found[name] = int(m.group(1))
+            rest = rest[:m.start()].strip()
+    return rest, found
+
+
+def _split_in(rest: str) -> tuple[str, str | None]:
+    """('only A, B in Notepad') -> ('only A, B', 'Notepad'); no 'in' -> (rest, None)."""
+    m = re.search(r"(?:^|\s)in\s+(.+)$", rest)
+    if not m:
+        return rest.strip(), None
+    return rest[:m.start()].strip(), m.group(1).strip().strip('"')
+
+
+def _shot_step(cmd: str, rest: str) -> str:
+    try:
+        if cmd == "shot_region":
+            path, tail = capture.split_path(rest)
+            try:
+                x, y, w, h = (float(a) for a in tail.split())
+            except ValueError:
+                raise StepError("shot_region needs PATH X Y W H")
+            v = screen.view()
+            x0, y0 = v.to_input(x, y)
+            x1, y1 = v.to_input(x + w, y + h)
+            img = capture.capture_region(x0, y0, x1 - x0, y1 - y0)
+            return f"saved {capture.save_png(img, path)} ({img.width}x{img.height})"
+        if cmd == "resize":
+            tail, _ = _options(rest)
+            tail, win = _split_in(tail)
+            try:
+                w, h = (int(a) for a in tail.split())
+            except ValueError:
+                raise StepError("resize needs W H [in WINDOW]")
+            got = capture.resize_window(win, w, h)
+            if (got["w"], got["h"]) != (w, h):
+                raise StepError(f"the window is {got['w']}x{got['h']}, not {w}x{h} (minimum or maximum size?)")
+            return f"{got['title']!r} is {w}x{h}"
+        path, tail = capture.split_path(rest)
+        tail, opts = _options(tail, "pad", "fps")
+        tail, win = _split_in(tail)
+        pad = opts.get("pad", 0)
+        if cmd == "shot":
+            img = capture.capture_window(win, pad)
+            return f"saved {capture.save_png(img, path)} ({img.width}x{img.height})"
+        if cmd == "bounds":
+            import json
+            only = [n.strip().strip('"') for n in tail[5:].split(",") if n.strip()] \
+                if tail.lower().startswith("only ") else None
+            if tail and only is None:
+                raise StepError("bounds takes: PATH [only A, B] [in WINDOW] [pad=N]")
+            try:
+                data = capture.control_bounds(win, only, pad)
+            except LookupError as e:
+                raise StepError(str(e))
+            path = os.path.abspath(os.path.expanduser(path))
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+                f.write("\n")
+            return f"saved {path} ({len(data['controls'])} controls)"
+        if cmd == "record_start":
+            if tail:
+                raise StepError("record_start takes: PATH [in WINDOW] [fps=N] [pad=N]")
+            msg = capture.start_recording(path, window=win, fps=opts.get("fps", 15), pad=pad)
+            _state.recording_started_here = True
+            return msg
+    except capture.CaptureError as e:
+        raise StepError(str(e))
+    raise StepError(f"unknown command {cmd!r}")
 
 
 # How long expect_* checks keep retrying: apps update the screen asynchronously, so a
@@ -416,6 +505,15 @@ def _run_step(line: str) -> str:
         if not ok:
             raise StepError(f"the screen did not change within {t:.1f}s of the previous input step")
         return f"changed ({t:.1f}s)"
+    elif cmd in ("shot", "shot_region", "bounds", "record_start", "resize"):
+        return _shot_step(cmd, rest)
+    elif cmd == "record_stop":
+        try:
+            msg = capture.stop_recording()
+        except capture.CaptureError as e:
+            raise StepError(str(e))
+        _state.recording_started_here = False
+        return msg
     elif cmd == "save":
         if not rest:
             raise StepError("save needs a file path")
@@ -453,6 +551,7 @@ def run(script: str, settle: bool = True) -> tuple[list[str], bool]:
     log, steps = [], split_script(script)
     split = next((i for i, s in enumerate(steps) if s.lower() == "finally:"), len(steps))
     main, final = steps[:split], steps[split + 1:]
+    _state.recording_started_here = False
     _state.track_input = any(s.split()[0].lower() == "expect_change" for s in steps)
     _state.before_input = None
     failure_image = None
@@ -486,6 +585,12 @@ def run(script: str, settle: bool = True) -> tuple[list[str], bool]:
             except Exception as e:
                 log.append(f"{n}. {line} -> failed (ignored in finally): {e}")
         _cleanup()
+    if _state.recording_started_here and capture.recording():
+        try:
+            log.append(f"record_stop (the script did not) -> {capture.stop_recording()}")
+        except capture.CaptureError as e:
+            log.append(f"record_stop (the script did not) -> failed: {e}")
+        _state.recording_started_here = False
     last = steps[-1].split()[0].lower() if steps else ""
     if ok and settle and last in INPUT_COMMANDS:
         stable, t = screen.wait_stable(stable_for=0.6, timeout=10)

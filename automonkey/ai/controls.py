@@ -87,14 +87,16 @@ def _props(ei) -> dict:
         except Exception:
             return default
     r = get("rectangle")
-    rect = None
+    rect = screen_rect = None
     if r is not None and r.right > r.left and r.bottom > r.top:
+        screen_rect = (r.left, r.top, r.right - r.left, r.bottom - r.top)  # physical screen pixels
         v = screen.view()
         x0, y0 = v.to_image(r.left, r.top)
         x1, y1 = v.to_image(r.right, r.bottom)
         rect = (x0, y0, x1 - x0, y1 - y0)
     return dict(type=get("control_type", "") or "", name=(get("name", "") or "").strip(),
-                auto_id=get("automation_id", "") or "", enabled=get("enabled", True), rect=rect)
+                auto_id=get("automation_id", "") or "", enabled=get("enabled", True), rect=rect,
+                screen_rect=screen_rect)
 
 
 def _toggle(ei) -> str:
@@ -198,15 +200,20 @@ def find(window: str | int, name: str, control_type: str | None = None) -> dict:
     <select>. `name` may start with a control type to tell apart controls that share a name
     (the menu bar's Help and a page's Help link): "MenuItem:Help", "Hyperlink:Help"."""
     _require_supported()
+    return pick([p for _level, _ei, p in walk(window)], name, control_type, window)
+
+
+def pick(items: list[dict], name: str, control_type: str | None = None, window: str | int = "") -> dict:
+    """The best match of find() among already collected control snapshots."""
     if control_type is None:
         name, control_type = split_type(name)
     want = normalize(name)
     exact, partial = [], []
-    for _level, ei, p in walk(window):
+    for p in items:
         if control_type and p["type"].lower() != control_type.lower():
             continue
         nm = normalize(p["name"])
-        # The visible text before a tab is the label; after it comes the shortcut ("Select All\tCtrl+A").
+        # The visible text before a tab is the label; after it comes the shortcut ("Select All	Ctrl+A").
         label = normalize(strip_shortcut(p["name"]))
         auto_id = p["auto_id"].lower()
         # Qt reports objectName paths ("...splitter.QWidget.nameEdit"): match the last part too.

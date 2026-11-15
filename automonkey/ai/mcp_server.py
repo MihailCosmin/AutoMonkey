@@ -64,7 +64,9 @@ def act(script: str, screenshot: bool = True, grid: int = 0) -> list:
     drag_control NAME to NAME [in WINDOW] | focused | tab_order N [shift] | clipped [WINDOW] |
     expect_text TEXT | expect_no_text TEXT | expect_window TITLE | expect_no_window TITLE |
     expect_focus NAME | expect_control NAME [in WINDOW] | expect_order A, B, C [in WINDOW] |
-    expect_change [T] | expect_no_clipped [WINDOW] | save PATH
+    expect_change [T] | expect_no_clipped [WINDOW] | save PATH |
+    resize W H [in WINDOW] | shot PATH [in WINDOW] [pad=N] | shot_region PATH X Y W H |
+    bounds PATH [only A, B] [in WINDOW] | record_start PATH [in WINDOW] [fps=N] | record_stop
     Text steps look in the active window only ("screen: TEXT" searches everywhere).
     expect_* steps retry for 3 s and stop the script when they fail; steps after a line
     `finally:` always run (close the app under test there).

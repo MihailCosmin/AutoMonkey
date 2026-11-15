@@ -81,12 +81,20 @@ def act(script: str, screenshot: bool = True, grid: int = 0, settle: bool = True
     return "\n".join(lines), img
 
 
-def replay(path: str, screenshot_on_failure: bool = True) -> tuple[bool, str, Image.Image | None]:
+def fill_vars(script: str, variables: dict[str, str] | None) -> str:
+    """Replace ${NAME} by its value for every name in `variables`; other text is untouched."""
+    for name, value in (variables or {}).items():
+        script = script.replace("${" + name + "}", value)
+    return script
+
+
+def replay(path: str, screenshot_on_failure: bool = True,
+           variables: dict[str, str] | None = None) -> tuple[bool, str, Image.Image | None]:
     """Run a saved .amk regression script. Returns (passed, log, screenshot of the failure).
     On failure the full-resolution screen is also saved next to the script as
     <name>.failure.png, as evidence for the bug report."""
     with open(path, encoding="utf-8") as f:
-        script = f.read()
+        script = fill_vars(f.read(), variables)
     log, ok = run(script, settle=True)
     img = None
     if not ok and screenshot_on_failure:
