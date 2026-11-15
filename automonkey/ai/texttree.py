@@ -1,7 +1,7 @@
 """Text of the visible text controls of a window, read through the accessibility API
 instead of OCR: AT-SPI `Atspi.Text` on Linux, UI Automation `TextPattern` on Windows.
 
-Self-drawn text views that expose a Text interface (the micomuXML WYSIWYG view, Qt text
+Self-drawn text views that expose a Text interface (the forceXML WYSIWYG view, Qt text
 edits, GTK entries and labels, browsers' text nodes) give exact text and exact character
 boxes, also for tiny or low-contrast fonts OCR misreads. `find` and `read` return None
 when no text control has anything to say, so the caller falls back to OCR.
