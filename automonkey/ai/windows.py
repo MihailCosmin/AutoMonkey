@@ -212,9 +212,39 @@ def list_windows() -> list[dict]:
             continue
         wid, _desk, pid, x, y, w, h, wm_class = parts[:8]
         title = parts[9] if len(parts) > 9 else ""
-        wins.append(dict(id=int(wid, 16), title=title, wm_class=wm_class, pid=int(pid), x=int(x), y=int(y),
-                         w=int(w), h=int(h), active=active.isdigit() and int(active) == int(wid, 16)))
+        x, y, w, h = _x11_frame(int(wid, 16)) or (int(x), int(y), int(w), int(h))
+        wins.append(dict(id=int(wid, 16), title=title, wm_class=wm_class, pid=int(pid), x=x, y=y,
+                         w=w, h=h, active=active.isdigit() and int(active) == int(wid, 16)))
     return wins
+
+
+_extents_cache: dict[int, tuple[int, int, int, int]] = {}
+
+
+def _x11_frame(wid: int) -> tuple[int, int, int, int] | None:
+    """(x, y, w, h) of the visible frame of an X11 window: the client rectangle from xwininfo
+    plus the decoration (_NET_FRAME_EXTENTS). `wmctrl -lG` is not used for the position: with
+    a reparenting window manager (openbox, GNOME) it is off by the decoration size (seen on
+    openbox: x+1, y+22), and xwininfo's absolute position is not. None without xwininfo."""
+    if not shutil.which("xwininfo"):
+        return None
+    info = _run("xwininfo", "-id", str(wid))
+    vals = {}
+    for key, name in (("Absolute upper-left X", "x"), ("Absolute upper-left Y", "y"), ("Width", "w"),
+                      ("Height", "h")):
+        m = re.search(rf"{key}:\s*(-?\d+)", info)
+        if not m:
+            return None
+        vals[name] = int(m.group(1))
+    if wid not in _extents_cache:
+        ext = (0, 0, 0, 0)
+        if shutil.which("xprop"):
+            m = re.search(r"=\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)", _run("xprop", "-id", str(wid), "_NET_FRAME_EXTENTS"))
+            if m:
+                ext = tuple(int(g) for g in m.groups())  # left, right, top, bottom
+        _extents_cache[wid] = ext
+    left, right, top, bottom = _extents_cache[wid]
+    return vals["x"] - left, vals["y"] - top, vals["w"] + left + right, vals["h"] + top + bottom
 
 
 def find_window(query: str | int) -> dict:

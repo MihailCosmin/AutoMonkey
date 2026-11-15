@@ -214,3 +214,17 @@ def test_replay_exit_codes_and_json_report(tmp_path, monkeypatch):
     assert cli._replay_files(_args([str(good)], var=["novalue"])) == 2
     data = json.loads(report.read_text(encoding="utf-8"))
     assert data["passed"] == 1 and data["failed"] == 0 and data["scripts"][0]["file"] == str(good)
+
+
+def test_x11_frame_uses_xwininfo_and_frame_extents(monkeypatch):
+    from automonkey.ai import windows
+    out = {
+        "xwininfo": "  Absolute upper-left X:  462\n  Absolute upper-left Y:  292\n  Width: 1000\n  Height: 678\n",
+        "xprop": "_NET_FRAME_EXTENTS(CARDINAL) = 1, 1, 22, 1\n",
+    }
+    monkeypatch.setattr(windows, "_run", lambda *a: out[a[0]])
+    monkeypatch.setattr(windows.shutil, "which", lambda n: "/usr/bin/" + n)
+    windows._extents_cache.clear()
+    assert windows._x11_frame(99) == (461, 270, 1002, 701)
+    monkeypatch.setattr(windows.shutil, "which", lambda n: None)
+    assert windows._x11_frame(98) is None  # no xwininfo: the caller keeps wmctrl's numbers
