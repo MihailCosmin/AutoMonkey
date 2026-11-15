@@ -226,8 +226,14 @@ def _uia_subrange(visible, s, e):
     return r
 
 
+class _UnreliableBoxes(Exception):
+    """The control reports the first line's box for text on later lines (Qt QPlainTextEdit)."""
+
+
 def _uia_find(window, query, region):
-    """Occurrences found by offset in the visible text (FindText is missing in Qt and others)."""
+    """Occurrences found by offset in the visible text (FindText is missing in Qt and others).
+    Raises _UnreliableBoxes when a match on a later line gets the first line's y: the caller
+    then falls back to OCR (find() turns every exception into None)."""
     hits = []
     for pattern, rect in _uia_patterns(window, region):
         try:
@@ -252,7 +258,13 @@ def _uia_find(window, query, region):
                     y1 = max(b[3] for b in boxes)
                     if len(boxes) > 1:      # wrapped over lines: the first line's box is the click target
                         x0, y0, x1, y1 = boxes[0]
+                    if "\n" in text[:s]:
+                        first = _uia_rects(_uia_subrange(vr, 0, 1))
+                        if first and first[0][1] == boxes[0][1]:
+                            raise _UnreliableBoxes()
                     h = _hit(text[s:e], x0, y0, x1, y1, whole)
+                except _UnreliableBoxes:
+                    raise
                 except Exception:
                     continue
                 b = (h["x"], h["y"], h["w"], h["h"])

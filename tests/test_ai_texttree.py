@@ -107,3 +107,27 @@ def test_uia_find_uses_offsets_when_findtext_is_missing(monkeypatch):
     assert len(hits) == 1 and hits[0]["text"] == "WYSIWYG title"
     assert (hits[0]["x"], hits[0]["w"]) == (160, 130)
     assert texttree._uia_find("w", "absent", None) == []
+
+
+def test_uia_find_rejects_first_line_box_for_later_lines(monkeypatch):
+    """Qt reports line 1's y for text on lines 2+: _uia_find must not return that box."""
+    vis = _FakeRange("first line\nsecond line")
+
+    class Visible:
+        Length = 1
+        def GetElement(self, _i):
+            return vis
+
+    class Pattern:
+        def GetVisibleRanges(self):
+            return Visible()
+
+    class View:
+        def to_image(self, x, y):
+            return int(x), int(y)
+
+    monkeypatch.setattr(texttree, "_uia_patterns", lambda w, r: iter([(Pattern(), (0, 0, 1000, 100))]))
+    monkeypatch.setattr(texttree.screen, "view", lambda: View())
+    with pytest.raises(texttree._UnreliableBoxes):
+        texttree._uia_find("w", "second", None)
+    assert len(texttree._uia_find("w", "first", None)) == 1

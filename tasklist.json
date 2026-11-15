@@ -538,12 +538,23 @@
     {
       "id": "AutoMonkey-N58",
       "section": "rework",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "sonnet",
       "effort": "medium",
       "short": "texttree/UIA: wrong box for text on later lines of multi-line Qt edits; WYSIWYG view has no text API",
-      "details": "Continues AutoMonkey-N55. (1) Qt's UIA TextRange.GetBoundingRectangles reports the first line's y/x for text on lines 2+ of a QPlainTextEdit; in _uia_find detect it (second match of a multi-line text with identical box as line 1) and fall back to OCR for that hit, or compute the box from the line's range via ExpandToEnclosingUnit(Line). (2) micomuXML's WYSIWYG view is custom painted and exposes no text: either ask micomuXML to add QAccessible text for DM title/headings (micomuXML task) or accept OCR; then replay a smoke_open_dm.amk once it exists.",
+      "details": "Continues AutoMonkey-N55. (1) Qt's UIA TextRange.GetBoundingRectangles reports the first line's y/x for text on lines 2+ of a QPlainTextEdit; in _uia_find detect it (second match of a multi-line text with identical box as line 1) and fall back to OCR for that hit, or compute the box from the line's range via ExpandToEnclosingUnit(Line). (2) micomuXML's WYSIWYG view is custom painted and exposes no text: either ask micomuXML to add QAccessible text for DM title/headings (micomuXML task) or accept OCR; then replay a smoke_open_dm.amk once it exists. Done 15.11.2026: (1) texttree._uia_find now raises _UnreliableBoxes when a match on a later line has the same y as the control's first character (Qt bug); find() turns it into None so the caller uses OCR; unit test added (tests/test_ai_texttree.py, 5 pass; not run against a live Qt edit). (2) WYSIWYG: accepted OCR fallback (no QAccessible text in micomuXML); smoke_open_dm.amk replay not done, no such script exists yet. Left: see AutoMonkey-N60.",
+      "done": "2026-11-15T08:15:16"
+    },
+    {
+      "id": "AutoMonkey-N60",
+      "section": "rework",
+      "status": "todo",
+      "group": "",
+      "model": "sonnet",
+      "effort": "medium",
+      "short": "Replay smoke_open_dm.amk on micomuXML WYSIWYG view once it exists; verify N58 on live Qt edit",
+      "details": "Continues AutoMonkey-N58. Verify the multi-line fallback against a real QPlainTextEdit on Windows and replay smoke_open_dm.amk (does not exist yet; record it) against micomuXML's WYSIWYG view, which relies on OCR.",
       "done": null
     },
     {
