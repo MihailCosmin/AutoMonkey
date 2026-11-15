@@ -571,13 +571,13 @@
     {
       "id": "AutoMonkey-N61",
       "section": "rework",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "sonnet",
       "effort": "medium",
       "short": "Replay forceXML smoke_open_dm.amk (WYSIWYG view) and record the result",
-      "details": "Continues AutoMonkey-N60 (forceXML = former micomuXML). Replay forceXML tests/ui/smoke_open_dm.amk with scripts/run_ui_regressions.py on the Linux GUI machine it was written for (cosmin-314, 1920x1080, X11), or on Windows after the firewall prompt is gone, the test data is prepared (scripts/ui_test_env.py prepare; on Windows it fails because scratch_zip runs wb.ps1 with CreateProcess: needs a forceXML fix, run through powershell) and the click coordinates are adapted. Check that expect/wait_text on the WYSIWYG view (custom painted, OCR only) passes, and record what fails in docs/linux_atspi.md or a rework task.",
-      "done": null
+      "details": "Continues AutoMonkey-N60 (forceXML = former micomuXML). Replay forceXML tests/ui/smoke_open_dm.amk with scripts/run_ui_regressions.py on the Linux GUI machine it was written for (cosmin-314, 1920x1080, X11), or on Windows after the firewall prompt is gone, the test data is prepared (scripts/ui_test_env.py prepare; on Windows it fails because scratch_zip runs wb.ps1 with CreateProcess: needs a forceXML fix, run through powershell) and the click coordinates are adapted. Check that expect/wait_text on the WYSIWYG view (custom painted, OCR only) passes, and record what fails in docs/linux_atspi.md or a rework task. Done 15.11.2026 on Windows 11 (forceXML f56669d1): the repo script tests/ui/smoke_open_dm.amk fails on Windows before the app is reached for platform reasons: the runner launches ui_test_env.py through python.exe, which opens a Windows Terminal window, the window matched by 'ForceXML' is that console (its title is the script path), and the click coordinates are the Linux 1920x1080 ones. WARNING: its `finally: kill ForceXML` then ended the WindowsTerminal.exe process of that console (kill matches the window title as a substring). A Windows variant (start pythonw.exe src/app.py directly after ui_test_env.py launch --dry-run has set the default settings; File > Open via click_control; the file name typed with backslashes, no ctrl+l; same wait_text/ctrl+w/ctrl+o steps; test data prepared with ui_test_env.py prepare 6.0 --from <zip from the scratchpad>, because its scratch lookup cannot start wb.ps1) PASSES: all 19 steps, wait_text 'Description of how it is made' finds the WYSIWYG text via OCR/accessibility fallback in 8.5-9.3 s, 'No validation errors' appears after ctrl+w. The WYSIWYG view stays OCR-only. Not done: the Linux replay of the original script on cosmin-314, and the repo script is not changed (forceXML's).",
+      "done": "2026-11-15T17:41:55"
     }
   ]
 }
