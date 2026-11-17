@@ -100,6 +100,14 @@ steps after `finally:` still run.
   WPF and Chromium/Electron expose controls; DearPyGui and custom canvases don't (use OCR).
   Open menus and context menus are listed too, with their shortcuts (`Save\tCtrl+S`).
 - OCR: `winget install UB-Mannheim.TesseractOCR`; found automatically after install.
+- **Remote desktop (mstsc):** `key`, `hotkey`, `keydown`/`keyup` go as scan codes and `type`
+  as Unicode while the RDP window is in front (the act summary says "keys go as scan codes
+  (remote desktop)"). The local side cannot see which *remote* window has the focus: check
+  the screenshot (or `expect_text`) before typing, and click into the target first - keys
+  meant for a remote dialog land in whatever remote window is in front.
+  `AUTOMONKEY_KEYS=scancode` makes other remote viewers and VMs get scan codes too.
+- A keyboard step stops ("keyboard input stopped: the active window changed ...") when
+  another program takes the foreground while it types; look, then re-run what is left.
 - `launch` accepts paths (`launch C:\Apps\my app.exe`), Store app aliases (`launch
   mspaint`), and `explorer shell:AppsFolder\<AppID>` (find AppIDs with `Get-StartApps`).
 

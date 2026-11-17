@@ -146,6 +146,11 @@ if sys.platform == "win32":
     def _alt_tap():
         # Windows only lets the process that received the last input event take the
         # foreground. Injecting a (harmless) Alt press makes this process that one.
+        # Not while a remote desktop is in front: the RDP client forwards it, and the
+        # remote app's menu bar would take the next keys typed there.
+        from ..key_funcs import remote_desktop_window
+        if remote_desktop_window():
+            return
         _u32.keybd_event(0x12, 0, 0, 0)
         _u32.keybd_event(0x12, 0, 2, 0)
 

@@ -12,11 +12,26 @@ On Windows:
   * keys and shortcuts are resolved with the layout of the *foreground* window, and
     PowerToys Keyboard Manager single-key remaps are undone, so the app receives the
     key that was asked for (ctrl+z stays undo when y and z are swapped);
+  * every key carries its scan code, with the extended flag of the arrows, Home/End,
+    PgUp/PgDn, Insert/Delete, right Ctrl/Alt and numpad '/' (MapVirtualKeyEx leaves it
+    off the navigation keys, which then read as numpad keys);
   * registry "Scancode Map" overrides rewrite hardware scancodes inside the keyboard
     driver; injected input never passes through them, so they need no correction.
 
+Remote desktops. The RDP client (mstsc, the Remote Desktop app) forwards scan codes to
+the remote session: a key without its extended flag arrives there as a numpad key ('4'
+instead of Left while Num Lock is on), and it takes the keys before PowerToys does, so
+undoing a remap would swap y and z there. When the foreground window belongs to it, keys
+and shortcuts are sent as scan codes only (KEYEVENTF_SCANCODE without a virtual key, like
+a hardware keyboard) and remaps are left alone; text stays Unicode, which arrives
+unchanged whatever the remote keyboard layout. AUTOMONKEY_KEYS=scancode sends scan codes
+to every window (other remote viewers, VMs), AUTOMONKEY_KEYS=vk never; the default is auto.
+
+A call stops with FocusChanged when another program takes the foreground while it
+types (the user clicked elsewhere), so the rest of the text never lands there.
+
 Set AUTOMONKEY_TYPING=keys (or pass mode="keys") to type text as real key presses
-instead, for targets that ignore Unicode injection (some games, remote desktops, VMs).
+instead, for targets that ignore Unicode injection (some games, VMs).
 Elsewhere this falls back to pyautogui, pasting text it cannot type.
 """
 from __future__ import annotations
@@ -32,9 +47,34 @@ import pyautogui
 
 _TEXT_KEYS = {"\n": "enter", "\t": "tab"}
 
+KEY_STYLES = ("auto", "scancode", "vk")
+# The RDP client's windows: a session (TscShellContainerClass) and RemoteApp windows
+# (RAIL_WINDOW), in Remote Desktop Connection (mstsc.exe) or the Remote Desktop app /
+# Windows App (msrdc.exe).
+REMOTE_DESKTOP_CLASSES = frozenset({"TscShellContainerClass", "RAIL_WINDOW"})
+REMOTE_DESKTOP_EXES = frozenset({"mstsc.exe", "msrdc.exe"})
+
+
+class FocusChanged(RuntimeError):
+    """Another program took the foreground while keys were being sent to a window."""
+
 
 def _mode(mode: str | None) -> str:
     return (mode or os.environ.get("AUTOMONKEY_TYPING") or "unicode").lower()
+
+
+def key_style() -> str:
+    """How keys are sent: 'auto' (scan codes into remote desktops), 'scancode' or 'vk'
+    (AUTOMONKEY_KEYS)."""
+    style = (os.environ.get("AUTOMONKEY_KEYS") or "auto").strip().lower()
+    if style not in KEY_STYLES:
+        raise ValueError(f"AUTOMONKEY_KEYS={style!r}: use auto, scancode or vk")
+    return style
+
+
+def is_remote_desktop(class_name: str, exe: str) -> bool:
+    """True for a window of the RDP client, which forwards scan codes to a remote session."""
+    return class_name in REMOTE_DESKTOP_CLASSES or exe.lower() in REMOTE_DESKTOP_EXES
 
 
 def _flatten(keys) -> list[str]:
@@ -58,8 +98,10 @@ if sys.platform == "win32":
     KEYEVENTF_EXTENDEDKEY = 0x1
     KEYEVENTF_KEYUP = 0x2
     KEYEVENTF_UNICODE = 0x4
+    KEYEVENTF_SCANCODE = 0x8
     MAPVK_VK_TO_VSC_EX = 4
     VK_SHIFT, VK_CONTROL, VK_MENU = 0x10, 0x11, 0x12
+    PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
 
     class _MOUSEINPUT(ctypes.Structure):
         _fields_ = [("dx", wintypes.LONG), ("dy", wintypes.LONG), ("mouseData", wintypes.DWORD),
@@ -85,6 +127,8 @@ if sys.platform == "win32":
     _u32.GetForegroundWindow.restype = wintypes.HWND
     _u32.GetWindowThreadProcessId.argtypes = (wintypes.HWND, ctypes.POINTER(wintypes.DWORD))
     _u32.GetWindowThreadProcessId.restype = wintypes.DWORD
+    _u32.GetClassNameW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
+    _u32.GetWindowTextW.argtypes = (wintypes.HWND, wintypes.LPWSTR, ctypes.c_int)
     _u32.GetKeyboardLayout.argtypes = (wintypes.DWORD,)
     _u32.GetKeyboardLayout.restype = wintypes.HKL
     _u32.VkKeyScanExW.argtypes = (wintypes.WCHAR, wintypes.HKL)
@@ -100,15 +144,82 @@ if sys.platform == "win32":
     _k32.Process32FirstW.argtypes = (wintypes.HANDLE, ctypes.POINTER(_PROCESSENTRY32W))
     _k32.Process32NextW.argtypes = (wintypes.HANDLE, ctypes.POINTER(_PROCESSENTRY32W))
     _k32.CloseHandle.argtypes = (wintypes.HANDLE,)
+    _k32.OpenProcess.argtypes = (wintypes.DWORD, wintypes.BOOL, wintypes.DWORD)
+    _k32.OpenProcess.restype = wintypes.HANDLE
+    _k32.QueryFullProcessImageNameW.argtypes = (wintypes.HANDLE, wintypes.DWORD, wintypes.LPWSTR,
+                                                ctypes.POINTER(wintypes.DWORD))
 
     # Named keys ('enter', 'ctrl', 'f5', ...) have fixed virtual-key codes.
     _NAMED = {k: v for k, v in pyautogui.platformModule.keyboardMapping.items() if len(k) > 1 and v}
 
+    # Scan codes (0xE0xx: extended key) MapVirtualKeyEx(MAPVK_VK_TO_VSC_EX) does not give
+    # reliably: on Windows 11 it returns the arrows, Home/End, PgUp/PgDn, Insert and Delete
+    # without the 0xE0 prefix (VK_DOWN -> 0x50, numpad 2) and Print Screen as 0x54 (Alt+SysRq).
+    _EXTENDED_SCAN = {
+        0x21: 0xE049, 0x22: 0xE051, 0x23: 0xE04F, 0x24: 0xE047,  # PgUp, PgDn, End, Home
+        0x25: 0xE04B, 0x26: 0xE048, 0x27: 0xE04D, 0x28: 0xE050,  # Left, Up, Right, Down
+        0x2C: 0xE037, 0x2D: 0xE052, 0x2E: 0xE053,                # Print Screen, Insert, Delete
+        0x5B: 0xE05B, 0x5C: 0xE05C, 0x5D: 0xE05D,                # left/right Windows, Menu
+        0x6F: 0xE035, 0x90: 0xE045,                              # numpad '/', Num Lock
+        0xA3: 0xE01D, 0xA5: 0xE038,                              # right Ctrl, right Alt (AltGr)
+    }
+
+    def vk_scan(vk: int, hkl) -> int:
+        """Set-1 scan code of virtual key `vk` on layout `hkl` (0xE0xx: extended key)."""
+        return _EXTENDED_SCAN.get(vk) or _u32.MapVirtualKeyExW(vk, MAPVK_VK_TO_VSC_EX, hkl)
+
+    def _foreground() -> int:
+        return int(_u32.GetForegroundWindow() or 0)
+
+    def _thread_pid(hwnd: int) -> tuple[int, int]:
+        pid = wintypes.DWORD()
+        tid = _u32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        return tid, pid.value
+
+    def _class_name(hwnd: int) -> str:
+        buf = ctypes.create_unicode_buffer(256)
+        _u32.GetClassNameW(hwnd, buf, 256)
+        return buf.value
+
+    def _title(hwnd: int) -> str:
+        buf = ctypes.create_unicode_buffer(256)
+        _u32.GetWindowTextW(hwnd, buf, 256)
+        return buf.value
+
+    _exe_cache: dict[int, str] = {}
+
+    def _exe(pid: int) -> str:
+        """File name of a process' executable ('' if it can't be read)."""
+        if pid not in _exe_cache:
+            name = ""
+            h = _k32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid) if pid else None
+            if h:
+                try:
+                    size = wintypes.DWORD(1024)
+                    buf = ctypes.create_unicode_buffer(size.value)
+                    if _k32.QueryFullProcessImageNameW(h, 0, buf, ctypes.byref(size)):
+                        name = os.path.basename(buf.value)
+                finally:
+                    _k32.CloseHandle(h)
+            if len(_exe_cache) > 512:
+                _exe_cache.clear()
+            _exe_cache[pid] = name
+        return _exe_cache[pid]
+
+    def remote_desktop_window(hwnd: int | None = None) -> bool:
+        """True if `hwnd` (default: the foreground window) belongs to the RDP client."""
+        hwnd = _foreground() if hwnd is None else hwnd
+        return bool(hwnd) and is_remote_desktop(_class_name(hwnd), _exe(_thread_pid(hwnd)[1]))
+
+    def uses_scancodes() -> bool:
+        """True if keys sent now go out as scan codes (AUTOMONKEY_KEYS, remote desktop in front)."""
+        style = key_style()
+        return style == "scancode" or (style == "auto" and remote_desktop_window())
+
     def foreground_layout() -> int:
         """Keyboard layout (HKL) of the window that will receive the input."""
-        hwnd = _u32.GetForegroundWindow()
-        tid = _u32.GetWindowThreadProcessId(hwnd, None) if hwnd else 0
-        return _u32.GetKeyboardLayout(tid)
+        hwnd = _foreground()
+        return _u32.GetKeyboardLayout(_thread_pid(hwnd)[0] if hwnd else 0)
 
     def _running(exe: str) -> bool:
         snap = _k32.CreateToolhelp32Snapshot(0x2, 0)  # TH32CS_SNAPPROCESS
@@ -161,14 +272,27 @@ if sys.platform == "win32":
                 return orig
         return vk
 
-    def _key(vk: int, up: bool, hkl, remaps) -> _INPUT:
-        vk = _source_vk(vk, remaps)
-        scan = _u32.MapVirtualKeyExW(vk, MAPVK_VK_TO_VSC_EX, hkl)
-        flags = (KEYEVENTF_KEYUP if up else 0) | (KEYEVENTF_EXTENDEDKEY if scan >> 8 == 0xE0 else 0)
-        return _INPUT(type=INPUT_KEYBOARD, u=_INPUTUNION(ki=_KEYBDINPUT(wVk=vk, wScan=scan & 0xFF, dwFlags=flags)))
+    def _key_name(vk: int) -> str:
+        names = [k for k, v in _NAMED.items() if v == vk]
+        return repr(names[0]) if names else f"0x{vk:02X}"
 
-    def _chord(vks: list[int], hkl, remaps) -> list[_INPUT]:
-        return [_key(vk, False, hkl, remaps) for vk in vks] + [_key(vk, True, hkl, remaps) for vk in reversed(vks)]
+    def _key(vk: int, up: bool, hkl, remaps, scancode: bool = False) -> _INPUT:
+        """One key event. scancode=True: the scan code alone, as the RDP client needs it."""
+        if not scancode:
+            vk = _source_vk(vk, remaps)
+        scan = vk_scan(vk, hkl)
+        flags = (KEYEVENTF_KEYUP if up else 0) | (KEYEVENTF_EXTENDEDKEY if scan >> 8 == 0xE0 else 0)
+        if not scancode:
+            return _INPUT(type=INPUT_KEYBOARD, u=_INPUTUNION(ki=_KEYBDINPUT(wVk=vk, wScan=scan & 0xFF, dwFlags=flags)))
+        if not scan & 0xFF or scan >> 8 not in (0, 0xE0):
+            raise ValueError(f"key {_key_name(vk)} has no scan code, so it can't be sent to a remote desktop "
+                             "(AUTOMONKEY_KEYS=vk sends it as a virtual key)")
+        return _INPUT(type=INPUT_KEYBOARD, u=_INPUTUNION(ki=_KEYBDINPUT(
+            wVk=0, wScan=scan & 0xFF, dwFlags=flags | KEYEVENTF_SCANCODE)))
+
+    def _chord(vks: list[int], hkl, remaps, scancode: bool = False) -> list[_INPUT]:
+        return ([_key(vk, False, hkl, remaps, scancode) for vk in vks]
+                + [_key(vk, True, hkl, remaps, scancode) for vk in reversed(vks)])
 
     def _unicode(ch: str) -> list[_INPUT]:
         data = ch.encode("utf-16-le")  # characters beyond the BMP are two surrogate units
@@ -183,6 +307,46 @@ if sys.platform == "win32":
         arr = (_INPUT * len(inputs))(*inputs)
         if _u32.SendInput(len(inputs), arr, ctypes.sizeof(_INPUT)) != len(inputs):
             raise OSError(f"SendInput failed: {ctypes.WinError(ctypes.get_last_error())}")
+
+    class _Target:
+        """The window one call types into: its layout, how its keys must be sent, and a
+        check that it is still in front."""
+
+        def __init__(self):
+            self.hwnd = _foreground()
+            tid, self.pid = _thread_pid(self.hwnd) if self.hwnd else (0, 0)
+            self.hkl = _u32.GetKeyboardLayout(tid)
+            style = key_style()
+            self.scancode = style == "scancode" or (style == "auto" and remote_desktop_window(self.hwnd))
+            self.remaps = {} if self.scancode else _remaps()
+
+        def chord(self, vks: list[int]) -> list[_INPUT]:
+            return _chord(vks, self.hkl, self.remaps, self.scancode)
+
+        def keys(self, vks: list[int], up: bool) -> list[_INPUT]:
+            return [_key(vk, up, self.hkl, self.remaps, self.scancode) for vk in vks]
+
+        def check(self):
+            """Raise FocusChanged if another program has taken the foreground since the
+            call started (its own dialogs are fine)."""
+            if not self.pid:  # nothing was in front at the start: nothing to compare with
+                return
+            fg = _foreground()
+            deadline = time.monotonic() + 0.5
+            while not fg and time.monotonic() < deadline:  # between two windows
+                time.sleep(0.02)
+                fg = _foreground()
+            if fg == self.hwnd or (fg and _thread_pid(fg)[1] == self.pid):
+                return
+            now = f"{_title(fg)!r} ({_exe(_thread_pid(fg)[1]) or 'unknown program'})" if fg else "no window"
+            raise FocusChanged(f"keyboard input stopped: the active window changed from {_title(self.hwnd)!r} "
+                               f"to {now} while keys were being sent (a click elsewhere?); the remaining "
+                               "keys were not sent")
+
+        def send(self, inputs: list[_INPUT], check: bool = True):
+            if check:
+                self.check()
+            _send(inputs)
 
     def char_keys(ch: str, hkl) -> list[int] | None:
         """[modifier VKs..., VK] that type `ch` on layout `hkl`, or None if the layout
@@ -221,29 +385,27 @@ if sys.platform == "win32":
 
     def write(text: str, interval: float = 0.01, mode: str | None = None):
         """Type `text` exactly, whatever the keyboard layout or key remaps."""
-        hkl = foreground_layout()
-        remaps = _remaps()
+        t = _Target()
         as_keys = _mode(mode) == "keys"
         for ch in text.replace("\r\n", "\n").replace("\r", "\n"):
             pyautogui.failSafeCheck()
-            vks = [_NAMED[_TEXT_KEYS[ch]]] if ch in _TEXT_KEYS else char_keys(ch, hkl) if as_keys else None
-            _send(_chord(vks, hkl, remaps) if vks else _unicode(ch))
+            vks = [_NAMED[_TEXT_KEYS[ch]]] if ch in _TEXT_KEYS else char_keys(ch, t.hkl) if as_keys else None
+            t.send(t.chord(vks) if vks else _unicode(ch))
             time.sleep(interval)
         time.sleep(pyautogui.PAUSE)
 
     def press(keys, presses: int = 1, interval: float = 0.0):
         """Press and release each key in turn: a named key ('enter', 'f5') or a character."""
-        hkl = foreground_layout()
-        remaps = _remaps()
+        t = _Target()
         for _ in range(presses):
             for key in [keys] if isinstance(keys, str) else keys:
                 pyautogui.failSafeCheck()
                 key = _name(key)
                 if key in _NAMED:
-                    _send(_chord([_NAMED[key]], hkl, remaps))
+                    t.send(t.chord([_NAMED[key]]))
                 elif len(key) == 1:
-                    vks = char_keys(key, hkl)
-                    _send(_chord(vks, hkl, remaps) if vks else _unicode(key))
+                    vks = char_keys(key, t.hkl)
+                    t.send(t.chord(vks) if vks else _unicode(key))
                 else:
                     raise ValueError(f"unknown key {key!r}")
                 time.sleep(interval)
@@ -252,18 +414,36 @@ if sys.platform == "win32":
     def hotkey(*keys, interval: float = 0.0):
         """Hold the keys down in order, then release them in reverse: hotkey('ctrl', 'z')."""
         pyautogui.failSafeCheck()
-        hkl = foreground_layout()
-        remaps = _remaps()
-        vks = _shortcut_vks([_name(k) for k in _flatten(keys)], hkl)
+        t = _Target()
+        events = t.chord(_shortcut_vks([_name(k) for k in _flatten(keys)], t.hkl))
+        t.check()
         if interval:
-            for inp in _chord(vks, hkl, remaps):
+            for inp in events:  # no focus check in between: a half-sent chord would leave keys held
                 _send([inp])
                 time.sleep(interval)
         else:
-            _send(_chord(vks, hkl, remaps))
+            _send(events)
         time.sleep(pyautogui.PAUSE)
 
+    def key_down(key: str):
+        """Hold a key down until key_up (keydown ctrl; click ...; keyup ctrl). A character
+        holds the keys that type it, shift included."""
+        pyautogui.failSafeCheck()
+        t = _Target()
+        t.send(t.keys(_shortcut_vks([_name(key)], t.hkl), up=False))
+
+    def key_up(key: str):
+        """Release a key held with key_down; sent whichever window is in front now."""
+        t = _Target()
+        t.send(t.keys(list(reversed(_shortcut_vks([_name(key)], t.hkl))), up=True), check=False)
+
 else:
+    def remote_desktop_window(hwnd: int | None = None) -> bool:
+        return False
+
+    def uses_scancodes() -> bool:
+        return False
+
     def write(text: str, interval: float = 0.01, mode: str | None = None):
         """Type `text`; pyautogui can't type non-ASCII (e.g. ă, ș), so that is pasted."""
         if shutil.which("xdotool") and os.environ.get("DISPLAY"):
@@ -282,3 +462,9 @@ else:
 
     def hotkey(*keys, interval: float = 0.0):
         pyautogui.hotkey(*[_name(k) for k in _flatten(keys)], interval=interval)
+
+    def key_down(key: str):
+        pyautogui.keyDown(_name(key), _pause=False)
+
+    def key_up(key: str):
+        pyautogui.keyUp(_name(key), _pause=False)

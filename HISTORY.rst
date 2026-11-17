@@ -2,6 +2,29 @@
 History
 =======
 
+Unreleased
+----------
+
+* Keys reach remote desktops (Windows). With the RDP client (mstsc, msrdc) in front,
+  ``key``, ``hotkey``, ``keydown`` and ``keyup`` (and ``press``/``hotkey``/``key_down``/
+  ``key_up`` in ``key_funcs``) send scan codes only and leave PowerToys remaps alone; text
+  stays Unicode. ``AUTOMONKEY_KEYS=auto|scancode|vk`` (default ``auto``). Measured over RDP
+  (17.11.2026): Left/Home/End/PgUp/PgDn/Ins/Del lacked the extended flag (MapVirtualKeyEx
+  leaves it off) and arrived as numpad keys, and the PowerToys y<->z correction swapped y and
+  z remotely. The extended flag is now set for every extended key, locally too.
+* ``keydown``/``keyup`` go through ``key_funcs`` instead of pyautogui (virtual key without
+  scan code); new ``key_funcs.key_down``/``key_up``.
+* A keyboard call stops with ``FocusChanged`` when another program takes the foreground
+  while it types.
+* ``focus`` no longer falls back to an Alt tap while a remote desktop is in front (the RDP
+  client would forward it and the remote menu bar would take the next keys).
+* Screenshots copy only the monitor or region they need (GDI), not the whole desktop
+  (Pillow ``all_screens``): 1920x1080 in 33 ms instead of 88 ms on three monitors, so
+  ``stable``/``change``/``expect_change`` poll faster.
+* ``scrollup``/``scrolldown``/``scrollleft``/``scrollright`` (chain API) scroll whole wheel
+  notches on Windows (pyautogui took the number as the raw wheel delta, 1/120 of a notch),
+  and the horizontal ones scroll horizontally there.
+
 0.4.5 (2026-10-18)
 ------------------
 

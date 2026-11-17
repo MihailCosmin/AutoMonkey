@@ -17,6 +17,7 @@ from PIL import Image
 from . import ocr, screen, windows
 from . import script as _script
 from .script import run, split_script
+from ..key_funcs import uses_scancodes
 
 SESSION_DIR = os.environ.get("AUTOMONKEY_SESSION_DIR",
                              os.path.join(os.path.expanduser("~"), ".cache", "automonkey", "sessions"))
@@ -29,6 +30,11 @@ def _context() -> str:
         active = f"active window: {w['title']!r}"
     except Exception:
         active = "active window: unknown"
+    try:
+        if uses_scancodes():
+            active += "; keys go as scan codes (remote desktop)"
+    except ValueError as e:  # a bad AUTOMONKEY_KEYS value
+        active += f"; {e}"
     return f"{v.describe()}; {active}"
 
 

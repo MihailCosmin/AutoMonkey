@@ -567,6 +567,16 @@ Linux X11 needs `xdotool`, `wmctrl` and, for AT-SPI control boxes, the packages 
 - Focus that is verified, with a clear message for elevated windows.
 - Text checks limited to the active window, retried for 3 s.
 - `launch` refuses to continue in an already-open window that may hold the user's documents.
+- Keys reach remote desktops. The RDP client (mstsc) forwards scan codes, so when its window
+  is in front `key`, `hotkey`, `keydown` and `keyup` are sent as scan codes only (arrows as
+  extended keys, letters on the window's keyboard layout, no PowerToys remap undone) and
+  `type` as Unicode, which arrives unchanged whatever the remote layout. Before, Left arrived
+  as numpad 4 (a '4' with Num Lock on) and PowerToys' y<->z correction swapped y and z there.
+  `AUTOMONKEY_KEYS=scancode` does the same for other remote viewers and VMs, `=vk` never.
+- Typing stops when another program takes the foreground in the middle of a step (the user
+  clicked elsewhere): the rest is not typed into that window.
+- Screenshots copy only the monitor (or region) they need: Pillow's `all_screens` grab copied
+  the whole desktop each time (88 ms for a 1920x1080 monitor on three screens, now 33 ms).
 
 ## Self-test apps
 

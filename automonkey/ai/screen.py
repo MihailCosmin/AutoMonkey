@@ -70,17 +70,74 @@ def monitor_rect() -> tuple[int, int, int, int]:
     return mons[_monitor] if _monitor < len(mons) else mons[0]
 
 
+if sys.platform == "win32":
+    import ctypes
+    from ctypes import wintypes
+
+    class _BITMAPINFOHEADER(ctypes.Structure):
+        _fields_ = [("biSize", wintypes.DWORD), ("biWidth", wintypes.LONG), ("biHeight", wintypes.LONG),
+                    ("biPlanes", wintypes.WORD), ("biBitCount", wintypes.WORD), ("biCompression", wintypes.DWORD),
+                    ("biSizeImage", wintypes.DWORD), ("biXPelsPerMeter", wintypes.LONG),
+                    ("biYPelsPerMeter", wintypes.LONG), ("biClrUsed", wintypes.DWORD),
+                    ("biClrImportant", wintypes.DWORD)]
+
+    _u32 = ctypes.WinDLL("user32", use_last_error=True)
+    _gdi = ctypes.WinDLL("gdi32", use_last_error=True)
+    _u32.GetDC.argtypes = (wintypes.HWND,)
+    _u32.GetDC.restype = wintypes.HDC
+    _u32.ReleaseDC.argtypes = (wintypes.HWND, wintypes.HDC)
+    _gdi.CreateCompatibleDC.argtypes = (wintypes.HDC,)
+    _gdi.CreateCompatibleDC.restype = wintypes.HDC
+    _gdi.CreateCompatibleBitmap.argtypes = (wintypes.HDC, ctypes.c_int, ctypes.c_int)
+    _gdi.CreateCompatibleBitmap.restype = wintypes.HBITMAP
+    _gdi.SelectObject.argtypes = (wintypes.HDC, wintypes.HGDIOBJ)
+    _gdi.SelectObject.restype = wintypes.HGDIOBJ
+    _gdi.BitBlt.argtypes = (wintypes.HDC, ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                            wintypes.HDC, ctypes.c_int, ctypes.c_int, wintypes.DWORD)
+    _gdi.GetDIBits.argtypes = (wintypes.HDC, wintypes.HBITMAP, wintypes.UINT, wintypes.UINT, ctypes.c_void_p,
+                               ctypes.c_void_p, wintypes.UINT)
+    _gdi.DeleteObject.argtypes = (wintypes.HGDIOBJ,)
+    _gdi.DeleteDC.argtypes = (wintypes.HDC,)
+    SRCCOPY = 0x00CC0020
+
+    def gdi_grab(x: int, y: int, w: int, h: int) -> Image.Image:
+        """RGB picture of one rectangle of the virtual desktop (physical pixels, any monitor),
+        copied with GDI. Pillow's ImageGrab with all_screens=True copies the WHOLE desktop
+        (every monitor) on each call and crops it afterwards, which made screenshots and the
+        polling of `stable`/`change`/`expect_change` several times slower on multi-monitor
+        setups. Same pixels: SRCCOPY without CAPTUREBLT, as Pillow does by default."""
+        if w <= 0 or h <= 0:
+            raise ValueError(f"empty rectangle {w}x{h}")
+        sdc = _u32.GetDC(None)
+        if not sdc:
+            raise OSError("screen capture failed: no screen device context")
+        mdc = _gdi.CreateCompatibleDC(sdc)
+        bmp = _gdi.CreateCompatibleBitmap(sdc, w, h)
+        old = _gdi.SelectObject(mdc, bmp)
+        try:
+            if not _gdi.BitBlt(mdc, 0, 0, w, h, sdc, x, y, SRCCOPY):
+                raise OSError(f"screen capture failed (error {ctypes.get_last_error()}): is the desktop locked?")
+            info = _BITMAPINFOHEADER(ctypes.sizeof(_BITMAPINFOHEADER), w, -h, 1, 32, 0, 0, 0, 0, 0, 0)  # top-down
+            buf = ctypes.create_string_buffer(w * h * 4)
+            if _gdi.GetDIBits(mdc, bmp, 0, h, buf, ctypes.byref(info), 0) != h:
+                raise OSError("screen capture failed: GetDIBits")
+        finally:
+            _gdi.SelectObject(mdc, old)
+            _gdi.DeleteObject(bmp)
+            _gdi.DeleteDC(mdc)
+            _u32.ReleaseDC(None, sdc)
+        return Image.frombuffer("RGB", (w, h), buf, "raw", "BGRX", 0, 1)
+
+
 def grab() -> Image.Image:
     """Full-resolution RGB screenshot of the current monitor. Uses grim on Wayland,
-    PIL (every monitor reachable) on Windows, pyautogui elsewhere."""
+    a GDI copy of just that monitor on Windows, pyautogui elsewhere."""
     if session_type() == "wayland" and shutil.which("grim"):
         # Capturing full size and resizing in PIL is ~3x faster than `grim -s`.
         out = subprocess.run(["grim", "-t", "ppm", "-"], capture_output=True, check=True).stdout
         return Image.open(io.BytesIO(out)).convert("RGB")
     if sys.platform == "win32":
-        from PIL import ImageGrab
-        x, y, w, h = monitor_rect()
-        return ImageGrab.grab(bbox=(x, y, x + w, y + h), all_screens=True).convert("RGB")
+        return gdi_grab(*monitor_rect())
     return pyautogui.screenshot().convert("RGB")
 
 

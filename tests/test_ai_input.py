@@ -75,10 +75,8 @@ def calls(monkeypatch):
 
     for name in ("click", "drag", "move_to", "scroll", "press", "release", "release_all"):
         monkeypatch.setattr(script.inject, name, recorder("inject." + name))
-    for name in ("write", "press", "hotkey"):
+    for name in ("write", "press", "hotkey", "key_down", "key_up"):
         monkeypatch.setattr(script, name, recorder(name))
-    monkeypatch.setattr(script.pyautogui, "keyDown", recorder("keyDown"))
-    monkeypatch.setattr(script.pyautogui, "keyUp", recorder("keyUp"))
     return recorded
 
 
@@ -147,10 +145,12 @@ def test_run_scroll(calls):
 
 
 def test_run_keydown_keyup(calls):
+    # key_funcs (not pyautogui, whose virtual-key-only events lack the scan code a
+    # remote desktop forwards) holds and releases the key
     log, ok = script.run("keydown ctrl; click 1 1; keyup ctrl")
     assert ok is True
-    downs = _named(calls, "keyDown")
-    ups = _named(calls, "keyUp")
+    downs = _named(calls, "key_down")
+    ups = _named(calls, "key_up")
     assert downs and downs[0][1][0] == "ctrl"
     assert ups and ups[0][1][0] == "ctrl"
     assert calls.index(downs[0]) < calls.index(ups[0])
@@ -159,7 +159,7 @@ def test_run_keydown_keyup(calls):
 def test_run_cleanup_releases_keys_and_buttons(calls):
     log, ok = script.run("keydown shift; jump 1 2")
     assert ok is False
-    ups = _named(calls, "keyUp")
+    ups = _named(calls, "key_up")
     assert any(c[1][0] == "shift" for c in ups)
     assert len(_named(calls, "inject.release_all")) == 1
 
@@ -224,6 +224,29 @@ def test_run_save(calls, tmp_path):
     assert ok is True
     assert path.exists()
     assert any("saved" in line for line in log)
+
+
+def test_run_focus_change_stops_the_script(calls, monkeypatch):
+    from automonkey.key_funcs import FocusChanged
+
+    def stolen(text):
+        raise FocusChanged("keyboard input stopped: the active window changed")
+
+    monkeypatch.setattr(script, "write", stolen)
+    log, ok = script.run("type hello; click 1 1")
+    assert ok is False
+    assert any("keyboard input stopped" in line for line in log)
+    assert not _named(calls, "inject.click")  # nothing after the failed step
+
+
+def test_context_names_scan_code_keys(monkeypatch):
+    view = screen.View((100, 100), max_side=100, origin=(0, 0), input_size=(100, 100))
+    monkeypatch.setattr(ai.screen, "view", lambda: view)
+    monkeypatch.setattr(ai.windows, "active_window", lambda: {"title": "10.3.1.138 - Remote Desktop Connection"})
+    monkeypatch.setattr(ai, "uses_scancodes", lambda: True)
+    assert "keys go as scan codes (remote desktop)" in ai._context()
+    monkeypatch.setattr(ai, "uses_scancodes", lambda: False)
+    assert "scan codes" not in ai._context()
 
 
 # --- ai.history and ai.replay -----------------------------------------------

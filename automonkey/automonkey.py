@@ -20,8 +20,6 @@ from pyautogui import mouseUp  # It is used
 from pyautogui import confirm
 from pyautogui import mouseDown  # It is used
 from pyautogui import locateOnScreen
-from pyautogui import scroll as scrollup  # It is used
-from pyautogui import hscroll as scrollright  # It is used
 from pyautogui import leftClick as leftclick  # It is used
 from pyautogui import rightClick as rightclick  # It is used
 from pyautogui import middleClick as middleclick  # It is used
@@ -64,6 +62,8 @@ from .mouse_funcs import movedown
 from .mouse_funcs import moveleft
 from .mouse_funcs import moveright
 from .mouse_funcs import moveup
+from .mouse_funcs import scrollup  # wheel notches, also on Windows
+from .mouse_funcs import scrollright
 
 from .img_funcs import _add_ext
 from .img_funcs import is_on_screen
@@ -269,8 +269,9 @@ def chain(*steps: dict, debug=False):
         debug (bool, optional): Debug variable, if True will print each step. Defaults to False.
 
         Notes:
-        1. To use the scroll functions you have to select the scrollable area first
-        2. Horizontal scroll (left, right) is not supported on Windows
+        1. To use the scroll functions you have to select the scrollable area first.
+           The target is the number of wheel notches: dict(scrolldown=3)
+        2. Horizontal scroll (left, right) needs an app that handles the horizontal wheel
         3. write, keys and keys2 work with any keyboard layout and PowerToys key remaps on Windows,
            and write types any character there (German, Chinese, ...). keys3/keys4 are not layout aware.
         4. startfile keeps the file opened only until the end of the chain.

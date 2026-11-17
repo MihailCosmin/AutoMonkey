@@ -9,8 +9,8 @@ from pyautogui import click
 from pyautogui import moveTo
 from pyautogui import mouseUp
 from pyautogui import mouseDown
-from pyautogui import scroll as scrollup
-from pyautogui import hscroll as scrollright
+from .mouse_funcs import scrollup  # wheel notches, also on Windows
+from .mouse_funcs import scrollright
 from .key_funcs import hotkey as keys2  # keyboard-layout aware
 
 from .img_funcs import is_on_screen

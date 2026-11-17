@@ -14,6 +14,9 @@ Mouse (real input events: hover, drags and strokes reach every app):
 Keyboard:
     type TEXT...      key K [K...]      hotkey ctrl+shift+t
     keydown K         keyup K           (hold a key, e.g. keydown ctrl; click ...; keyup ctrl)
+Into a remote desktop window (mstsc) keys go as scan codes and text as Unicode, so they
+reach the remote session whatever its keyboard layout. A keyboard step stops when another
+program takes the foreground while it types (the rest is not sent anywhere).
 Waiting:
     wait SECONDS      stable [TIMEOUT]  change [TIMEOUT]
 Windows and apps:
@@ -61,7 +64,7 @@ import time
 import pyautogui
 
 from . import capture, inject, ocr, screen, texttree, windows
-from ..key_funcs import hotkey, press, write
+from ..key_funcs import hotkey, key_down, key_up, press, write
 
 pyautogui.PAUSE = 0.03  # default 0.1s per call adds up quickly
 
@@ -326,11 +329,11 @@ def _run_step(line: str) -> str:
         hotkey(*_keys(rest))
     elif cmd == "keydown":
         for k in _keys(rest):
-            pyautogui.keyDown(k, _pause=False)
+            key_down(k)
             _state.keys_held.append(k)
     elif cmd == "keyup":
         for k in _keys(rest):
-            pyautogui.keyUp(k, _pause=False)
+            key_up(k)
             if k in _state.keys_held:
                 _state.keys_held.remove(k)
     elif cmd == "wait":
@@ -531,7 +534,7 @@ def _cleanup():
     inject.release_all()
     for k in reversed(_state.keys_held):
         try:
-            pyautogui.keyUp(k, _pause=False)
+            key_up(k)
         except Exception:
             pass
     _state.keys_held.clear()

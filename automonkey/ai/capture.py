@@ -48,8 +48,7 @@ def grab_rect(x: int, y: int, w: int, h: int) -> Image.Image:
                              capture_output=True, check=True).stdout
         return Image.open(io.BytesIO(out)).convert("RGB")
     if sys.platform == "win32":
-        from PIL import ImageGrab
-        return ImageGrab.grab(bbox=(x, y, x + w, y + h), all_screens=True).convert("RGB")
+        return screen.gdi_grab(x, y, w, h)
     return pyautogui.screenshot(region=(x, y, w, h)).convert("RGB")
 
 
