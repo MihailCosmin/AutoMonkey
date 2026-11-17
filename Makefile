@@ -77,11 +77,10 @@ docs: ## generate Sphinx HTML documentation, including API docs
 servedocs: docs ## compile the docs watching for changes
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
 
-# CI publishes to PyPI for you: every push to main that passes the test matrix builds and
-# uploads via .github/workflows/python-package.yml (job "publish", trusted publishing - no
-# token). These targets are only for releasing by hand from your machine, which still needs
-# a PyPI API token, because trusted publishing only works from GitHub Actions.
-release: dist ## package and upload a release (manual fallback; CI normally does this)
+# Releases are built and uploaded from this machine (no GitHub Actions since 17.11.2026):
+# `python publish_pypi.py` checks PyPI, builds, uploads with a PyPI API token and bumps the
+# version. These targets do the build and the bare upload.
+release: dist ## package and upload a release (python publish_pypi.py does the whole release)
 	twine upload dist/*
 
 dist: clean ## builds source and wheel package

@@ -10,9 +10,8 @@ name = "AutoMonkey"
 # SINGLE SOURCE OF TRUTH for the version - nothing else in the repo hardcodes it
 # (`automonkey.__version__` reads it back from the installed metadata).
 #
-# It is bumped automatically by the "publish" job in
-# .github/workflows/python-package.yml, right after a successful upload to PyPI, so the
-# tree always holds the *next* version to be released. Bump it by hand with
+# `python publish_pypi.py` uploads this version to PyPI and then bumps it, so the tree
+# always holds the *next* version to be released. Bump it by hand with
 # `python bump_version.py` (patch) / `python bump_version.py --part minor` / `--set 1.0.0`.
 version = "0.4.7"
 description = "Python Automation using Mouse and Keyboard, for the masses"

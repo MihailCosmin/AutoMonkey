@@ -582,13 +582,13 @@
     {
       "id": "AutoMonkey-N62",
       "section": "rework",
-      "status": "todo",
+      "status": "done",
       "group": "",
       "model": "sonnet",
       "effort": "low",
       "short": "Remove the GitHub Actions build/PyPI-publish workflow: CI is local only (user decision 15.11.2026)",
-      "details": "AutoMonkey still has .github/workflows/python-package.yml: every push to main runs a build matrix on GitHub (the runs after 15.11.2026 failed, e.g. the pushes of AutoMonkey-N60/N61 and RAM_Commander_Automations-N3) and, when green, publishes to PyPI and bumps the version. The user decided on 15.11.2026 that CI is local only (no GitHub Actions jobs, releases built and published locally). Remove the workflow, keep the local checks (pytest of the changed test files; flake8 --select=E9,F63,F7,F82 as the error gate) and publish releases locally with publish_pypi.py / bump_version.py. Decide with the user whether the gh-pages 'pages build and deployment' stays. Found while pushing RAM_Commander_Automations-N3 (17.11.2026).",
-      "done": null
+      "details": "AutoMonkey still has .github/workflows/python-package.yml: every push to main runs a build matrix on GitHub (the runs after 15.11.2026 failed, e.g. the pushes of AutoMonkey-N60/N61 and RAM_Commander_Automations-N3) and, when green, publishes to PyPI and bumps the version. The user decided on 15.11.2026 that CI is local only (no GitHub Actions jobs, releases built and published locally). Remove the workflow, keep the local checks (pytest of the changed test files; flake8 --select=E9,F63,F7,F82 as the error gate) and publish releases locally with publish_pypi.py / bump_version.py. Decide with the user whether the gh-pages 'pages build and deployment' stays. Found while pushing RAM_Commander_Automations-N3 (17.11.2026). Done 17.11.2026: .github/workflows/python-package.yml removed (no more build matrix or PyPI publish on GitHub); build badge dropped from README.md. publish_pypi.py now does the old publish job locally: refuses a dirty tree, stops if the version is already on PyPI, clean python -m build, twine check, twine upload (PyPI API token), bump_version.py; --dry-run builds and checks only. CONTRIBUTING.rst (local checks: flake8 --select=E9,F63,F7,F82, pytest of the changed tests, Xvfb command for the AT-SPI integration tests; release steps), Makefile, pyproject.toml and bump_version.py comments, docs/linux_atspi.md and HISTORY.rst updated. Verified: publish_pypi.py --dry-run built automonkey-0.4.7 sdist and wheel, twine check PASSED, nothing uploaded; a real run on the dirty tree stopped at the check; flake8 error gate 0; 50 tests passed. Decided: gh-pages stays (it hosts the betting dashboard and pi-temp.html, updated daily; its pages-build-deployment runs are GitHub Pages, not CI), and Actions stay enabled in the repo settings so Pages keeps deploying.",
+      "done": "2026-11-17T15:33:10"
     }
   ]
 }

@@ -24,6 +24,9 @@ Unreleased
 * ``scrollup``/``scrolldown``/``scrollleft``/``scrollright`` (chain API) scroll whole wheel
   notches on Windows (pyautogui took the number as the raw wheel delta, 1/120 of a notch),
   and the horizontal ones scroll horizontally there.
+* No GitHub Actions any more: the build/publish workflow is removed, the checks run
+  locally (CONTRIBUTING.rst) and ``publish_pypi.py`` makes a release from the maintainer's
+  machine (PyPI version check, build, ``twine check``, upload, version bump; ``--dry-run``).
 
 0.4.5 (2026-10-18)
 ------------------

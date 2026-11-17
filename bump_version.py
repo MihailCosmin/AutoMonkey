@@ -5,11 +5,10 @@
     python bump_version.py --part minor # 0.4.1 -> 0.5.0
     python bump_version.py --set 1.0.0  # set it explicitly
 
-The "publish" job in .github/workflows/python-package.yml runs this after every
-successful upload to PyPI, so the tree always holds the next version to be released
-(pushing to main publishes whatever version pyproject.toml currently holds). No other
-file needs to be edited - automonkey.__version__ and the built artifacts both read this
-value.
+publish_pypi.py runs this after every successful upload to PyPI, so the tree always
+holds the next version to be released (a release publishes whatever version
+pyproject.toml currently holds). No other file needs to be edited -
+automonkey.__version__ and the built artifacts both read this value.
 """
 from __future__ import annotations
 

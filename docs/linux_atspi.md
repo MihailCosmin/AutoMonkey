@@ -133,7 +133,8 @@ Verified (2026-10-13, this box): all 31 new unit tests pass; full suite went fro
 **1 failed, 16 passed, 1 skipped** (start of this phase) to **38 passed, 13 skipped, 0
 failed**. Confirmed the integration tests correctly skip by default and also correctly
 skip (not error) with `AUTOMONKEY_ATSPI_INTEGRATION=1` set but the target apps absent.
-`.github/workflows/python-package.yml` parses as valid YAML with the expected step order.
+`.github/workflows/python-package.yml` parses as valid YAML with the expected step order
+(the workflow was removed on 17.11.2026: CI is local only, see CONTRIBUTING.rst).
 
 ## 7. Packaging and docs
 
@@ -180,7 +181,8 @@ because they exercised three more real, previously-undiscovered issues:
   forced through Xwayland (`GDK_BACKEND=x11`) worked immediately, `_grab_focus` fallback
   included. Not a new finding, but a third independent confirmation of the same root
   cause (pyautogui/XTest can only reach Xwayland clients) - the integration test passes
-  as written because CI runs it under `xvfb` (a real X11 server, not Wayland at all), so
+  as written under `xvfb` (a real X11 server, not Wayland at all; the GitHub CI of that
+  time ran it so, now `xvfb-run -a dbus-run-session -- pytest ...` by hand), so
   this distinction doesn't apply there; it only shows up when running these tests by hand
   on a native-Wayland desktop like this one.
 - Minor test-hygiene fix alongside these: `_stop()`'s plain `kill` occasionally wasn't
@@ -188,7 +190,7 @@ because they exercised three more real, previously-undiscovered issues:
   SIGKILL fallback after a short wait.
 
 Verified (2026-10-13, this box, real `gnome-calculator`/`gnome-text-editor`): both
-integration tests pass (`GDK_BACKEND=x11`, matching what CI's `xvfb` provides
+integration tests pass (`GDK_BACKEND=x11`, matching what an `xvfb` run provides
 automatically); full suite still 38 passed, 13 skipped, 0 failed; no leftover GUI
 processes after a run.
 

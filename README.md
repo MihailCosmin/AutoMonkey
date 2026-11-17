@@ -1,7 +1,6 @@
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=5Q6TUMXS2QJW4)
 [![](https://snyk.io/test/github/MihailCosmin/AutoMonkey/badge.svg)](https://snyk.io/test/github/MihailCosmin/AutoMonkey)
 [![visitors](https://visitor-badge.laobi.icu/badge?page_id=MihailCosmin.AutoMonkey)](https://github.com/MihailCosmin/AutoMonkey)
-[![build](https://github.com/MihailCosmin/AutoMonkey/actions/workflows/python-package.yml/badge.svg)](https://github.com/MihailCosmin/AutoMonkey/actions/workflows/python-package.yml)
 
 # AutoMonkey
 <img alt="AutoMonkey" src="https://github.com/MihailCosmin/AutoMonkey/raw/06181954fa23605583d61843226f5f3997157435/img/monkey.ico" width="100px" height="100px"/>
