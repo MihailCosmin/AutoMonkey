@@ -211,9 +211,17 @@ def _is_showing(Atspi, acc) -> bool:
         return False
 
 
+# Window managers that publish the title bars they draw as AT-SPI applications. Their
+# "frame" windows carry the same title as the app's window but hold only Minimize /
+# Maximize / Close, so get_window / list_controls must not return them (forceXML-N1559:
+# list_controls "Quickstart" showed only the GNOME title bar, not the Qt dialog).
+_WM_FRAME_APPS = frozenset({"mutter-x11-frames"})
+
+
 def _iter_top_level_windows():
     """Yield every top-level window (direct child of every application) across the
-    whole AT-SPI desktop - get_window searches "across all applications"."""
+    whole AT-SPI desktop - get_window searches "across all applications". Title bars
+    drawn by the window manager (_WM_FRAME_APPS) are skipped."""
     Atspi = _atspi()
     desktop = Atspi.get_desktop(0)
     for i in range(desktop.get_child_count()):
@@ -222,6 +230,8 @@ def _iter_top_level_windows():
         except Exception:  # pylint: disable=broad-except
             continue
         if app is None:
+            continue
+        if _safe_name(app) in _WM_FRAME_APPS:
             continue
         try:
             n = app.get_child_count()

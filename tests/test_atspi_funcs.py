@@ -372,3 +372,22 @@ def test_send_key_syntax_translates_pywinauto_syntax(key_calls, text, expected):
 def test_send_key_syntax_mixed_literal_and_special(key_calls):
     af._send_key_syntax("hi{TAB}there", pause=0.0)
     assert key_calls == [("write", "hi"), ("press", "tab"), ("write", "there")]
+
+
+# --- window manager title bars (forceXML-N1559) -----------------------------------
+
+def test_get_window_skips_window_manager_title_bars(fake_atspi, monkeypatch):
+    """mutter-x11-frames publishes the title bar of every window as an AT-SPI app whose frame
+    has the app window's title but only Minimize/Maximize/Close: get_window must return the
+    app's own window, also when the title bar is listed first."""
+    showing = {FakeAtspi.StateType.SHOWING}
+    title_bar = FakeAccessible(name="Quickstart", role=FakeAtspi.Role.FRAME, states=showing,
+                               children=[FakeAccessible(name="Close", role=FakeAtspi.Role.PUSH_BUTTON)])
+    dialog = FakeAccessible(name="Quickstart", role=FakeAtspi.Role.DIALOG, states=showing,
+                            children=[FakeAccessible(name="Open", role=FakeAtspi.Role.PUSH_BUTTON)])
+    wm_app = FakeAccessible(name="mutter-x11-frames", children=[title_bar])
+    qt_app = FakeAccessible(name="ForceXML", children=[dialog])
+    desktop = FakeAccessible(name="main", children=[wm_app, qt_app])
+    monkeypatch.setattr(FakeAtspi, "get_desktop", staticmethod(lambda i: desktop), raising=False)
+    monkeypatch.setattr(af, "_atspi", lambda: FakeAtspi)
+    assert af.get_window("Quickstart", timeout=0) is dialog
