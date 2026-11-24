@@ -1,3 +1,19 @@
+-------------------- 23.11.2026 15:03 start -----------------------------
+The installer test is blocked at step 1: forceSTE cannot be installed from the launcher yet, so I ran none of the checks.
+
+- **Launcher:** `forceinstaller.exe` started and I refreshed it. The forceSTE card is under Not installed and reads "COMING SOON" with "No release published yet".
+- **Install button:** its only button is `Coming soon`, which is disabled, so there is nothing to click.
+- **Release lookup:** I could not list releases for forceSTE through `gh` (repository `forceIPS/forceSTE` not found), so I could not tell whether a release exists elsewhere.
+- **Checks 2–4 (version, signatures, shortcut, registry, Apps and features, Open, Uninstall):** not run. No UAC prompt appeared and no log was produced, so there is no `forceinstaller.log` or MSI log to attach.
+- **Other cards:** forcePublisher (v0.1.0) and forceViewer (v1.0.12) show an enabled Install button, so the launcher itself works.
+
+Once a forceSTE release is published and its card shows Install, send the request again and I will run it. Do you want me to run the same test on forcePublisher or forceViewer in the meantime?
+
+I closed the launcher at the end. I also adopted the stale `claude_answers.md` reply log into AutoMonkey and pushed it (ae7384e).
+
+No background process, next task can be sent
+-------------------- 23.11.2026 15:03 end -------------------------------
+
 -------------------- 15.11.2026 17:44 start -----------------------------
 Replaying forceXML's `smoke_open_dm.amk` on Windows works only with a Windows variant of the script. That variant passes all 19 steps. The repo's own script fails before it reaches the app, and its cleanup step killed a Windows Terminal process (I don't know which). I did not replay it on the Linux machine (cosmin-314); I couldn't reach it from here.
 
